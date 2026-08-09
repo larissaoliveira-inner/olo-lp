@@ -986,7 +986,7 @@ header[id], section[id] { scroll-margin-top: var(--nav-h); }
    -------------------------------------------------------------------------- */
 
 .section--thesis {
-  padding: 128px 0 136px;
+  padding: 128px 0;
   background:
     radial-gradient(64% 78% at 6% 0%, #111112, transparent 62%),
     radial-gradient(52% 62% at 96% 96%, rgba(0, 0, 0, 0.665), transparent 64%),
@@ -1002,23 +1002,33 @@ header[id], section[id] { scroll-margin-top: var(--nav-h); }
 
 .thesis {
   display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
-  column-gap: 76px;
+  grid-template-columns: minmax(0, 1.04fr) minmax(0, 1fr);
+  column-gap: 56px;
   align-items: start;
 }
 
-.thesis .eyebrow { grid-column: 1 / -1; margin-bottom: 52px; }
+/* `.eyebrow` is centred page-wide; here it has to hang off the same left edge
+   as the headline, or it belongs to neither column. */
+.thesis .eyebrow {
+  grid-column: 1 / -1;
+  text-align: left;
+  margin-bottom: 48px;
+}
 
+/* No max-width: the headline fills its column. Capping it left a trough down
+   the middle that read as a gap between the claim and its proof. */
 .thesis-h {
-  font: 400 clamp(29px, 3.5vw, 47px)/1.14 var(--sans);
+  font: 400 clamp(30px, 4vw, 56px)/1.12 var(--sans);
   letter-spacing: -.032em;
   color: var(--ink);
   margin: 0;
-  max-width: 15ch;
   text-wrap: pretty;
 }
 
-.thesis-body { padding-top: 8px; }
+/* Both columns start on the same grid line, but the two line boxes have
+   different half-leading, so the caps don't land together. Measured at 5px —
+   this trims the body down onto the headline's cap line. */
+.thesis-body { padding-top: 5px; }
 
 .thesis-p {
   font: 400 19px/1.68 var(--sans);
