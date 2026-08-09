@@ -28,8 +28,7 @@
 
 /* The demos are mid-animation markup. With no JS to run them, show the state
    that matters — fully redacted — so no real value is ever on screen. */
-.seg--flag .seg-t,
-.seg-bar { display: none !important; }
+.seg--flag .seg-t { display: none !important; }
 .seg--flag .seg-tok { display: inline-block !important; }
 .term-line { opacity: 1 !important; }
 </style>
@@ -77,48 +76,53 @@
 
 <div data-reveal="up">
 
-<!-- Browser surface. Every `.seg-t` holds its real text in the markup so the
-     page still reads with JS off; script.js truncates it to a character count,
-     wipes the bar across, then swaps in the token and clears the real value. -->
-<div class="mock" data-demo="browser" role="group" aria-label="Demo: a prompt typed into an AI assistant, with sensitive values rewritten on the device before the request is sent">
-<div class="mock-tabs" role="tablist" aria-label="Assistant">
-<span class="mock-dots" aria-hidden="true"><i></i><i></i><i></i></span>
-<button class="mock-tab is-on" type="button" role="tab" id="tab-claude" aria-controls="panel-claude" aria-selected="true">claude</button>
-<button class="mock-tab" type="button" role="tab" id="tab-chatgpt" aria-controls="panel-chatgpt" aria-selected="false" tabindex="-1">chatgpt</button>
-<button class="mock-tab" type="button" role="tab" id="tab-gemini" aria-controls="panel-gemini" aria-selected="false" tabindex="-1">gemini</button>
+<!-- Browser surface. Real app chrome on purpose: these read as screenshots of
+     the tools people already use, not as page furniture. Every `.seg-t` holds
+     its real text in the markup so the page still reads with JS off; script.js
+     truncates it, underlines the detected span, then swaps in the token and
+     deletes the real value. -->
+<div class="mock mock--brw" data-demo="browser" role="group" aria-label="Demo: a prompt typed into an AI assistant, with sensitive values rewritten on the device before the request is sent">
+<div class="brw-tabs" role="tablist" aria-label="Assistant">
+<span class="win-dots" aria-hidden="true"><i class="d-r"></i><i class="d-y"></i><i class="d-g"></i></span>
+<button class="brw-tab is-on" type="button" role="tab" id="tab-claude" aria-controls="panel-claude" aria-selected="true"><img class="brand-ico" src="https://cdn.simpleicons.org/claude" alt="" width="13" height="13" loading="lazy">Claude</button>
+<button class="brw-tab" type="button" role="tab" id="tab-chatgpt" aria-controls="panel-chatgpt" aria-selected="false" tabindex="-1">ChatGPT</button>
+<button class="brw-tab" type="button" role="tab" id="tab-gemini" aria-controls="panel-gemini" aria-selected="false" tabindex="-1"><img class="brand-ico" src="https://cdn.simpleicons.org/googlegemini" alt="" width="13" height="13" loading="lazy">Gemini</button>
 </div>
 
 <div class="mock-panel" role="tabpanel" id="panel-claude" aria-labelledby="tab-claude">
-<div class="mock-url">claude.ai/new</div>
-<div class="mock-body">
-<p class="mock-greet">What can I help with?</p>
-<div class="mock-input">
-<div class="typer" data-typer data-done="clean · 3 spans rewritten on device"><span class="seg"><span class="seg-t">"Following up on the </span></span><span class="seg seg--flag"><span class="seg-t">Meridian Health</span><span class="seg-bar" aria-hidden="true"></span><span class="seg-tok">[ORG]</span></span><span class="seg"><span class="seg-t"> contract for patient Jane Doe, </span></span><span class="seg seg--flag"><span class="seg-t">MRN 4419827</span><span class="seg-bar" aria-hidden="true"></span><span class="seg-tok">[MRN]</span></span><span class="seg"><span class="seg-t">, re: the </span></span><span class="seg seg--flag"><span class="seg-t">$2.4M</span><span class="seg-bar" aria-hidden="true"></span><span class="seg-tok">[AMOUNT]</span></span><span class="seg"><span class="seg-t"> settlement…"</span></span><span class="caret" aria-hidden="true"></span></div>
+<div class="brw-url"><span class="brw-urlpill">claude.ai/new</span></div>
+<div class="brw-body">
+<p class="brw-greet">What can I help with?</p>
+<div class="brw-input" style="--send:#D97757">
+<div class="typer" data-typer data-done="clean · 3 spans rewritten on device"><span class="seg"><span class="seg-t">"Following up on the </span></span><span class="seg seg--flag"><span class="seg-t">Meridian Health</span><span class="seg-tok">[ORG]</span></span><span class="seg"><span class="seg-t"> contract for patient Jane Doe, </span></span><span class="seg seg--flag"><span class="seg-t">MRN 4419827</span><span class="seg-tok">[MRN]</span></span><span class="seg"><span class="seg-t">, re: the </span></span><span class="seg seg--flag"><span class="seg-t">$2.4M</span><span class="seg-tok">[AMOUNT]</span></span><span class="seg"><span class="seg-t"> settlement…"</span></span><span class="caret" aria-hidden="true"></span></div>
+<div class="brw-send-row"><span class="brw-send" aria-hidden="true">↑</span></div>
 </div>
 </div>
-<p class="mock-foot"><span class="mock-mark" aria-hidden="true"></span><span class="mock-status">reading on device…</span></p>
+<p class="mock-foot"><img class="mock-mark" src="imgs/olo-mark.png" alt="" width="1024" height="766"><span class="mock-status">reading on device…</span></p>
 </div>
 
 <div class="mock-panel" role="tabpanel" id="panel-chatgpt" aria-labelledby="tab-chatgpt" hidden>
-<div class="mock-url">chatgpt.com</div>
-<div class="mock-body">
-<p class="mock-greet">Where should we start?</p>
-<div class="mock-input">
-<div class="typer" data-typer data-done="clean · 2 spans rewritten on device"><span class="seg"><span class="seg-t">Why does this request 401? headers = { Authorization: "Bearer </span></span><span class="seg seg--flag"><span class="seg-t">sk-live-9f2KQ81xPZ44</span><span class="seg-bar" aria-hidden="true"></span><span class="seg-tok">[API_KEY]</span></span><span class="seg"><span class="seg-t">" }, it worked yesterday on acct </span></span><span class="seg seg--flag"><span class="seg-t">7731-00452</span><span class="seg-bar" aria-hidden="true"></span><span class="seg-tok">[ACCOUNT]</span></span><span class="seg"><span class="seg-t">.</span></span><span class="caret" aria-hidden="true"></span></div>
+<div class="brw-url"><span class="brw-urlpill">chatgpt.com</span></div>
+<div class="brw-body">
+<p class="brw-greet">Where should we start?</p>
+<div class="brw-input" style="--send:#1B1A17">
+<div class="typer" data-typer data-done="clean · 2 spans rewritten on device"><span class="seg"><span class="seg-t">Why does this request 401? headers = { Authorization: "Bearer </span></span><span class="seg seg--flag"><span class="seg-t">sk-live-9f2KQ81xPZ44</span><span class="seg-tok">[API_KEY]</span></span><span class="seg"><span class="seg-t">" }, it worked yesterday on acct </span></span><span class="seg seg--flag"><span class="seg-t">7731-00452</span><span class="seg-tok">[ACCOUNT]</span></span><span class="seg"><span class="seg-t">.</span></span><span class="caret" aria-hidden="true"></span></div>
+<div class="brw-send-row"><span class="brw-send" aria-hidden="true">↑</span></div>
 </div>
 </div>
-<p class="mock-foot"><span class="mock-mark" aria-hidden="true"></span><span class="mock-status">reading on device…</span></p>
+<p class="mock-foot"><img class="mock-mark" src="imgs/olo-mark.png" alt="" width="1024" height="766"><span class="mock-status">reading on device…</span></p>
 </div>
 
 <div class="mock-panel" role="tabpanel" id="panel-gemini" aria-labelledby="tab-gemini" hidden>
-<div class="mock-url">gemini.google.com</div>
-<div class="mock-body">
-<p class="mock-greet">Hello, Alex</p>
-<div class="mock-input">
-<div class="typer" data-typer data-done="clean · 3 spans rewritten on device"><span class="seg"><span class="seg-t">Draft an offer letter for </span></span><span class="seg seg--flag"><span class="seg-t">Priya Sharma</span><span class="seg-bar" aria-hidden="true"></span><span class="seg-tok">[NAME]</span></span><span class="seg"><span class="seg-t">, SSN </span></span><span class="seg seg--flag"><span class="seg-t">545-81-2210</span><span class="seg-bar" aria-hidden="true"></span><span class="seg-tok">[SSN]</span></span><span class="seg"><span class="seg-t">, base </span></span><span class="seg seg--flag"><span class="seg-t">$185,000</span><span class="seg-bar" aria-hidden="true"></span><span class="seg-tok">[AMOUNT]</span></span><span class="seg"><span class="seg-t">, start August 3.</span></span><span class="caret" aria-hidden="true"></span></div>
+<div class="brw-url"><span class="brw-urlpill">gemini.google.com</span></div>
+<div class="brw-body">
+<p class="brw-greet">Hello, Alex</p>
+<div class="brw-input" style="--send:#4E7FE1">
+<div class="typer" data-typer data-done="clean · 3 spans rewritten on device"><span class="seg"><span class="seg-t">Draft an offer letter for </span></span><span class="seg seg--flag"><span class="seg-t">Priya Sharma</span><span class="seg-tok">[NAME]</span></span><span class="seg"><span class="seg-t">, SSN </span></span><span class="seg seg--flag"><span class="seg-t">545-81-2210</span><span class="seg-tok">[SSN]</span></span><span class="seg"><span class="seg-t">, base </span></span><span class="seg seg--flag"><span class="seg-t">$185,000</span><span class="seg-tok">[AMOUNT]</span></span><span class="seg"><span class="seg-t">, start August 3.</span></span><span class="caret" aria-hidden="true"></span></div>
+<div class="brw-send-row"><span class="brw-send" aria-hidden="true">↑</span></div>
 </div>
 </div>
-<p class="mock-foot"><span class="mock-mark" aria-hidden="true"></span><span class="mock-status">reading on device…</span></p>
+<p class="mock-foot"><img class="mock-mark" src="imgs/olo-mark.png" alt="" width="1024" height="766"><span class="mock-status">reading on device…</span></p>
 </div>
 
 </div>
@@ -215,63 +219,106 @@
 </div>
 
 <div data-reveal="up" style="--d:.12s">
-<div class="mock" data-demo="desktop" role="group" aria-label="Demo: a message composed in a desktop app, with sensitive values rewritten on the device before it is sent">
-
-<div class="mock-panel" role="tabpanel" id="app-slack" aria-labelledby="app-tab-slack">
-<div class="mock-bar"><span class="mock-dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="mock-title">Acme Co · Slack</span></div>
-<div class="mock-body">
-<p class="app-ctx"># offers · 12 members</p>
-<p class="app-line"><b>Kim L.</b> offer docs are ready for review</p>
-<div class="mock-input">
-<div class="typer" data-typer data-done="clean · 3 spans rewritten before send"><span class="seg"><span class="seg-t">@assistant summarize the offer for </span></span><span class="seg seg--flag"><span class="seg-t">Jordan Patel</span><span class="seg-bar" aria-hidden="true"></span><span class="seg-tok">[NAME]</span></span><span class="seg"><span class="seg-t">: SSN </span></span><span class="seg seg--flag"><span class="seg-t">545-81-2210</span><span class="seg-bar" aria-hidden="true"></span><span class="seg-tok">[SSN]</span></span><span class="seg"><span class="seg-t">, base </span></span><span class="seg seg--flag"><span class="seg-t">$185,000</span><span class="seg-bar" aria-hidden="true"></span><span class="seg-tok">[AMOUNT]</span></span><span class="seg"><span class="seg-t">.</span></span><span class="caret" aria-hidden="true"></span></div>
-</div>
-</div>
-<p class="mock-foot"><span class="mock-mark" aria-hidden="true"></span><span class="mock-status">reading on device…</span></p>
+<div class="mock mock--app" data-demo="desktop" data-app="slack" role="group" aria-label="Demo: a message composed in a desktop app, with sensitive values rewritten on the device before it is sent">
+<div class="app-bar">
+<span class="win-dots" aria-hidden="true"><i class="d-r"></i><i class="d-y"></i><i class="d-g"></i></span>
+<span class="app-title">Acme Co · Slack</span>
+<span class="app-dock" role="tablist" aria-label="Desktop app">
+<button class="app-tile app-tile--slack is-on" type="button" role="tab" id="app-tab-slack" aria-controls="app-slack" aria-selected="true"><svg viewBox="0 0 122.8 122.8" width="18" height="18" aria-hidden="true" focusable="false"><path fill="#E01E5A" d="M25.8 77.6c0 7.1-5.8 12.9-12.9 12.9S0 84.7 0 77.6s5.8-12.9 12.9-12.9h12.9v12.9zM32.3 77.6c0-7.1 5.8-12.9 12.9-12.9s12.9 5.8 12.9 12.9v32.3c0 7.1-5.8 12.9-12.9 12.9s-12.9-5.8-12.9-12.9V77.6z"></path><path fill="#36C5F0" d="M45.2 25.8c-7.1 0-12.9-5.8-12.9-12.9S38.1 0 45.2 0s12.9 5.8 12.9 12.9v12.9H45.2zM45.2 32.3c7.1 0 12.9 5.8 12.9 12.9s-5.8 12.9-12.9 12.9H12.9C5.8 58.1 0 52.3 0 45.2s5.8-12.9 12.9-12.9h32.3z"></path><path fill="#2EB67D" d="M97 45.2c0-7.1 5.8-12.9 12.9-12.9s12.9 5.8 12.9 12.9-5.8 12.9-12.9 12.9H97V45.2zM90.5 45.2c0 7.1-5.8 12.9-12.9 12.9s-12.9-5.8-12.9-12.9V12.9C64.7 5.8 70.5 0 77.6 0s12.9 5.8 12.9 12.9v32.3z"></path><path fill="#ECB22E" d="M77.6 97c7.1 0 12.9 5.8 12.9 12.9s-5.8 12.9-12.9 12.9-12.9-5.8-12.9-12.9V97h12.9zM77.6 90.5c-7.1 0-12.9-5.8-12.9-12.9s5.8-12.9 12.9-12.9h32.3c7.1 0 12.9 5.8 12.9 12.9s-5.8 12.9-12.9 12.9H77.6z"></path></svg><span class="u-sr">Slack</span></button>
+<button class="app-tile app-tile--cursor" type="button" role="tab" id="app-tab-cursor" aria-controls="app-cursor" aria-selected="false" tabindex="-1"><img src="https://cdn.simpleicons.org/cursor/white" alt="Cursor" width="20" height="20" loading="lazy"></button>
+<button class="app-tile app-tile--granola" type="button" role="tab" id="app-tab-granola" aria-controls="app-granola" aria-selected="false" tabindex="-1"><span aria-hidden="true">gl</span><span class="u-sr">Granola</span></button>
+<button class="app-tile app-tile--notion" type="button" role="tab" id="app-tab-notion" aria-controls="app-notion" aria-selected="false" tabindex="-1"><img src="https://cdn.simpleicons.org/notion" alt="Notion" width="20" height="20" loading="lazy"></button>
+</span>
 </div>
 
-<div class="mock-panel" role="tabpanel" id="app-cursor" aria-labelledby="app-tab-cursor" hidden>
-<div class="mock-bar"><span class="mock-dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="mock-title">acme-billing · Cursor</span></div>
-<div class="mock-body">
-<p class="app-ctx">chat · agent</p>
-<p class="app-line"><b>@ reconcile.ts</b> charge() returns 401</p>
-<div class="mock-input">
-<div class="typer" data-typer data-done="clean · 2 spans rewritten before the request left the editor"><span class="seg"><span class="seg-t">Charge fails with 401. Key </span></span><span class="seg seg--flag"><span class="seg-t">sk-live-4Qz88LmXo2</span><span class="seg-bar" aria-hidden="true"></span><span class="seg-tok">[API_KEY]</span></span><span class="seg"><span class="seg-t"> on account </span></span><span class="seg seg--flag"><span class="seg-t">7731-00452</span><span class="seg-bar" aria-hidden="true"></span><span class="seg-tok">[ACCOUNT]</span></span><span class="seg"><span class="seg-t">.</span></span><span class="caret" aria-hidden="true"></span></div>
+<div class="mock-panel" role="tabpanel" id="app-slack" aria-labelledby="app-tab-slack" data-app="slack" data-title="Acme Co · Slack">
+<div class="sl-wrap">
+<div class="sl-side">
+<p class="sl-ws">Acme Co <span aria-hidden="true">▾</span></p>
+<p class="sl-lbl">Channels</p>
+<p class="sl-ch">#&nbsp; general</p>
+<p class="sl-ch is-on">#&nbsp; offers</p>
+<p class="sl-ch">#&nbsp; eng</p>
+</div>
+<div class="sl-main">
+<div class="sl-head"><span class="sl-name"># offers</span><span class="sl-members">12 members</span></div>
+<div class="sl-msg">
+<span class="sl-av" aria-hidden="true">KL</span>
+<div><p class="sl-meta"><b>Kim L.</b><span>11:38 AM</span></p><p class="sl-text">offer docs are ready for review</p></div>
+</div>
+<div class="sl-compose">
+<div class="sl-compose-tx"><div class="typer" data-typer data-done="clean · 3 spans rewritten before send"><span class="seg"><span class="seg-t">@assistant summarize the offer for </span></span><span class="seg seg--flag"><span class="seg-t">Jordan Patel</span><span class="seg-tok">[NAME]</span></span><span class="seg"><span class="seg-t">: SSN </span></span><span class="seg seg--flag"><span class="seg-t">545-81-2210</span><span class="seg-tok">[SSN]</span></span><span class="seg"><span class="seg-t">, base </span></span><span class="seg seg--flag"><span class="seg-t">$185,000</span><span class="seg-tok">[AMOUNT]</span></span><span class="seg"><span class="seg-t">.</span></span><span class="caret" aria-hidden="true"></span></div></div>
+<div class="sl-toolbar"><span class="sl-plus" aria-hidden="true">+</span><span class="sl-aa" aria-hidden="true">Aa</span><span class="sl-sp"></span><span class="sl-send" aria-hidden="true">➤</span></div>
 </div>
 </div>
-<p class="mock-foot"><span class="mock-mark" aria-hidden="true"></span><span class="mock-status">reading on device…</span></p>
 </div>
-
-<div class="mock-panel" role="tabpanel" id="app-granola" aria-labelledby="app-tab-granola" hidden>
-<div class="mock-bar"><span class="mock-dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="mock-title">Intro call: Northwind · Granola</span></div>
-<div class="mock-body">
-<p class="app-ctx">notes · today</p>
-<p class="app-line">Renewal scoped at <span class="seg-tok">[AMOUNT]</span> ARR with <span class="seg-tok">[ORG]</span></p>
-<div class="mock-input">
-<div class="typer" data-typer data-done="clean · 2 spans rewritten on device"><span class="seg"><span class="seg-t">What did we agree with </span></span><span class="seg seg--flag"><span class="seg-t">Northwind Trading</span><span class="seg-bar" aria-hidden="true"></span><span class="seg-tok">[ORG]</span></span><span class="seg"><span class="seg-t"> on the </span></span><span class="seg seg--flag"><span class="seg-t">$120,000</span><span class="seg-bar" aria-hidden="true"></span><span class="seg-tok">[AMOUNT]</span></span><span class="seg"><span class="seg-t"> renewal?</span></span><span class="caret" aria-hidden="true"></span></div>
-</div>
-</div>
-<p class="mock-foot"><span class="mock-mark" aria-hidden="true"></span><span class="mock-status">reading on device…</span></p>
-</div>
-
-<div class="mock-panel" role="tabpanel" id="app-browserbase" aria-labelledby="app-tab-browserbase" hidden>
-<div class="mock-bar"><span class="mock-dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="mock-title">acme-invoices · Browserbase</span></div>
-<div class="mock-body">
-<p class="app-ctx">session bb_7f3a92 · running</p>
-<p class="app-line"><b>vendors.acmepay.com/login</b> waiting for credentials</p>
-<div class="mock-input">
-<div class="typer" data-typer data-done="clean · 2 spans rewritten before the cloud browser sees them"><span class="seg"><span class="seg-t">Download May invoices. Sign in as </span></span><span class="seg seg--flag"><span class="seg-t">jordan@acme.com</span><span class="seg-bar" aria-hidden="true"></span><span class="seg-tok">[EMAIL]</span></span><span class="seg"><span class="seg-t"> with </span></span><span class="seg seg--flag"><span class="seg-t">Tr0ub4dor&amp;3</span><span class="seg-bar" aria-hidden="true"></span><span class="seg-tok">[PASSWORD]</span></span><span class="seg"><span class="seg-t">.</span></span><span class="caret" aria-hidden="true"></span></div>
-</div>
-</div>
-<p class="mock-foot"><span class="mock-mark" aria-hidden="true"></span><span class="mock-status">reading on device…</span></p>
+<p class="mock-foot"><img class="mock-mark" src="imgs/olo-mark.png" alt="" width="1024" height="766"><span class="mock-status">reading on device…</span></p>
 </div>
 
+<div class="mock-panel" role="tabpanel" id="app-cursor" aria-labelledby="app-tab-cursor" data-app="cursor" data-title="acme-billing · Cursor" hidden>
+<div class="cu-wrap">
+<div class="cu-editor">
+<div class="cu-filetab">reconcile.ts</div>
+<div class="cu-code">
+<p><span class="cu-n">1</span><span class="cu-kw">async function </span><span class="cu-fn">reconcile</span>(acct) {</p>
+<p><span class="cu-n">2</span>&nbsp;&nbsp;<span class="cu-kw">const</span> res = <span class="cu-kw">await</span> api.<span class="cu-fn">charge</span>(acct);</p>
+<p><span class="cu-n">3</span>&nbsp;&nbsp;<span class="cu-kw">return</span> res.status;</p>
+<p><span class="cu-n">4</span>}</p>
+</div>
+</div>
+<div class="cu-chat">
+<div class="cu-chat-head"><span>CHAT</span><span>Agent ▾</span></div>
+<div class="cu-chat-body"><span class="cu-ctx">@ reconcile.ts</span></div>
+<div class="cu-input">
+<div class="typer" data-typer data-done="clean · 2 spans rewritten before the request left the editor"><span class="seg"><span class="seg-t">Charge fails with 401. Key </span></span><span class="seg seg--flag"><span class="seg-t">sk-live-4Qz88LmXo2</span><span class="seg-tok">[API_KEY]</span></span><span class="seg"><span class="seg-t"> on account </span></span><span class="seg seg--flag"><span class="seg-t">7731-00452</span><span class="seg-tok">[ACCOUNT]</span></span><span class="seg"><span class="seg-t">.</span></span><span class="caret" aria-hidden="true"></span></div>
+<div class="cu-meta"><span>claude-4.5</span><span>⏎ send</span></div>
+</div>
+</div>
+</div>
+<p class="mock-foot"><img class="mock-mark" src="imgs/olo-mark.png" alt="" width="1024" height="766"><span class="mock-status">reading on device…</span></p>
 </div>
 
-<div class="dock" role="tablist" aria-label="Desktop app">
-<button class="dock-btn is-on" type="button" role="tab" id="app-tab-slack" aria-controls="app-slack" aria-selected="true"><span class="dock-tile" aria-hidden="true">S</span>slack</button>
-<button class="dock-btn" type="button" role="tab" id="app-tab-cursor" aria-controls="app-cursor" aria-selected="false" tabindex="-1"><span class="dock-tile" aria-hidden="true">C</span>cursor</button>
-<button class="dock-btn" type="button" role="tab" id="app-tab-granola" aria-controls="app-granola" aria-selected="false" tabindex="-1"><span class="dock-tile" aria-hidden="true">G</span>granola</button>
-<button class="dock-btn" type="button" role="tab" id="app-tab-browserbase" aria-controls="app-browserbase" aria-selected="false" tabindex="-1"><span class="dock-tile" aria-hidden="true">B</span>browserbase</button>
+<div class="mock-panel" role="tabpanel" id="app-granola" aria-labelledby="app-tab-granola" data-app="granola" data-title="Intro call: Northwind · Granola" hidden>
+<div class="gr-wrap">
+<div class="gr-main">
+<p class="gr-title">Intro call: Northwind</p>
+<div class="gr-chips"><span class="gr-chip">▢ Today</span><span class="gr-chip"><i class="gr-av" aria-hidden="true"></i>Jessica M. <em>+1</em></span></div>
+<p class="gr-h">Northwind Overview</p>
+<p class="gr-note">•&nbsp; Renewal scoped at <span class="seg-tok">[AMOUNT]</span> ARR with <span class="seg-tok">[ORG]</span></p>
+<p class="gr-note gr-note--dim">•&nbsp; Offices in San Francisco and Austin</p>
+<div class="gr-sp"></div>
+<div class="gr-input"><span class="gr-star" aria-hidden="true">✦</span><div class="typer" data-typer data-done="clean · 2 spans rewritten on device"><span class="seg"><span class="seg-t">What did we agree with </span></span><span class="seg seg--flag"><span class="seg-t">Northwind Trading</span><span class="seg-tok">[ORG]</span></span><span class="seg"><span class="seg-t"> on the </span></span><span class="seg seg--flag"><span class="seg-t">$120,000</span><span class="seg-tok">[AMOUNT]</span></span><span class="seg"><span class="seg-t"> renewal?</span></span><span class="caret" aria-hidden="true"></span></div></div>
+</div>
+<div class="gr-side">
+<p class="gr-lbl">Share notes</p>
+<div class="gr-btns"><span>✉ Email</span><span>Slack</span></div>
+<p class="gr-lbl">Ask Granola</p>
+<p class="gr-ask">List action items</p>
+<p class="gr-ask">Write follow-up email</p>
+<p class="gr-ask">List Q&amp;A</p>
+</div>
+</div>
+<p class="mock-foot"><img class="mock-mark" src="imgs/olo-mark.png" alt="" width="1024" height="766"><span class="mock-status">reading on device…</span></p>
+</div>
+
+<div class="mock-panel" role="tabpanel" id="app-notion" aria-labelledby="app-tab-notion" data-app="notion" data-title="Acme Co · Notion" hidden>
+<div class="nt-wrap">
+<div class="nt-side">
+<p class="nt-ws">Acme Co</p>
+<p class="nt-pg">Q3 planning</p>
+<p class="nt-pg is-on">Offer tracker</p>
+<p class="nt-pg">Comp bands</p>
+</div>
+<div class="nt-main">
+<p class="nt-title">Offer tracker</p>
+<p class="nt-block">Three candidates moving to final round this week.</p>
+<p class="nt-block nt-block--dim">Owner: People Ops · Updated today</p>
+<div class="nt-sp"></div>
+<div class="nt-input"><span class="nt-ai" aria-hidden="true">✦</span><div class="typer" data-typer data-done="clean · 2 spans rewritten before the page syncs"><span class="seg"><span class="seg-t">Add </span></span><span class="seg seg--flag"><span class="seg-t">Priya Sharma</span><span class="seg-tok">[NAME]</span></span><span class="seg"><span class="seg-t"> to the Q3 offer table at base </span></span><span class="seg seg--flag"><span class="seg-t">$185,000</span><span class="seg-tok">[AMOUNT]</span></span><span class="seg"><span class="seg-t">, start August 3.</span></span><span class="caret" aria-hidden="true"></span></div></div>
+</div>
+</div>
+<p class="mock-foot"><img class="mock-mark" src="imgs/olo-mark.png" alt="" width="1024" height="766"><span class="mock-status">reading on device…</span></p>
+</div>
 </div>
 </div>
 </div>
@@ -284,7 +331,7 @@
 
 <div data-reveal="up" style="--d:.12s">
 <div class="mock mock--term" role="group" aria-label="Demo: an autonomous agent's request, with sensitive values rewritten on the device before the payload leaves">
-<div class="mock-bar"><span class="mock-dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="mock-title">agent · zsh</span></div>
+<div class="mock-bar"><span class="win-dots" aria-hidden="true"><i class="d-r"></i><i class="d-y"></i><i class="d-g"></i></span><span class="mock-title">agent · zsh</span></div>
 <div class="term" data-term>
 <p class="term-row"><span class="term-user">ops@macbook</span><span class="term-dim"> ~ % </span><span class="term-cmd">agent run finance-reconciler --task "reconcile May invoices"</span><span class="caret" aria-hidden="true"></span></p>
 <p class="term-line" data-at="300">agent composing request → api.anthropic.com</p>

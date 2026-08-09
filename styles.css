@@ -27,6 +27,8 @@
 
   --sans: 'Familjen Grotesk', system-ui, sans-serif;
   --mono: 'IBM Plex Mono', monospace;
+  /* Neutral UI stack for the device mockups, so they read as real apps. */
+  --ui: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, Arial, sans-serif;
 
   --nav-h: 70px;
   --gutter: 48px;
@@ -60,6 +62,15 @@ body {
 }
 
 a { color: inherit; text-decoration: none; }
+
+.u-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
 
 ::selection { background: var(--ac); color: var(--bg); }
 
@@ -382,222 +393,466 @@ header[id], section[id] { scroll-margin-top: var(--nav-h); }
   align-items: start;
 }
 
-/* --------------------------------------------------------------------------
-   Device mockups — shared by the browser (01), the desktop apps and the
-   agent terminal (05). One window frame, one status strip, one typer.
-   -------------------------------------------------------------------------- */
+/* ==========================================================================
+   Device mockups
+   These are meant to read as screenshots of the tools people already use, so
+   each carries its own chrome, brand colours and UI font rather than the
+   page's. Everything is scoped under .mock so none of it leaks outward.
+   ========================================================================== */
 
 .mock {
-  border: 1px solid var(--line-3);
-  background: var(--surface);
-  border-radius: 3px;
+  --paper: #FDFCFA;
+  --paper-2: #FFFFFF;
+  --paper-3: #F7F5F0;
+  --paper-head: #F4F1EB;
+  --mock-ink: #1B1A17;
+  --mock-sub: #6E6C64;
+  --mock-line: rgba(27, 26, 23, .10);
+  --mock-line-2: rgba(27, 26, 23, .14);
+  --detect: #B53A2A;
+
+  border: 1px solid var(--mock-line-2);
+  border-radius: 14px;
   overflow: hidden;
-  box-shadow: 0 1px 2px rgba(20, 18, 14, .04);
+  background: var(--paper);
+  color: var(--mock-ink);
+  font-family: var(--ui);
+  box-shadow: 0 2px 12px rgba(20, 18, 14, .06);
 }
 
 .mock-panel[hidden] { display: none; }
 
-/* Window furniture. The dots are deliberately monochrome — traffic-light
-   colours are the only saturated thing on this page besides --ac. */
-.mock-dots { display: flex; gap: 6px; flex: none; }
+.win-dots { display: flex; gap: 7px; flex: none; }
+.win-dots i { display: block; width: 11px; height: 11px; border-radius: 50%; }
+.win-dots .d-r { background: #FF5F57; }
+.win-dots .d-y { background: #FEBC2E; }
+.win-dots .d-g { background: #28C840; }
 
-.mock-dots i {
-  display: block;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--line-5);
-}
-
-.mock-bar {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 12px 16px;
-  background: var(--surface-2);
-  border-bottom: 1px solid var(--line-4);
-}
-
-.mock-title {
-  font: 400 11px/1 var(--mono);
-  letter-spacing: .12em;
-  color: var(--muted-2);
-}
-
-/* Browser tab strip */
-.mock-tabs {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  padding: 0 14px;
-  background: var(--surface-2);
-  border-bottom: 1px solid var(--line-4);
-}
-
-.mock-tabs .mock-dots { margin-right: 14px; }
-
-.mock-tab {
-  font: 400 12px/1 var(--mono);
-  letter-spacing: .04em;
-  color: var(--muted-2);
-  background: none;
-  border: 0;
-  border-bottom: 2px solid transparent;
-  padding: 15px 14px 13px;
-  margin-bottom: -1px;
-  cursor: pointer;
-  transition: color 250ms, border-color 250ms, background 250ms;
-}
-
-.mock-tab:hover { color: var(--ink); }
-
-.mock-tab.is-on {
-  color: var(--ink);
-  background: var(--surface);
-  border-bottom-color: var(--ac);
-}
-
-.mock-url {
-  padding: 11px 16px;
-  border-bottom: 1px solid var(--line-4);
-  font: 400 11px/1 var(--mono);
-  letter-spacing: .08em;
-  color: var(--muted-3);
-}
-
-.mock-body { padding: 24px 20px 22px; }
-
-.mock-greet {
-  font: 400 19px/1.3 var(--sans);
-  letter-spacing: -.02em;
-  color: var(--muted-3);
-  text-align: center;
-  margin: 12px 0 26px;
-}
-
-.mock-input {
-  border: 1px solid var(--line-2);
-  border-radius: 3px;
-  background: var(--bg);
-  padding: 14px 16px;
-}
-
-.typer {
-  font: 400 15px/1.8 var(--mono);
-  color: var(--ink-2);
-}
-
-[data-demo='browser'] .typer { min-height: 84px; }
-
-[data-demo='desktop'] .typer {
-  font-size: 14px;
-  min-height: 76px;
-}
-
-/* Status strip. The accent bar stands in for the olo mark — same shape as
-   the redaction bar, which is the point. */
+/* olo status strip, shared by every window */
 .mock-foot {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   margin: 0;
-  padding: 13px 16px;
-  border-top: 1px solid var(--line-4);
-  background: var(--surface-2);
-  font: 400 12px/1.3 var(--mono);
-  color: var(--muted-2);
+  padding: 11px 18px;
+  border-top: 1px solid var(--mock-line);
+  background: var(--paper-head);
+  font: 400 12.5px/1.3 var(--ui);
+  color: var(--mock-sub);
 }
 
-.mock-mark {
-  display: block;
-  width: 26px;
-  height: 9px;
-  background: var(--ac);
-  flex: none;
-}
+/* The asset is cream, so it needs inverting on these light strips — same
+   trick as .logo-mark in the nav. */
+.mock-mark { display: block; width: 17px; height: auto; flex: none; filter: invert(1); }
 
-/* Desktop app context lines */
-.app-ctx {
-  font: 400 11px/1 var(--mono);
-  letter-spacing: .12em;
-  color: var(--muted-3);
-  margin: 0 0 14px;
-}
+/* --------------------------------------------------------------------------
+   Typing + redaction
+   Type the real value, underline it the moment it is detected, then replace
+   it with its token and delete the real text from the DOM.
+   -------------------------------------------------------------------------- */
 
-.app-line {
-  font: 400 14px/1.7 var(--sans);
-  color: var(--muted);
-  margin: 0 0 20px;
-}
-
-.app-line b { font-weight: 500; color: var(--ink-2); }
+.typer { font: 400 15.5px/1.9 var(--ui); color: var(--mock-ink); }
 
 .seg { position: relative; }
-
 .seg-t { white-space: pre-wrap; }
-
 .seg--flag { display: inline-block; }
 .seg--flag .seg-t { white-space: nowrap; }
 
-.seg-bar {
-  position: absolute;
-  left: -2px;
-  top: 2px;
-  bottom: 2px;
-  width: 0;
-  background: var(--ac);
-  transition: width 260ms cubic-bezier(.16, .8, .3, 1);
-}
-
-.seg.is-redacted .seg-bar { width: calc(100% + 4px); }
-
-/* The bar wipes across the real value, then the value is replaced by its
-   token. Outside a flagged span the chip is just a static label. */
 .seg-tok {
   display: inline-block;
-  font: 400 .84em/1.35 var(--mono);
-  letter-spacing: .02em;
-  color: var(--ink-2);
-  background: var(--surface-2);
-  border: 1px solid var(--line-2);
-  border-radius: 2px;
+  font: 400 .8em/1.4 var(--mono);
+  color: var(--mock-ink);
+  background: var(--mock-line);
+  border: 1px solid var(--mock-line-2);
+  border-radius: 5px;
   padding: 1px 7px;
   white-space: nowrap;
 }
 
 .seg--flag .seg-tok { display: none; }
-
-.seg--flag.is-tokenized .seg-t,
-.seg--flag.is-tokenized .seg-bar { display: none; }
+.seg--flag.is-detected .seg-t { box-shadow: inset 0 -2px 0 var(--detect); }
+.seg--flag.is-tokenized .seg-t { display: none; }
 
 .seg--flag.is-tokenized .seg-tok {
   display: inline-block;
-  animation: tokPop 240ms ease both;
+  animation: tokPop 300ms ease both;
 }
 
 @keyframes tokPop {
-  from { opacity: 0; transform: translateY(2px); }
+  from { opacity: 0; transform: translateY(3px); }
   to { opacity: 1; transform: none; }
 }
 
 .caret {
   display: inline-block;
-  width: 9px;
-  height: 17px;
-  background: var(--ac);
-  vertical-align: -3px;
-  margin-left: 2px;
+  width: 7px;
+  height: 1.05em;
+  background: var(--mock-ink);
+  vertical-align: -2px;
+  margin-left: 1px;
   transition: opacity 200ms ease;
 }
 
 .caret.is-hidden { opacity: 0; }
 
-/* Enters with its parent [data-reveal='up'] rather than on its own timer. */
-.vig-caption {
-  font: 500 15px/1.5 var(--sans);
-  color: var(--ink);
-  margin: 20px 0 0;
+/* --------------------------------------------------------------------------
+   Browser window
+   -------------------------------------------------------------------------- */
+
+.brw-tabs {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  padding: 12px 16px 0;
+  background: var(--paper-3);
 }
+
+.brw-tabs .win-dots { padding-bottom: 13px; margin-right: 10px; }
+
+.brw-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 10px 10px 0 0;
+  padding: 9px 18px;
+  font: 500 12.5px/1 var(--ui);
+  color: var(--mock-sub);
+  transition: background 200ms, color 200ms;
+}
+
+.brw-tab:hover { color: var(--mock-ink); }
+.brw-tab.is-on { background: var(--paper); color: var(--mock-ink); }
+.brand-ico { display: block; flex: none; }
+
+.brw-url { padding: 8px 14px; border-bottom: 1px solid var(--mock-line); background: var(--paper); }
+
+.brw-urlpill {
+  display: block;
+  background: var(--paper-3);
+  border-radius: 8px;
+  padding: 7px 14px;
+  font: 400 12px/1 var(--mono);
+  color: var(--mock-sub);
+}
+
+.brw-body {
+  padding: 34px 30px 26px;
+  min-height: 225px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 24px;
+}
+
+.brw-greet {
+  margin: 0;
+  text-align: center;
+  font: 400 21px/1.3 var(--ui);
+  letter-spacing: -.01em;
+  color: #55534B;
+}
+
+.brw-input {
+  border: 1px solid var(--mock-line-2);
+  border-radius: 16px;
+  padding: 16px 16px 12px;
+  background: var(--paper-2);
+  box-shadow: 0 3px 14px var(--mock-line);
+}
+
+.brw-input .typer { min-height: 59px; }
+.brw-send-row { display: flex; justify-content: flex-end; margin-top: 12px; }
+
+.brw-send {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: var(--send, var(--mock-ink));
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+}
+
+/* --------------------------------------------------------------------------
+   Desktop window — one title bar, one dock, four app views
+   -------------------------------------------------------------------------- */
+
+.app-bar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 12px 8px 16px;
+  background: var(--bar-bg, var(--paper-head));
+  border-bottom: 1px solid var(--bar-line, var(--mock-line));
+}
+
+.app-title {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+  font: 400 12px/1 var(--ui);
+  color: var(--bar-fg, var(--mock-sub));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.app-dock { display: flex; align-items: center; gap: 6px; flex: none; }
+
+.app-tile {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border-radius: 8px;
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  transition: transform 180ms, box-shadow 180ms, border-color 180ms;
+}
+
+.app-tile img,
+.app-tile svg { display: block; width: 18px; height: 18px; }
+.app-tile:hover { transform: translateY(-1px); }
+
+.app-tile.is-on {
+  border-color: var(--bar-ring, var(--mock-ink));
+  transform: translateY(-1px);
+  box-shadow: 0 3px 9px rgba(0, 0, 0, .3);
+}
+
+.app-tile--slack { background: #FFFFFF; }
+.app-tile--cursor { background: #000000; }
+.app-tile--notion { background: #FFFFFF; }
+.app-tile--granola { background: #EAF6EA; color: #1D5C33; font: 700 14px/1 var(--ui); }
+
+/* Each app re-points the bar tokens rather than restyling the bar. */
+[data-app='slack'] { --bar-bg: #3F0E40; --bar-fg: rgba(255, 255, 255, .75); --bar-line: transparent; --bar-ring: rgba(255, 255, 255, .92); }
+[data-app='cursor'] { --bar-bg: #1D1D1D; --bar-fg: #8C8B83; --bar-line: rgba(244, 243, 238, .08); --bar-ring: rgba(244, 243, 238, .72); }
+[data-app='granola'] { --bar-bg: #FFFFFF; --bar-fg: #6E6C64; --bar-ring: #1D5C33; }
+[data-app='notion'] { --bar-bg: #FFFFFF; --bar-fg: #6E6C64; --bar-ring: #1B1A17; }
+
+/* ---- Slack ---- */
+.sl-wrap { display: flex; min-height: 352px; }
+
+.sl-side {
+  width: 148px;
+  flex: none;
+  background: #3F0E40;
+  padding: 12px 0 14px;
+  font: 400 12.5px/1.5 var(--ui);
+}
+
+.sl-ws {
+  margin: 0 0 10px;
+  padding: 0 14px 11px;
+  font: 700 13.5px/1.2 var(--ui);
+  color: #fff;
+  border-bottom: 1px solid rgba(255, 255, 255, .12);
+}
+
+.sl-lbl { margin: 0 0 5px; padding: 0 14px; font-size: 11px; letter-spacing: .04em; color: rgba(255, 255, 255, .5); }
+.sl-ch { margin: 0; padding: 4px 14px; color: rgba(255, 255, 255, .72); }
+.sl-ch.is-on { background: #1164A3; color: #fff; font-weight: 600; }
+
+.sl-main { flex: 1; min-width: 0; display: flex; flex-direction: column; background: var(--paper); }
+.sl-head { display: flex; align-items: baseline; gap: 10px; padding: 11px 18px; border-bottom: 1px solid var(--mock-line); }
+.sl-name { font: 700 14.5px/1 var(--ui); }
+.sl-members { font: 400 11.5px/1 var(--ui); color: var(--mock-sub); }
+
+.sl-msg { flex: 1; display: flex; gap: 10px; align-items: flex-start; padding: 14px 18px; }
+
+.sl-av {
+  width: 32px;
+  height: 32px;
+  border-radius: 7px;
+  background: #E6E2DA;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font: 600 11px/1 var(--ui);
+  color: var(--mock-sub);
+}
+
+.sl-meta { margin: 0 0 3px; display: flex; align-items: baseline; gap: 8px; font-size: 13px; }
+.sl-meta span { font-size: 11px; color: var(--mock-sub); }
+.sl-text { margin: 0; font: 400 13.5px/1.7 var(--ui); }
+
+.sl-compose {
+  margin: 0 16px 16px;
+  border: 1px solid var(--mock-line-2);
+  border-radius: 9px;
+  overflow: hidden;
+  background: var(--paper-2);
+}
+
+.sl-compose-tx { padding: 9px 12px 6px; }
+.sl-compose .typer { font-size: 13px; line-height: 1.95; min-height: 52px; }
+.sl-toolbar { display: flex; align-items: center; gap: 10px; padding: 5px 8px; background: var(--paper-3); }
+
+.sl-plus {
+  width: 21px;
+  height: 21px;
+  border-radius: 50%;
+  border: 1px solid var(--mock-line-2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  color: var(--mock-sub);
+}
+
+.sl-aa { font-size: 11.5px; color: var(--mock-sub); }
+.sl-sp { flex: 1; }
+
+.sl-send {
+  width: 26px;
+  height: 21px;
+  border-radius: 5px;
+  background: #007A5A;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+}
+
+/* ---- Cursor ---- */
+.cu-wrap { display: flex; min-height: 352px; background: #161616; }
+.cu-editor { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+
+.cu-filetab {
+  align-self: flex-start;
+  padding: 8px 16px;
+  font: 400 11px/1 var(--mono);
+  color: #D4D4D4;
+  background: #1E1E1E;
+  border-right: 1px solid rgba(244, 243, 238, .07);
+}
+
+.cu-code { padding: 12px 16px; font: 400 11.5px/2.1 var(--mono); color: #D4D4D4; border-top: 1px solid rgba(244, 243, 238, .07); }
+.cu-code p { margin: 0; white-space: pre; }
+.cu-n { display: inline-block; width: 20px; color: #55544D; }
+.cu-kw { color: #C586C0; }
+.cu-fn { color: #DCDCAA; }
+
+.cu-chat { width: 250px; flex: none; border-left: 1px solid rgba(244, 243, 238, .09); background: #1B1B1B; display: flex; flex-direction: column; }
+.cu-chat-head { display: flex; justify-content: space-between; padding: 10px 13px; font: 400 10.5px/1 var(--mono); letter-spacing: .06em; color: #8C8B83; border-bottom: 1px solid rgba(244, 243, 238, .07); }
+.cu-chat-body { flex: 1; padding: 12px 13px; }
+.cu-ctx { font: 400 10.5px/1 var(--mono); color: #8C8B83; border: 1px solid rgba(244, 243, 238, .12); border-radius: 5px; padding: 3px 8px; }
+
+.cu-input { margin: 0 12px 12px; border: 1px solid rgba(244, 243, 238, .16); border-radius: 8px; padding: 8px 11px 6px; background: #161616; }
+.cu-input .typer { font-size: 12px; line-height: 1.95; min-height: 52px; color: #C9C8C0; }
+.cu-input .caret { background: #E8E6DF; }
+.cu-input .seg-tok { color: #E8E6DF; background: rgba(244, 243, 238, .08); border-color: rgba(244, 243, 238, .3); }
+.cu-meta { display: flex; justify-content: space-between; margin-top: 6px; font: 400 10px/1 var(--mono); color: #6E6C64; }
+
+/* ---- Granola ---- */
+.gr-wrap { display: flex; min-height: 352px; background: var(--paper-2); }
+.gr-main { flex: 1; min-width: 0; display: flex; flex-direction: column; padding: 18px 24px 14px; }
+.gr-title { margin: 0; font: 700 17px/1.2 var(--ui); letter-spacing: -.01em; }
+.gr-chips { display: flex; gap: 6px; margin: 8px 0 16px; }
+
+.gr-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid var(--mock-line);
+  background: var(--paper-3);
+  border-radius: 6px;
+  padding: 3px 9px;
+  font: 400 11px/1.4 var(--ui);
+  color: #55534B;
+}
+
+.gr-chip em { font-style: normal; color: #9A988F; }
+.gr-av { width: 13px; height: 13px; border-radius: 50%; background: #D7E8DC; display: inline-block; }
+.gr-h { margin: 0 0 2px; font: 700 13px/1.4 var(--ui); color: #45A06C; }
+.gr-note { margin: 0; font: 400 13px/2 var(--ui); }
+.gr-note--dim { color: #8C8B83; }
+.gr-sp { flex: 1; }
+
+.gr-input {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  border: 1px solid var(--mock-line-2);
+  border-radius: 999px;
+  padding: 8px 18px 5px;
+  background: var(--paper-2);
+  box-shadow: 0 3px 12px var(--mock-line);
+  margin-top: 14px;
+}
+
+.gr-star { color: #1E7A4F; font-size: 13px; line-height: 1.9; flex: none; }
+.gr-input .typer { flex: 1; min-width: 0; font-size: 12.5px; line-height: 1.95; min-height: 46px; }
+
+.gr-side { width: 158px; flex: none; border-left: 1px solid var(--mock-line); padding: 16px 14px; background: var(--paper-3); }
+.gr-lbl { margin: 0 0 8px; font: 600 10px/1 var(--ui); letter-spacing: .08em; text-transform: uppercase; color: #8C8B83; }
+.gr-btns { display: flex; gap: 6px; margin-bottom: 18px; }
+.gr-btns span { flex: 1; text-align: center; background: var(--paper-2); border: 1px solid var(--mock-line-2); border-radius: 8px; padding: 4px 0; font: 600 11.5px/1.4 var(--ui); }
+.gr-ask { margin: 0 0 6px; background: var(--paper-2); border: 1px solid var(--mock-line); border-radius: 8px; padding: 5px 10px; font: 400 11.5px/1.4 var(--ui); width: fit-content; }
+
+/* ---- Notion ---- */
+.nt-wrap { display: flex; min-height: 352px; background: #FFFFFF; }
+.nt-side { width: 158px; flex: none; background: #F7F6F3; padding: 16px 12px; border-right: 1px solid var(--mock-line); }
+.nt-ws { margin: 0 0 14px; font: 600 12.5px/1 var(--ui); }
+.nt-pg { margin: 0 0 2px; padding: 5px 8px; border-radius: 5px; font: 400 12.5px/1.4 var(--ui); color: var(--mock-sub); }
+.nt-pg.is-on { background: rgba(27, 26, 23, .06); color: var(--mock-ink); font-weight: 500; }
+
+.nt-main { flex: 1; min-width: 0; display: flex; flex-direction: column; padding: 26px 28px 16px; }
+.nt-title { margin: 0 0 14px; font: 700 24px/1.2 var(--ui); letter-spacing: -.02em; }
+.nt-block { margin: 0 0 8px; font: 400 13.5px/1.8 var(--ui); }
+.nt-block--dim { color: var(--mock-sub); }
+.nt-sp { flex: 1; }
+
+.nt-input {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  border: 1px solid var(--mock-line-2);
+  border-radius: 8px;
+  padding: 10px 14px 7px;
+  box-shadow: 0 2px 10px var(--mock-line);
+}
+
+.nt-ai { color: #2383E2; font-size: 13px; line-height: 1.9; flex: none; }
+.nt-input .typer { flex: 1; min-width: 0; font-size: 13px; line-height: 1.95; min-height: 46px; }
+
+/* --------------------------------------------------------------------------
+   Agent terminal — the one dark window
+   -------------------------------------------------------------------------- */
+
+.mock--term { background: #0B0B0A; border-color: rgba(244, 243, 238, .14); }
+
+.mock--term .mock-bar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+  background: #111110;
+  border-bottom: 1px solid rgba(244, 243, 238, .08);
+}
+
+.mock--term .mock-title { flex: 1; text-align: center; font: 400 12px/1 var(--ui); color: #8C8B83; }
+
+.term { padding: 20px 24px 26px; min-height: 178px; font: 400 13px/2.2 var(--mono); color: #B7B6AE; }
+.term p { margin: 0; }
+.term-user { color: #5A8A62; }
+.term-dim { color: #56554E; }
+.term-line { color: #8C8B83; opacity: 0; transition: opacity 300ms ease; }
+.term-line.is-on { opacity: 1; }
+.term-line--bright { color: #B7B6AE; }
+.term-olo { color: #F4F3EE; font-weight: 500; }
+.mock--term .caret { background: #B7B6AE; }
+.mock--term .seg-tok { font-size: .9em; color: #F4F3EE; background: rgba(244, 243, 238, .1); border-color: rgba(244, 243, 238, .3); }
 
 /* --------------------------------------------------------------------------
    05 — the surfaces
@@ -611,96 +866,11 @@ header[id], section[id] { scroll-margin-top: var(--nav-h); }
   margin: 78px 0 0;
 }
 
-.surface-h {
-  font: 500 24px/1.2 var(--sans);
-  letter-spacing: -.02em;
-  color: var(--ink);
-  margin: 0;
-}
+.surface-h { font: 500 24px/1.2 var(--sans); letter-spacing: -.02em; color: var(--ink); margin: 0; }
+.surface-p { font: 400 16px/1.6 var(--sans); color: var(--muted); margin: 16px 0 0; max-width: 34ch; }
 
-.surface-p {
-  font: 400 16px/1.6 var(--sans);
-  color: var(--muted);
-  margin: 16px 0 0;
-  max-width: 34ch;
-}
-
-/* App switcher under the desktop window */
-.dock {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin: 16px 0 0;
-}
-
-.dock-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-  padding: 6px 14px 6px 6px;
-  border: 1px solid var(--line-2);
-  border-radius: 999px;
-  background: var(--surface);
-  cursor: pointer;
-  font: 400 12px/1 var(--mono);
-  color: var(--muted-2);
-  transition: border-color 250ms, color 250ms;
-}
-
-.dock-btn:hover { color: var(--ink); border-color: var(--line-5); }
-.dock-btn.is-on { color: var(--ink); border-color: var(--ac); }
-
-.dock-tile {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
-  border-radius: 4px;
-  background: var(--surface-2);
-  color: var(--muted-2);
-  font: 500 11px/1 var(--mono);
-  transition: background 250ms, color 250ms;
-}
-
-.dock-btn.is-on .dock-tile { background: var(--ac); color: var(--bg); }
-
-/* The one dark window on the page. Re-point the surface tokens rather than
-   restyling each child, the same trick .hero-shell and .nav--on-dark use. */
-.mock--term {
-  --surface: #17171B;
-  --surface-2: #101014;
-  --line-2: #2F2F37;
-  --line-3: #2A2A31;
-  --line-4: #26262D;
-  --line-5: #3C3C44;
-  --ink-2: #B9B4AB;
-  --muted-2: #85807A;
-  --muted-3: #6E6A62;
-  background: var(--surface);
-}
-
-.term {
-  padding: 20px 20px 24px;
-  min-height: 168px;
-  font: 400 13px/2.1 var(--mono);
-  color: var(--ink-2);
-}
-
-.term p { margin: 0; }
-
-.term-user { color: #6FA37C; }
-.term-dim { color: #5A5A63; }
-
-.term-line {
-  color: var(--muted-2);
-  opacity: 0;
-  transition: opacity 300ms ease;
-}
-
-.term-line.is-on { opacity: 1; }
-.term-line--bright { color: var(--ink-2); }
-.term-olo { color: #F4F2ED; font-weight: 500; }
+/* Enters with its parent [data-reveal='up'] rather than on its own timer. */
+.vig-caption { font: 500 15px/1.5 var(--sans); color: var(--ink); margin: 20px 0 0; }
 
 /* --------------------------------------------------------------------------
    02 — proxy model vs olo

@@ -52,16 +52,16 @@
      The device demos — browser tabs and desktop apps
 
      Segment text lives in the markup (so the page still reads with JS
-     disabled); this truncates it to a character count, wipes the bar across
-     each flagged span, then replaces the value with its token. Once a span is
-     tokenized its real text is removed from the DOM, so nothing sensitive is
+     disabled); this truncates it to a character count, underlines each flagged
+     span the moment it is complete, then swaps in its token. Once a span is
+     tokenized its real text is deleted from the DOM, so nothing sensitive is
      left behind to read or copy.
      ------------------------------------------------------------------------ */
 
   var TYPE_MS = 24;
-  var REDACT_DELAY = 800;
-  var REDACT_STEP = 620;
-  var TOKEN_MS = 300;
+  // Characters the caret runs past a span before the value becomes a token —
+  // the detection reads as keeping pace with typing rather than a later sweep.
+  var LAG = 14;
   var HOLD_MS = 4200;
   var ROTATE_MS = 5000;
 
@@ -77,7 +77,6 @@
     });
     if (!segs.length) return null;
 
-    var flagged = segs.filter(function (seg) { return seg.flag; });
     var total = segs.reduce(function (n, seg) { return n + seg.full.length; }, 0);
     var caret = box.querySelector('.caret');
     var panel = box.closest ? box.closest('.mock-panel') : null;
@@ -91,18 +90,38 @@
       var consumed = 0;
       segs.forEach(function (seg) {
         if (!seg.textEl) return;
-        var shown = Math.max(0, Math.min(seg.full.length, chars - consumed));
-        consumed += seg.full.length;
-        // A tokenized span has had its real text deleted; leave it alone.
-        if (seg.el.classList.contains('is-tokenized')) return;
-        seg.textEl.textContent = seg.full.slice(0, shown);
+        var from = consumed;
+        var to = consumed + seg.full.length;
+        consumed = to;
+        var shown = Math.max(0, Math.min(seg.full.length, chars - from));
+
+        if (!seg.flag) {
+          var plain = seg.full.slice(0, shown);
+          if (seg.textEl.textContent !== plain) seg.textEl.textContent = plain;
+          return;
+        }
+
+        // Past the span plus the lag: swap in the token and delete the value.
+        if (chars >= to + LAG) {
+          if (!seg.el.classList.contains('is-tokenized')) {
+            seg.el.classList.add('is-tokenized');
+            seg.textEl.textContent = '';
+          }
+          return;
+        }
+
+        seg.el.classList.remove('is-tokenized');
+        seg.el.classList.toggle('is-detected', shown === seg.full.length);
+        var real = seg.full.slice(0, shown);
+        if (seg.textEl.textContent !== real) seg.textEl.textContent = real;
       });
+
       if (caret) caret.classList.toggle('is-hidden', chars >= total);
     }
 
     function reset() {
       segs.forEach(function (seg) {
-        seg.el.classList.remove('is-redacted', 'is-tokenized');
+        seg.el.classList.remove('is-detected', 'is-tokenized');
         if (seg.textEl) seg.textEl.textContent = '';
       });
       if (status) status.textContent = 'reading on device…';
@@ -111,8 +130,14 @@
 
     function settle() {
       segs.forEach(function (seg) {
-        if (seg.textEl) seg.textEl.textContent = seg.flag ? '' : seg.full;
-        if (seg.flag) seg.el.classList.add('is-redacted', 'is-tokenized');
+        if (!seg.textEl) return;
+        seg.el.classList.remove('is-detected');
+        if (seg.flag) {
+          seg.el.classList.add('is-tokenized');
+          seg.textEl.textContent = '';
+        } else {
+          seg.textEl.textContent = seg.full;
+        }
       });
       if (caret) caret.classList.add('is-hidden');
       if (status) status.textContent = doneText;
@@ -125,25 +150,6 @@
       interval = null;
     }
 
-    function redactSequence() {
-      flagged.forEach(function (seg, i) {
-        var at = REDACT_DELAY + i * REDACT_STEP;
-        timers.push(setTimeout(function () {
-          seg.el.classList.add('is-redacted');
-        }, at));
-        timers.push(setTimeout(function () {
-          seg.el.classList.add('is-tokenized');
-          if (seg.textEl) seg.textEl.textContent = '';
-        }, at + TOKEN_MS));
-      });
-
-      var settled = REDACT_DELAY + flagged.length * REDACT_STEP;
-      timers.push(setTimeout(function () {
-        if (status) status.textContent = doneText;
-      }, settled));
-      timers.push(setTimeout(run, settled + HOLD_MS));
-    }
-
     function run() {
       stop();
       reset();
@@ -151,10 +157,11 @@
       interval = setInterval(function () {
         chars += 1;
         paint(chars);
-        if (chars < total) return;
+        if (chars < total + LAG) return;
         clearInterval(interval);
         interval = null;
-        redactSequence();
+        if (status) status.textContent = doneText;
+        timers.push(setTimeout(run, HOLD_MS));
       }, TYPE_MS);
     }
 
@@ -196,6 +203,17 @@
     // the cost of keeping the demo readable with JS off.)
     typers.forEach(function (typer) { if (typer) typer.settle(); });
 
+    var titleEl = mock.querySelector('.app-title');
+
+    // The desktop window has one title bar for four apps: re-point its brand
+    // tokens and title rather than duplicating the bar per panel.
+    function applyChrome(i) {
+      var app = panels[i].getAttribute('data-app');
+      var title = panels[i].getAttribute('data-title');
+      if (app) mock.setAttribute('data-app', app);
+      if (titleEl && title) titleEl.textContent = title;
+    }
+
     if (reducedMotion) {
       wireTabs();
       return;
@@ -210,6 +228,7 @@
       }
 
       current = next;
+      applyChrome(next);
       panels.forEach(function (panel, i) {
         if (i === next) panel.removeAttribute('hidden');
         else panel.setAttribute('hidden', '');
