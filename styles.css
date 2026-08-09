@@ -988,9 +988,9 @@ header[id], section[id] { scroll-margin-top: var(--nav-h); }
 .section--thesis {
   padding: 128px 0 136px;
   background:
-    radial-gradient(64% 78% at 6% 0%, rgb(0, 0, 0), transparent 62%),
+    radial-gradient(64% 78% at 6% 0%, #111112, transparent 62%),
     radial-gradient(52% 62% at 96% 96%, rgba(0, 0, 0, 0.665), transparent 64%),
-    linear-gradient(178deg, #1D1C1D, #212123 72%);
+    linear-gradient(178deg, #1D1C1D, #060606 72%);
 }
 
 /* Its own grain, a touch heavier than the page's, which is most of what sells
@@ -1037,10 +1037,13 @@ header[id], section[id] { scroll-margin-top: var(--nav-h); }
    01 — one layer, every surface
    -------------------------------------------------------------------------- */
 
+/* The copy column is capped at 34ch by .surface-p regardless of how much
+   column it gets, so the extra width is dead space there and useful in the
+   mock. Hence the lopsided ratio: give the visual the slack. */
 .surface-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
-  gap: 70px;
+  grid-template-columns: minmax(0, .74fr) minmax(0, 1.36fr);
+  gap: 48px;
   align-items: start;
   margin: 124px 0 0;
 }
@@ -1049,7 +1052,7 @@ header[id], section[id] { scroll-margin-top: var(--nav-h); }
    order and the single-column stack are always right; the flip is purely a
    CSS reorder, and it's undone below 900px. */
 .surface-row--flip {
-  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1.36fr) minmax(0, .74fr);
 }
 
 .surface-row--flip > :first-child { order: 2; }
