@@ -388,8 +388,9 @@ header[id], section[id] { scroll-margin-top: var(--nav-h); }
 
 .hero-mark {
   display: block;
-  width: clamp(120px, 18vw, 260px);
+  width: clamp(100px, 15vw, 220px);
   height: auto;
+  margin-bottom:30px;
 }
 
 .hero-tagline {
@@ -1020,7 +1021,7 @@ header[id], section[id] { scroll-margin-top: var(--nav-h); }
 .thesis-body { padding-top: 8px; }
 
 .thesis-p {
-  font: 400 17px/1.68 var(--sans);
+  font: 400 19px/1.68 var(--sans);
   color: var(--muted);
   margin: 0 0 26px;
   max-width: 50ch;
@@ -1053,8 +1054,19 @@ header[id], section[id] { scroll-margin-top: var(--nav-h); }
 
 .surface-row--flip > :first-child { order: 2; }
 
-.surface-h { font: 500 24px/1.2 var(--sans); letter-spacing: -.02em; color: var(--ink); margin: 0; }
-.surface-p { font: 400 16px/1.6 var(--sans); color: var(--muted); margin: 16px 0 0; max-width: 34ch; }
+.surface-h {
+  font: 500 28px/1.2 var(--sans);
+  letter-spacing: -.02em;
+  color: var(--ink);
+  margin: 0;
+}
+
+.surface-p {
+  font: 400 18px/1.6 var(--sans);
+  color: var(--muted);
+  margin: 16px 0 0;
+  max-width: 34ch;
+}
 
 /* Enters with its parent [data-reveal='up'] rather than on its own timer. */
 .vig-caption { font: 500 15px/1.5 var(--sans); color: var(--ink); margin: 20px 0 0; }
@@ -1463,7 +1475,7 @@ header[id], section[id] { scroll-margin-top: var(--nav-h); }
     padding-bottom: 80px;
   }
 
-  .hero-tagline { margin-top: 30px; }
+  .hero-tagline { margin-top: 100px; }
 
   .section,
   .statement { padding: 80px 0; }
