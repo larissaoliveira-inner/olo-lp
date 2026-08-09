@@ -4,26 +4,31 @@
    ========================================================================== */
 
 :root {
-  /* Art direction: change --ac to restyle every accent on the page. */
-  --ac: #5B8BFF;
+  /* Art direction: change --ac to restyle every accent on the page.
+     --ac-2 is the second stop of every accent gradient. */
+  --ac: #6E9BFF;
+  --ac-2: #A98BFA;
 
-  --bg: #F4F2ED;
-  --surface: #FBFAF7;
-  --surface-2: #EFEDE7;
+  --bg: #0B0B0E;
+  /* Same value as --bg, but never re-pointed by a section — use it when you
+     need the page's own background from inside a scope that shadows --bg. */
+  --page-bg: #0B0B0E;
+  --surface: #131318;
+  --surface-2: #0E0E12;
 
-  --ink: #16161A;
-  --ink-2: #2A2823;
-  --ink-3: #3B3830;
-  --muted: #5F5B54;
-  --muted-2: #6E6A62;
-  --muted-3: #7A756B;
+  --ink: #F2F0EB;
+  --ink-2: #E2DFD8;
+  --ink-3: #CFCBC2;
+  --muted: #9A958C;
+  --muted-2: #8B867D;
+  --muted-3: #6E6A62;
 
-  --line: #E2DED5;
-  --line-2: #D7D2C8;
-  --line-3: #DDD8CE;
-  --line-4: #E7E3DA;
-  --line-5: #CFCABF;
-  --line-6: #C4BEB2;
+  --line: #1E1E24;
+  --line-2: #26262D;
+  --line-3: #2E2E36;
+  --line-4: #191920;
+  --line-5: #35353E;
+  --line-6: #4A4A54;
 
   --sans: 'Familjen Grotesk', system-ui, sans-serif;
   --mono: 'IBM Plex Mono', monospace;
@@ -33,13 +38,16 @@
   --nav-h: 70px;
   --gutter: 48px;
 
-  /* Dark hero */
-  --hero-bg: #0A0A0C;
+  /* Hero — a shade deeper than the page, so the fold reads as its own plane. */
+  --hero-bg: #07070A;
   --hero-ink: #F4F2ED;
   --hero-muted: #9C978E;
   --hero-muted-2: #7E7970;
   --hero-line: #3C3C44;
   --hero-tagline-soft: #A5A099;
+
+  /* Grain. One tile, reused by every textured surface. */
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
 /* --------------------------------------------------------------------------
@@ -63,6 +71,19 @@ body {
 
 a { color: inherit; text-decoration: none; }
 
+/* Film grain over the whole page. Fixed, so it stays still while the page
+   scrolls under it — that's what keeps it reading as texture rather than as
+   a pattern glued to the content. */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  pointer-events: none;
+  opacity: .035;
+  background-image: var(--grain);
+}
+
 .u-sr {
   position: absolute;
   width: 1px;
@@ -83,7 +104,11 @@ a { color: inherit; text-decoration: none; }
 header[id], section[id] { scroll-margin-top: var(--nav-h); }
 
 .page {
-  background: var(--bg);
+  /* A cool wash down the length of the page so the dark never goes flat. */
+  background:
+    radial-gradient(90% 40% at 50% 0%, rgba(110, 155, 255, .07), transparent 60%),
+    radial-gradient(70% 34% at 100% 62%, rgba(169, 139, 250, .05), transparent 62%),
+    var(--bg);
   color: var(--ink);
   /* `clip` rather than `hidden`: `hidden` makes this a scroll container,
      which silently breaks position:sticky on the nav inside it. */
@@ -113,6 +138,28 @@ header[id], section[id] { scroll-margin-top: var(--nav-h); }
   transform: none;
 }
 
+/* Whisper: each word surfaces out of a blur on its own delay. script.js does
+   the word splitting; with JS off there are no `.w` spans and the headline
+   just reads normally. */
+
+[data-reveal='whisper'] .w {
+  display: inline-block;
+  opacity: 0;
+  filter: blur(12px);
+  transform: translateY(.24em);
+  transition:
+    opacity 1s ease var(--wd),
+    filter 1s ease var(--wd),
+    transform 1s cubic-bezier(.2, .7, .3, 1) var(--wd);
+  --wd: calc(var(--i) * 52ms);
+}
+
+[data-reveal='whisper'].is-in .w {
+  opacity: 1;
+  filter: blur(0);
+  transform: none;
+}
+
 [data-reveal='wipe'] {
   position: absolute;
   left: -8px;
@@ -135,20 +182,17 @@ header[id], section[id] { scroll-margin-top: var(--nav-h); }
   top: 0;
   z-index: 50;
   backdrop-filter: blur(14px);
-  background: rgba(244, 242, 237, .82);
+  background: rgba(11, 11, 14, .74);
   border-bottom: 1px solid var(--line);
   transition: background 300ms ease, border-color 300ms ease;
 }
 
-/* While the dark hero is behind it, the nav inverts. Everything inside reads
-   from these tokens, so re-pointing them is enough. */
+/* Over the hero the bar thins out so the moving hills read through it, and
+   the hairline goes away entirely — there's nothing to divide yet. */
 .nav--on-dark {
-  --ink: var(--hero-ink);
-  --muted-2: var(--hero-muted);
-  --line: #232329;
   --line-5: var(--hero-line);
-  --bg: var(--hero-bg);
-  background: rgba(10, 10, 12, .82);
+  background: rgba(7, 7, 10, .38);
+  border-bottom-color: transparent;
 }
 
 .nav-inner {
@@ -165,9 +209,7 @@ header[id], section[id] { scroll-margin-top: var(--nav-h); }
   gap: 34px;
 }
 
-/* Nav mark. The asset is cream, which is right over the dark hero but would
-   vanish against the light page — so it's inverted once the nav flips to its
-   light state. Inverting #ECEAE3 lands on #13151C, near-identical to --ink. */
+/* Nav mark. The asset is cream, so on a dark page it ships as-is. */
 .logo-link {
   display: inline-flex;
   align-items: center;
@@ -177,11 +219,7 @@ header[id], section[id] { scroll-margin-top: var(--nav-h); }
   display: block;
   width: 42px;
   height: auto;
-  filter: invert(1);
-  transition: filter 300ms ease;
 }
-
-.nav--on-dark .logo-mark { filter: none; }
 
 /* Footer lockup */
 .logo {
@@ -255,17 +293,21 @@ header[id], section[id] { scroll-margin-top: var(--nav-h); }
 
 .btn-solid {
   font: 400 14px/1 var(--mono);
-  color: var(--bg);
+  color: #0B0B0E;
   white-space: nowrap;
   flex: none;
-  background: var(--ac);
+  background: linear-gradient(100deg, var(--ac), var(--ac-2));
   padding: 16px 26px;
   border-radius: 999px;
-  transition: opacity 250ms;
+  box-shadow: 0 0 0 rgba(110, 155, 255, 0);
+  transition: opacity 250ms, box-shadow 250ms;
 }
 
 .btn-solid:hover,
-.btn-solid:focus-visible { opacity: .84; }
+.btn-solid:focus-visible {
+  opacity: .92;
+  box-shadow: 0 8px 30px rgba(110, 155, 255, .28);
+}
 
 /* --------------------------------------------------------------------------
    Hero — dark, with the animated GLSL hills behind the copy
@@ -286,14 +328,32 @@ header[id], section[id] { scroll-margin-top: var(--nav-h); }
   color: var(--hero-ink);
 }
 
-/* Base glow — also the fallback if WebGL or JS is unavailable. */
+/* Base glow — also the fallback if WebGL or JS is unavailable. The tinted
+   corners give the hills something to sit in; the last stop fades the shell
+   into the page so the seam under the fold disappears. */
 .hero-shell::before {
   content: '';
   position: absolute;
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  background: radial-gradient(120% 80% at 50% 118%, rgba(255, 255, 255, .10), transparent 62%);
+  background:
+    radial-gradient(120% 80% at 50% 118%, rgba(255, 255, 255, .10), transparent 62%),
+    radial-gradient(70% 55% at 12% 8%, rgba(110, 155, 255, .13), transparent 64%),
+    radial-gradient(60% 50% at 92% 22%, rgba(169, 139, 250, .10), transparent 62%),
+    linear-gradient(180deg, transparent 78%, var(--page-bg));
+}
+
+/* Extra grain over the canvas — the hills are smooth enough to band without
+   it. z-index 0 keeps it under the copy but above the canvas. */
+.hero-shell::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: .05;
+  background-image: var(--grain);
 }
 
 .hero-canvas {
@@ -328,7 +388,7 @@ header[id], section[id] { scroll-margin-top: var(--nav-h); }
 
 .hero-mark {
   display: block;
-  width: clamp(160px, 25vw, 340px);
+  width: clamp(120px, 18vw, 260px);
   height: auto;
 }
 
@@ -354,8 +414,64 @@ header[id], section[id] { scroll-margin-top: var(--nav-h); }
    -------------------------------------------------------------------------- */
 
 .section {
-  border-top: 2px solid var(--line);
+  position: relative;
   padding: 140px 0;
+}
+
+/* --------------------------------------------------------------------------
+   Atmosphere
+   Two shared pseudo-elements on every section: a divider and an ambient wash.
+   The wash is transparent until a section opts in with an .amb-* class.
+   -------------------------------------------------------------------------- */
+
+/* A hairline that fades out towards both gutters. A hard rule the weight of
+   the old 2px cream border reads like a scar on a dark page. */
+.section::after,
+.statement::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, var(--line-2) 12%, var(--line-5) 50%, var(--line-2) 88%, transparent);
+}
+
+.section::before,
+.statement::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    var(--amb-size, 58% 62%) at var(--amb-x, 50%) var(--amb-y, 0%),
+    var(--amb, transparent),
+    transparent 70%
+  );
+}
+
+/* Content clears the wash — the pseudo-elements are positioned, so anything
+   static inside would otherwise paint underneath them. */
+.section > .wrap,
+.statement > .wrap {
+  position: relative;
+  z-index: 1;
+}
+
+.amb-l { --amb: rgba(110, 155, 255, .10); --amb-x: 4%; --amb-y: 4%; }
+.amb-r { --amb: rgba(169, 139, 250, .09); --amb-x: 96%; --amb-y: 10%; --amb-size: 54% 66%; }
+.amb-c { --amb: rgba(110, 155, 255, .11); --amb-x: 50%; --amb-y: 48%; --amb-size: 64% 76%; }
+
+/* Blueprint grid — for the one section that describes a mechanism. */
+.amb-grid::before {
+  background:
+    radial-gradient(58% 62% at 50% 0%, rgba(110, 155, 255, .07), transparent 70%),
+    linear-gradient(90deg, var(--line) 1px, transparent 1px) 0 0 / 72px 72px,
+    linear-gradient(180deg, var(--line) 1px, transparent 1px) 0 0 / 72px 72px;
+  -webkit-mask-image: radial-gradient(72% 62% at 50% 46%, #000, transparent 72%);
+  mask-image: radial-gradient(72% 62% at 50% 46%, #000, transparent 72%);
+  opacity: .7;
 }
 
 .eyebrow {
@@ -363,6 +479,7 @@ header[id], section[id] { scroll-margin-top: var(--nav-h); }
   letter-spacing: .16em;
   color: var(--muted);
   margin: 0 0 44px;
+  text-align: center;
 }
 
 .eyebrow--loose { margin-bottom: 70px; }
@@ -401,15 +518,15 @@ header[id], section[id] { scroll-margin-top: var(--nav-h); }
    ========================================================================== */
 
 .mock {
-  --paper: #FDFCFA;
-  --paper-2: #FFFFFF;
-  --paper-3: #F7F5F0;
-  --paper-head: #F4F1EB;
-  --mock-ink: #1B1A17;
-  --mock-sub: #6E6C64;
-  --mock-line: rgba(27, 26, 23, .10);
-  --mock-line-2: rgba(27, 26, 23, .14);
-  --detect: #B53A2A;
+  --paper: #131417;
+  --paper-2: #17181C;
+  --paper-3: #0F1013;
+  --paper-head: #16171B;
+  --mock-ink: #E9E7E1;
+  --mock-sub: #8C8A82;
+  --mock-line: rgba(244, 243, 238, .09);
+  --mock-line-2: rgba(244, 243, 238, .15);
+  --detect: #FF6B57;
 
   border: 1px solid var(--mock-line-2);
   border-radius: 14px;
@@ -417,7 +534,11 @@ header[id], section[id] { scroll-margin-top: var(--nav-h); }
   background: var(--paper);
   color: var(--mock-ink);
   font-family: var(--ui);
-  box-shadow: 0 2px 12px rgba(20, 18, 14, .06);
+  /* Lifted off the page rather than pressed into it — on dark, the shadow is
+     the only thing that separates a window from its background. */
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, .05) inset,
+    0 24px 60px rgba(0, 0, 0, .55);
 }
 
 .mock-panel[hidden] { display: none; }
@@ -441,9 +562,8 @@ header[id], section[id] { scroll-margin-top: var(--nav-h); }
   color: var(--mock-sub);
 }
 
-/* The asset is cream, so it needs inverting on these light strips — same
-   trick as .logo-mark in the nav. */
-.mock-mark { display: block; width: 17px; height: auto; flex: none; filter: invert(1); }
+/* The asset is already cream, so it ships as-is on these dark strips. */
+.mock-mark { display: block; width: 17px; height: auto; flex: none; }
 
 /* --------------------------------------------------------------------------
    Typing + redaction
@@ -552,7 +672,7 @@ header[id], section[id] { scroll-margin-top: var(--nav-h); }
   text-align: center;
   font: 400 21px/1.3 var(--ui);
   letter-spacing: -.01em;
-  color: #55534B;
+  color: #B4B1A9;
 }
 
 .brw-input {
@@ -560,7 +680,7 @@ header[id], section[id] { scroll-margin-top: var(--nav-h); }
   border-radius: 16px;
   padding: 16px 16px 12px;
   background: var(--paper-2);
-  box-shadow: 0 3px 14px var(--mock-line);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .35);
 }
 
 .brw-input .typer { min-height: 59px; }
@@ -571,7 +691,9 @@ header[id], section[id] { scroll-margin-top: var(--nav-h); }
   height: 30px;
   border-radius: 9px;
   background: var(--send, var(--mock-ink));
-  color: #fff;
+  /* Each tab sets --send to its brand button; a light button sets --send-fg
+     too, so the arrow stays legible on it. */
+  color: var(--send-fg, #fff);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -635,8 +757,8 @@ header[id], section[id] { scroll-margin-top: var(--nav-h); }
 /* Each app re-points the bar tokens rather than restyling the bar. */
 [data-app='slack'] { --bar-bg: #3F0E40; --bar-fg: rgba(255, 255, 255, .75); --bar-line: transparent; --bar-ring: rgba(255, 255, 255, .92); }
 [data-app='cursor'] { --bar-bg: #1D1D1D; --bar-fg: #8C8B83; --bar-line: rgba(244, 243, 238, .08); --bar-ring: rgba(244, 243, 238, .72); }
-[data-app='granola'] { --bar-bg: #FFFFFF; --bar-fg: #6E6C64; --bar-ring: #1D5C33; }
-[data-app='notion'] { --bar-bg: #FFFFFF; --bar-fg: #6E6C64; --bar-ring: #1B1A17; }
+[data-app='granola'] { --bar-bg: #141815; --bar-fg: #8C9A90; --bar-line: rgba(244, 243, 238, .07); --bar-ring: #4FBF86; }
+[data-app='notion'] { --bar-bg: #202020; --bar-fg: #9B9A94; --bar-line: rgba(244, 243, 238, .07); --bar-ring: #E9E7E1; }
 
 /* ---- Slack ---- */
 .sl-wrap { display: flex; min-height: 352px; }
@@ -672,7 +794,7 @@ header[id], section[id] { scroll-margin-top: var(--nav-h); }
   width: 32px;
   height: 32px;
   border-radius: 7px;
-  background: #E6E2DA;
+  background: #2B2C31;
   flex: none;
   display: flex;
   align-items: center;
@@ -755,7 +877,7 @@ header[id], section[id] { scroll-margin-top: var(--nav-h); }
 .cu-meta { display: flex; justify-content: space-between; margin-top: 6px; font: 400 10px/1 var(--mono); color: #6E6C64; }
 
 /* ---- Granola ---- */
-.gr-wrap { display: flex; min-height: 352px; background: var(--paper-2); }
+.gr-wrap { display: flex; min-height: 352px; background: var(--paper); }
 .gr-main { flex: 1; min-width: 0; display: flex; flex-direction: column; padding: 18px 24px 14px; }
 .gr-title { margin: 0; font: 700 17px/1.2 var(--ui); letter-spacing: -.01em; }
 .gr-chips { display: flex; gap: 6px; margin: 8px 0 16px; }
@@ -769,12 +891,12 @@ header[id], section[id] { scroll-margin-top: var(--nav-h); }
   border-radius: 6px;
   padding: 3px 9px;
   font: 400 11px/1.4 var(--ui);
-  color: #55534B;
+  color: #B4B1A9;
 }
 
-.gr-chip em { font-style: normal; color: #9A988F; }
-.gr-av { width: 13px; height: 13px; border-radius: 50%; background: #D7E8DC; display: inline-block; }
-.gr-h { margin: 0 0 2px; font: 700 13px/1.4 var(--ui); color: #45A06C; }
+.gr-chip em { font-style: normal; color: #7C7A73; }
+.gr-av { width: 13px; height: 13px; border-radius: 50%; background: #2F5C42; display: inline-block; }
+.gr-h { margin: 0 0 2px; font: 700 13px/1.4 var(--ui); color: #58C48C; }
 .gr-note { margin: 0; font: 400 13px/2 var(--ui); }
 .gr-note--dim { color: #8C8B83; }
 .gr-sp { flex: 1; }
@@ -787,25 +909,25 @@ header[id], section[id] { scroll-margin-top: var(--nav-h); }
   border-radius: 999px;
   padding: 8px 18px 5px;
   background: var(--paper-2);
-  box-shadow: 0 3px 12px var(--mock-line);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, .35);
   margin-top: 14px;
 }
 
-.gr-star { color: #1E7A4F; font-size: 13px; line-height: 1.9; flex: none; }
+.gr-star { color: #4FBF86; font-size: 13px; line-height: 1.9; flex: none; }
 .gr-input .typer { flex: 1; min-width: 0; font-size: 12.5px; line-height: 1.95; min-height: 46px; }
 
 .gr-side { width: 158px; flex: none; border-left: 1px solid var(--mock-line); padding: 16px 14px; background: var(--paper-3); }
-.gr-lbl { margin: 0 0 8px; font: 600 10px/1 var(--ui); letter-spacing: .08em; text-transform: uppercase; color: #8C8B83; }
+.gr-lbl { margin: 0 0 8px; font: 600 10px/1 var(--ui); letter-spacing: .08em; text-transform: uppercase; color: #7C7A73; }
 .gr-btns { display: flex; gap: 6px; margin-bottom: 18px; }
 .gr-btns span { flex: 1; text-align: center; background: var(--paper-2); border: 1px solid var(--mock-line-2); border-radius: 8px; padding: 4px 0; font: 600 11.5px/1.4 var(--ui); }
 .gr-ask { margin: 0 0 6px; background: var(--paper-2); border: 1px solid var(--mock-line); border-radius: 8px; padding: 5px 10px; font: 400 11.5px/1.4 var(--ui); width: fit-content; }
 
 /* ---- Notion ---- */
-.nt-wrap { display: flex; min-height: 352px; background: #FFFFFF; }
-.nt-side { width: 158px; flex: none; background: #F7F6F3; padding: 16px 12px; border-right: 1px solid var(--mock-line); }
+.nt-wrap { display: flex; min-height: 352px; background: #191919; }
+.nt-side { width: 158px; flex: none; background: #202020; padding: 16px 12px; border-right: 1px solid var(--mock-line); }
 .nt-ws { margin: 0 0 14px; font: 600 12.5px/1 var(--ui); }
 .nt-pg { margin: 0 0 2px; padding: 5px 8px; border-radius: 5px; font: 400 12.5px/1.4 var(--ui); color: var(--mock-sub); }
-.nt-pg.is-on { background: rgba(27, 26, 23, .06); color: var(--mock-ink); font-weight: 500; }
+.nt-pg.is-on { background: rgba(244, 243, 238, .08); color: var(--mock-ink); font-weight: 500; }
 
 .nt-main { flex: 1; min-width: 0; display: flex; flex-direction: column; padding: 26px 28px 16px; }
 .nt-title { margin: 0 0 14px; font: 700 24px/1.2 var(--ui); letter-spacing: -.02em; }
@@ -820,10 +942,11 @@ header[id], section[id] { scroll-margin-top: var(--nav-h); }
   border: 1px solid var(--mock-line-2);
   border-radius: 8px;
   padding: 10px 14px 7px;
-  box-shadow: 0 2px 10px var(--mock-line);
+  background: #202020;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, .35);
 }
 
-.nt-ai { color: #2383E2; font-size: 13px; line-height: 1.9; flex: none; }
+.nt-ai { color: #4E9CF0; font-size: 13px; line-height: 1.9; flex: none; }
 .nt-input .typer { flex: 1; min-width: 0; font-size: 13px; line-height: 1.95; min-height: 46px; }
 
 /* --------------------------------------------------------------------------
@@ -855,7 +978,62 @@ header[id], section[id] { scroll-margin-top: var(--nav-h); }
 .mock--term .seg-tok { font-size: .9em; color: #F4F3EE; background: rgba(244, 243, 238, .1); border-color: rgba(244, 243, 238, .3); }
 
 /* --------------------------------------------------------------------------
-   05 — the surfaces
+   Thesis
+   Its own slab, a shade lighter than the page and warmed from the left, so
+   the argument reads as a plane of its own rather than as the first of the
+   numbered sections.
+   -------------------------------------------------------------------------- */
+
+.section--thesis {
+  padding: 128px 0 136px;
+  background:
+    radial-gradient(64% 78% at 6% 0%, rgb(0, 0, 0), transparent 62%),
+    radial-gradient(52% 62% at 96% 96%, rgba(0, 0, 0, 0.665), transparent 64%),
+    linear-gradient(178deg, #1D1C1D, #212123 72%);
+}
+
+/* Its own grain, a touch heavier than the page's, which is most of what sells
+   the slab as a different material. */
+.section--thesis::before {
+  background-image: var(--grain);
+  opacity: .055;
+}
+
+.thesis {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  column-gap: 76px;
+  align-items: start;
+}
+
+.thesis .eyebrow { grid-column: 1 / -1; margin-bottom: 52px; }
+
+.thesis-h {
+  font: 400 clamp(29px, 3.5vw, 47px)/1.14 var(--sans);
+  letter-spacing: -.032em;
+  color: var(--ink);
+  margin: 0;
+  max-width: 15ch;
+  text-wrap: pretty;
+}
+
+.thesis-body { padding-top: 8px; }
+
+.thesis-p {
+  font: 400 17px/1.68 var(--sans);
+  color: var(--muted);
+  margin: 0 0 26px;
+  max-width: 50ch;
+  text-wrap: pretty;
+}
+
+.thesis-p:last-child {
+  color: var(--ink-3);
+  margin-bottom: 0;
+}
+
+/* --------------------------------------------------------------------------
+   01 — one layer, every surface
    -------------------------------------------------------------------------- */
 
 .surface-row {
@@ -863,14 +1041,81 @@ header[id], section[id] { scroll-margin-top: var(--nav-h); }
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
   gap: 70px;
   align-items: start;
-  margin: 78px 0 0;
+  margin: 124px 0 0;
 }
+
+/* Alternating rows. Every row is written copy-then-visual, so the reading
+   order and the single-column stack are always right; the flip is purely a
+   CSS reorder, and it's undone below 900px. */
+.surface-row--flip {
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+}
+
+.surface-row--flip > :first-child { order: 2; }
 
 .surface-h { font: 500 24px/1.2 var(--sans); letter-spacing: -.02em; color: var(--ink); margin: 0; }
 .surface-p { font: 400 16px/1.6 var(--sans); color: var(--muted); margin: 16px 0 0; max-width: 34ch; }
 
 /* Enters with its parent [data-reveal='up'] rather than on its own timer. */
 .vig-caption { font: 500 15px/1.5 var(--sans); color: var(--ink); margin: 20px 0 0; }
+
+/* --------------------------------------------------------------------------
+   Surface lattice
+   A 5×5 checkerboard of the apps a payload can leave from — only cells whose
+   row and column disagree in parity are ever filled, which is what gives the
+   field its diagonal drift. Most cells stay empty on purpose: the gaps are
+   what keep it reading as a field rather than a logo wall.
+   -------------------------------------------------------------------------- */
+
+.tile-field {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+  /* box-sizing is border-box globally, so this has to carry the 36px of
+     padding as well as the five columns. */
+  max-width: 472px;
+  /* The padding gives the glow room to fade; the matching negative margin
+     pulls the tiles themselves back onto the gutter, so the lattice lines up
+     with the mock windows in the rows above it. */
+  margin: 0 0 0 -18px;
+  padding: 18px;
+  background: radial-gradient(54% 54% at 50% 50%, rgba(110, 155, 255, .12), transparent 72%);
+}
+
+/* Set into the surface, not sitting on it: a flat fill barely above the page,
+   no lift, no shadow. The logos should be the only thing that comes forward. */
+.tile {
+  aspect-ratio: 1;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, .026);
+  transition:
+    background 300ms ease,
+    border-color 300ms ease;
+}
+
+.tile img,
+.tile svg { display: block; width: 38%; height: auto; }
+
+/* Held cells: the lattice without the weight. */
+.tile--empty { background: none; }
+.tile--void { border: 0; background: none; }
+
+.tile:not(.tile--void):not(.tile--empty):hover {
+  background: rgba(255, 255, 255, .05);
+  border-color: var(--line-3);
+}
+
+/* Lead-in to the three steps. */
+.steps-lead { margin: 132px 0 0; }
+.steps-lead + .steps { margin-top: 44px; }
+
+/* The lattice closes the section, so it gets a wider break than the rows
+   above it — it's a change of subject, not the next beat. */
+.surface-row--lattice { margin-top: 150px; }
 
 /* --------------------------------------------------------------------------
    02 — proxy model vs olo
@@ -881,13 +1126,22 @@ header[id], section[id] { scroll-margin-top: var(--nav-h); }
   grid-template-columns: 1fr 1fr;
   gap: 2px; /* the gap is the hairline — the wrapper background shows through */
   margin: 72px 0 0;
-  background: var(--line);
-  border: 1px solid var(--line);
+  background: var(--line-2);
+  border: 1px solid var(--line-2);
+  border-radius: 4px;
+  overflow: hidden;
 }
 
 .compare-col { padding: 42px 36px 46px; }
+
+/* The failing model gets the flat, airless surface; ours gets the light. */
 .compare-col--bad { background: var(--surface-2); }
-.compare-col--good { background: var(--surface); }
+
+.compare-col--good {
+  background:
+    radial-gradient(120% 80% at 0% 0%, rgba(110, 155, 255, .10), transparent 62%),
+    var(--surface);
+}
 
 .compare-label {
   font: 400 11px/1 var(--mono);
@@ -943,7 +1197,7 @@ header[id], section[id] { scroll-margin-top: var(--nav-h); }
   display: block;
   width: 44px;
   height: 10px;
-  background: var(--ac);
+  background: linear-gradient(90deg, var(--ac), var(--ac-2));
   flex: none;
 }
 
@@ -957,7 +1211,7 @@ header[id], section[id] { scroll-margin-top: var(--nav-h); }
    -------------------------------------------------------------------------- */
 
 .statement {
-  border-top: 2px solid var(--line);
+  position: relative;
   padding: 200px 0;
   text-align: center;
 }
@@ -1009,8 +1263,11 @@ header[id], section[id] { scroll-margin-top: var(--nav-h); }
   margin: 78px 0 0;
 }
 
+/* The rule over each step warms towards the accent at its left edge, so the
+   three of them read as a numbered sequence rather than three loose columns. */
 .step {
-  border-top: 1px solid var(--line-2);
+  border-top: 1px solid transparent;
+  border-image: linear-gradient(90deg, var(--ac), var(--line-2) 55%) 1;
   padding: 26px 0 0;
 }
 
@@ -1052,6 +1309,11 @@ header[id], section[id] { scroll-margin-top: var(--nav-h); }
   font: 400 clamp(44px, 6vw, 84px)/1 var(--sans);
   letter-spacing: -.045em;
   color: var(--ac);
+  background: linear-gradient(150deg, var(--ink) -30%, var(--ac) 46%, var(--ac-2) 108%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  width: fit-content;
 }
 
 .stat-p {
@@ -1092,13 +1354,15 @@ header[id], section[id] { scroll-margin-top: var(--nav-h); }
   display: block;
   width: 26px;
   height: 9px;
-  background: var(--line-2);
+  background: var(--line-5);
   flex: none;
   margin-top: 8px;
   transition: background 250ms;
 }
 
-.faq-q[aria-expanded='true'] .faq-mark { background: var(--ac); }
+.faq-q[aria-expanded='true'] .faq-mark {
+  background: linear-gradient(90deg, var(--ac), var(--ac-2));
+}
 
 .faq-a {
   overflow: hidden;
@@ -1167,7 +1431,20 @@ header[id], section[id] { scroll-margin-top: var(--nav-h); }
     gap: 44px;
   }
 
-  .surface-row { margin-top: 56px; }
+  .thesis { grid-template-columns: 1fr; }
+  .thesis .eyebrow { margin-bottom: 36px; }
+  .thesis-body { padding-top: 34px; }
+
+  .surface-row { margin-top: 84px; }
+  .surface-row--lattice { margin-top: 96px; }
+
+  /* Copy leads again once the row is a single column. */
+  .surface-row--flip { grid-template-columns: 1fr; }
+  .surface-row--flip > :first-child { order: 0; }
+
+  .steps-lead { margin-top: 72px; }
+
+  .tile-field { margin: 0 auto; max-width: 380px; }
 
   .compare { grid-template-columns: 1fr; }
 

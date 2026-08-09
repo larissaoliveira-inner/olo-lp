@@ -18,6 +18,34 @@
      Scroll reveals
      ------------------------------------------------------------------------ */
 
+  /* Whisper headlines.
+
+     Split into per-word spans so each can fade up out of a blur on its own
+     delay. The sentence stays a single text node in the markup, so with JS
+     off it simply reads as a headline — nothing to un-hide. Runs before
+     initReveals, which is what actually adds `.is-in`. */
+
+  function initWhisper() {
+    toArray(document.querySelectorAll('[data-reveal="whisper"]')).forEach(function (el) {
+      var words = el.textContent.trim().split(/\s+/);
+      var frag = document.createDocumentFragment();
+
+      words.forEach(function (word, i) {
+        var span = document.createElement('span');
+        span.className = 'w';
+        span.style.setProperty('--i', i);
+        span.textContent = word;
+        frag.appendChild(span);
+        // A real space between words, outside the spans, so the line still
+        // wraps and copies as ordinary prose.
+        if (i < words.length - 1) frag.appendChild(document.createTextNode(' '));
+      });
+
+      el.textContent = '';
+      el.appendChild(frag);
+    });
+  }
+
   function initReveals() {
     var nodes = toArray(document.querySelectorAll('[data-reveal]'));
     if (!nodes.length) return;
@@ -508,6 +536,7 @@
   /* --------------------------------------------------------------------- */
 
   function init() {
+    initWhisper();
     initReveals();
     initDemos();
     initTerminal();
