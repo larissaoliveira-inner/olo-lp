@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>olo · agent terminal mock</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+/* ===========================================================================
+   olo — agent terminal mock (standalone)
+   Extracted from agentDemo() in "Olo Security - Landing.dc.html".
+   Plain HTML + CSS + vanilla JS. No framework, no storage, no build step.
+
+   The terminal has no light variant in the original — every colour here is
+   literal, so this component is theme-independent.
+   =========================================================================== */
+
+*{box-sizing:border-box}
+
+/* --- page shell (preview only — not part of the component) --- */
+body{
+  margin:0;min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:26px;padding:48px 24px;
+  background:#070706;
+  font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+}
+.stage{width:100%;max-width:860px}
+.shell-bar{
+  width:100%;max-width:860px;
+  font-family:'Geist Mono',ui-monospace,'SF Mono',Menlo,monospace;
+  font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#8C8B83;
+}
+
+/* ======================= COMPONENT STARTS HERE ======================= */
+
+.otm{
+  --mono:'Geist Mono',ui-monospace,'SF Mono',Menlo,monospace;
+  --sig:#5CE0C6;
+  width:100%;
+  border:1px solid rgba(244,243,238,0.14);
+  border-radius:14px;
+  background:#0B0B0A;
+  overflow:hidden;
+  font-family:var(--mono);
+}
+
+/* --- chrome --- */
+.otm-chrome{
+  display:flex;align-items:center;padding:12px 16px;
+  background:#111110;
+  border-bottom:1px solid rgba(244,243,238,0.08);
+}
+.otm-dots{display:flex;gap:7px;flex-shrink:0}
+.otm-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0}
+.otm-title{flex:1;text-align:center;font-size:12px;color:#8C8B83}
+.otm-chrome-sp{width:47px;flex-shrink:0}
+
+/* --- body --- */
+.otm-body{
+  padding:20px 24px 26px;
+  font-size:13px;line-height:2.2;color:#B7B6AE;
+  min-height:178px;box-sizing:border-box;
+}
+.otm-prompt{white-space:pre-wrap}
+.otm-user{color:#5A8A62}
+.otm-dim{color:#56554E}
+.otm-olo{color:#F4F3EE;font-weight:500}
+
+/* staged output lines, revealed on their data-at timings */
+.term-line{white-space:pre-wrap;opacity:0;transition:opacity .3s}
+.term-line.is-muted{color:#8C8B83}
+
+/* dark-surface token chip (DT() in the original) */
+.otm-tok{
+  font-family:var(--mono);font-size:0.9em;
+  color:#F4F3EE;
+  background:rgba(244,243,238,0.1);
+  border:1px solid rgba(244,243,238,0.3);
+  padding:1px 7px;border-radius:5px;white-space:nowrap;
+}
+
+.otm-caret{
+  display:inline-block;width:7px;height:1.05em;
+  background:#B7B6AE;vertical-align:-2px;margin-left:1px;
+}
+
+@keyframes oloCaret{0%,50%{opacity:1}51%,100%{opacity:0}}
+
+@media (prefers-reduced-motion:no-preference){
+  .otm-caret{animation:oloCaret 1.06s step-end infinite}
+}
+
+/* ======================== COMPONENT ENDS HERE ======================== */
+</style>
+</head>
+<body>
+
+<div class="shell-bar">olo · agent pipeline surface</div>
+
+<div class="stage">
+  <div class="otm">
+    <div class="otm-chrome">
+      <div class="otm-dots">
+        <span class="otm-dot" style="background:#FF5F57"></span>
+        <span class="otm-dot" style="background:#FEBC2E"></span>
+        <span class="otm-dot" style="background:#28C840"></span>
+      </div>
+      <span class="otm-title">Terminal · zsh · 80×24</span>
+      <span class="otm-chrome-sp"></span>
+    </div>
+
+    <div class="otm-body" id="term-box">
+      <div class="otm-prompt"><span class="otm-user">ops@macbook</span><span class="otm-dim"> ~ % </span><span class="term-cmd" data-text="agent run finance-reconciler --task &quot;reconcile May invoices&quot;"></span><span class="otm-caret"></span></div>
+
+      <div class="term-line is-muted" data-at="300"><span class="otm-dim">  </span>agent composing request → api.anthropic.com</div>
+
+      <div class="term-line" data-at="950"><span class="otm-dim">  </span>payload: { "context": "from <span class="otm-tok">[ORG]</span> , <span class="otm-tok">[AMOUNT]</span> , acct <span class="otm-tok">[ACCOUNT]</span>" }</div>
+
+      <div class="term-line" data-at="1700"><span class="otm-olo">olo  </span>3 spans rewritten · policy pass · 0 sensitive bytes out</div>
+
+      <div class="term-line is-muted" data-at="2450"><span class="otm-dim">→  </span>200 OK · response restored locally</div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* -------------------------------------------------------------------------
+     Faithful port of stepTerm() from ensureTyper().
+
+     The command types at 24ms/char. Output lines fade in once elapsed time
+     passes cmdMs + 260 + their own data-at offset. The whole sequence loops
+     after cmdMs + 2400 + 4000.
+     ---------------------------------------------------------------------- */
+  var CHAR_MS = 24, LEAD = 260, HOLD = 2400, TAIL = 4000;
+  var state = null;
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)");
+
+  function stepTerm() {
+    var box = document.getElementById("term-box");
+    if (!box) return;
+    if (!state) state = { t0: Date.now() };
+
+    var rect = box.getBoundingClientRect();
+    if (rect.top > window.innerHeight || rect.bottom < 0) state.t0 = Date.now();
+
+    var cmd = box.querySelector(".term-cmd");
+    if (!cmd) return;
+
+    var full = cmd.getAttribute("data-text") || "";
+    var cmdMs = full.length * CHAR_MS;
+
+    /* Reduced motion: hold the finished state, never loop. */
+    var el = (reduce && reduce.matches) ? cmdMs + LEAD + 3000 : Date.now() - state.t0;
+
+    if (!(reduce && reduce.matches) && el > cmdMs + HOLD + TAIL) {
+      state.t0 = Date.now();
+      return;
+    }
+
+    var vis = Math.min(Math.floor(el / CHAR_MS), full.length);
+    var s = full.slice(0, vis);
+    if (cmd.textContent !== s) cmd.textContent = s;
+
+    box.querySelectorAll(".term-line").forEach(function (ln) {
+      var at = cmdMs + LEAD + parseInt(ln.getAttribute("data-at") || "0", 10);
+      ln.style.opacity = el >= at ? "1" : "0";
+    });
+  }
+
+  function step() {
+    stepTerm();
+    requestAnimationFrame(step);
+  }
+
+  requestAnimationFrame(step);
+})();
+</script>
+</body>
+</html>

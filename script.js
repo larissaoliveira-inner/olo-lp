@@ -1,6 +1,7 @@
 /* olo security — landing page behaviour
-   Three independent widgets: scroll reveals, the redaction vignette, the FAQ.
-   Each is defensive: if its markup is absent, it no-ops. */
+   Independent widgets: scroll reveals, the device demos, the agent terminal,
+   the FAQ, the nav theme. Each is defensive: if its markup is absent, it
+   no-ops. */
 
 (function () {
   'use strict';
@@ -48,56 +49,73 @@
   }
 
   /* ------------------------------------------------------------------------
-     The redaction vignette
+     The device demos — browser tabs and desktop apps
 
-     Segment text lives in the markup (so it still reads with JS disabled);
-     this just truncates it to a character count and toggles the bars.
+     Segment text lives in the markup (so the page still reads with JS
+     disabled); this truncates it to a character count, wipes the bar across
+     each flagged span, then replaces the value with its token. Once a span is
+     tokenized its real text is removed from the DOM, so nothing sensitive is
+     left behind to read or copy.
      ------------------------------------------------------------------------ */
 
-  function initVignette() {
-    var root = document.getElementById('vigText');
-    var frame = document.getElementById('vignette');
-    if (!root || !frame) return;
+  var TYPE_MS = 24;
+  var REDACT_DELAY = 800;
+  var REDACT_STEP = 620;
+  var TOKEN_MS = 300;
+  var HOLD_MS = 4200;
+  var ROTATE_MS = 5000;
 
-    var segs = toArray(root.querySelectorAll('.seg')).map(function (el) {
-      var textEl = el.querySelector('.seg-t') || el;
+  function makeTyper(box) {
+    var segs = toArray(box.querySelectorAll('.seg')).map(function (el) {
+      var textEl = el.querySelector('.seg-t');
       return {
         el: el,
         textEl: textEl,
-        full: textEl.textContent,
-        flag: el.hasAttribute('data-flag') ? Number(el.getAttribute('data-flag')) : -1
+        full: textEl ? textEl.textContent : '',
+        flag: el.classList.contains('seg--flag')
       };
     });
-    if (!segs.length) return;
+    if (!segs.length) return null;
 
+    var flagged = segs.filter(function (seg) { return seg.flag; });
     var total = segs.reduce(function (n, seg) { return n + seg.full.length; }, 0);
-    var caret = document.getElementById('vigCaret');
-    var caption = document.getElementById('vigCaption');
-    var logs = toArray(document.querySelectorAll('.vig-log'));
-
-    var TYPE_MS = 24;
-    var REDACT_DELAY = 800;
-    var REDACT_STEP = 620;
-    var HOLD_MS = 4200;
+    var caret = box.querySelector('.caret');
+    var panel = box.closest ? box.closest('.mock-panel') : null;
+    var status = panel ? panel.querySelector('.mock-status') : null;
+    var doneText = box.getAttribute('data-done') || 'clean';
 
     var timers = [];
     var interval = null;
-    var started = false;
 
-    function render(chars, redacted, captionOn) {
+    function paint(chars) {
       var consumed = 0;
       segs.forEach(function (seg) {
+        if (!seg.textEl) return;
         var shown = Math.max(0, Math.min(seg.full.length, chars - consumed));
         consumed += seg.full.length;
+        // A tokenized span has had its real text deleted; leave it alone.
+        if (seg.el.classList.contains('is-tokenized')) return;
         seg.textEl.textContent = seg.full.slice(0, shown);
-        var isRedacted =
-          seg.flag >= 0 && !!redacted[seg.flag] && shown === seg.full.length;
-        seg.el.classList.toggle('is-redacted', isRedacted);
       });
-
       if (caret) caret.classList.toggle('is-hidden', chars >= total);
-      logs.forEach(function (log, i) { log.classList.toggle('is-on', !!redacted[i]); });
-      if (caption) caption.classList.toggle('is-on', !!captionOn);
+    }
+
+    function reset() {
+      segs.forEach(function (seg) {
+        seg.el.classList.remove('is-redacted', 'is-tokenized');
+        if (seg.textEl) seg.textEl.textContent = '';
+      });
+      if (status) status.textContent = 'reading on device…';
+      paint(0);
+    }
+
+    function settle() {
+      segs.forEach(function (seg) {
+        if (seg.textEl) seg.textEl.textContent = seg.flag ? '' : seg.full;
+        if (seg.flag) seg.el.classList.add('is-redacted', 'is-tokenized');
+      });
+      if (caret) caret.classList.add('is-hidden');
+      if (status) status.textContent = doneText;
     }
 
     function stop() {
@@ -108,28 +126,31 @@
     }
 
     function redactSequence() {
-      var redacted = [0, 0, 0];
-      redacted.forEach(function (_, i) {
+      flagged.forEach(function (seg, i) {
+        var at = REDACT_DELAY + i * REDACT_STEP;
         timers.push(setTimeout(function () {
-          redacted[i] = 1;
-          render(total, redacted, false);
-        }, REDACT_DELAY + i * REDACT_STEP));
+          seg.el.classList.add('is-redacted');
+        }, at));
+        timers.push(setTimeout(function () {
+          seg.el.classList.add('is-tokenized');
+          if (seg.textEl) seg.textEl.textContent = '';
+        }, at + TOKEN_MS));
       });
 
-      var settled = REDACT_DELAY + redacted.length * REDACT_STEP;
+      var settled = REDACT_DELAY + flagged.length * REDACT_STEP;
       timers.push(setTimeout(function () {
-        render(total, redacted, true);
+        if (status) status.textContent = doneText;
       }, settled));
-      timers.push(setTimeout(runCycle, settled + HOLD_MS));
+      timers.push(setTimeout(run, settled + HOLD_MS));
     }
 
-    function runCycle() {
+    function run() {
       stop();
+      reset();
       var chars = 0;
-      render(chars, [0, 0, 0], false);
       interval = setInterval(function () {
         chars += 1;
-        render(chars, [0, 0, 0], false);
+        paint(chars);
         if (chars < total) return;
         clearInterval(interval);
         interval = null;
@@ -137,26 +158,140 @@
       }, TYPE_MS);
     }
 
-    function start() {
-      if (started) return;
-      started = true;
-      runCycle();
-    }
+    return { run: run, stop: stop, settle: settle };
+  }
+
+  function initDemos() {
+    var mocks = toArray(document.querySelectorAll('[data-demo]'));
+    if (!mocks.length) return;
+    mocks.forEach(setupMock);
+  }
+
+  function setupMock(mock) {
+    var panels = toArray(mock.querySelectorAll('.mock-panel'));
+    if (!panels.length) return;
+
+    var ids = panels.map(function (p) { return p.id; });
+
+    // The browser's tablist sits inside the window; the desktop dock sits
+    // outside it. Match on aria-controls so placement doesn't matter.
+    var tabs = toArray(document.querySelectorAll('[role="tab"]')).filter(function (tab) {
+      return ids.indexOf(tab.getAttribute('aria-controls')) !== -1;
+    });
+
+    var typers = panels.map(function (panel) {
+      var box = panel.querySelector('[data-typer]');
+      return box ? makeTyper(box) : null;
+    });
+
+    var current = 0;
+    var started = false;
+    var rotateTimer = null;
+    var hovering = false;
+    var userPicked = false;
+
+    // Park every panel on its redacted end state before anything starts. Only
+    // the panel currently animating ever holds a real value in the DOM; the
+    // rest hold tokens. (The strings still ship in the HTML source — that is
+    // the cost of keeping the demo readable with JS off.)
+    typers.forEach(function (typer) { if (typer) typer.settle(); });
 
     if (reducedMotion) {
-      render(total, [1, 1, 1], true);
+      wireTabs();
       return;
     }
 
+    function show(next) {
+      if (next === current) return;
+      var prev = typers[current];
+      if (prev) {
+        prev.stop();
+        prev.settle();
+      }
+
+      current = next;
+      panels.forEach(function (panel, i) {
+        if (i === next) panel.removeAttribute('hidden');
+        else panel.setAttribute('hidden', '');
+      });
+      tabs.forEach(function (tab, i) {
+        var on = i === next;
+        tab.classList.toggle('is-on', on);
+        tab.setAttribute('aria-selected', on ? 'true' : 'false');
+        tab.tabIndex = on ? 0 : -1;
+      });
+
+      if (started && typers[next]) typers[next].run();
+    }
+
+    function pick(i) {
+      userPicked = true;
+      stopRotate();
+      show(i);
+    }
+
+    function wireTabs() {
+      tabs.forEach(function (tab, i) {
+        tab.addEventListener('click', function () { pick(i); });
+
+        // Arrow-key movement is expected of anything with role="tablist".
+        tab.addEventListener('keydown', function (event) {
+          var step =
+            event.key === 'ArrowRight' || event.key === 'ArrowDown' ? 1 :
+            event.key === 'ArrowLeft' || event.key === 'ArrowUp' ? -1 :
+            event.key === 'Home' ? -i :
+            event.key === 'End' ? tabs.length - 1 - i : 0;
+          if (!step) return;
+          event.preventDefault();
+          var next = (i + step + tabs.length) % tabs.length;
+          pick(next);
+          tabs[next].focus();
+        });
+      });
+    }
+
+    function stopRotate() {
+      clearTimeout(rotateTimer);
+      rotateTimer = null;
+    }
+
+    // Only the desktop window cycles on its own, and only until the reader
+    // takes over by picking an app.
+    function scheduleRotate() {
+      if (mock.getAttribute('data-demo') !== 'desktop' || userPicked) return;
+      stopRotate();
+      rotateTimer = setTimeout(function () {
+        if (!hovering && !userPicked) show((current + 1) % panels.length);
+        scheduleRotate();
+      }, ROTATE_MS);
+    }
+
+    function start() {
+      if (started) return;
+      started = true;
+      if (typers[current]) typers[current].run();
+      scheduleRotate();
+    }
+
+    function halt() {
+      stopRotate();
+      typers.forEach(function (typer) { if (typer) typer.stop(); });
+    }
+
+    wireTabs();
+
+    mock.addEventListener('pointerenter', function () { hovering = true; });
+    mock.addEventListener('pointerleave', function () { hovering = false; });
+
     if ('IntersectionObserver' in window) {
-      var vo = new IntersectionObserver(function (entries) {
+      var io = new IntersectionObserver(function (entries) {
         entries.forEach(function (entry) {
           if (!entry.isIntersecting) return;
-          vo.disconnect();
+          io.disconnect();
           start();
         });
       }, { threshold: 0.35 });
-      vo.observe(frame);
+      io.observe(mock);
     } else {
       start();
     }
@@ -164,8 +299,107 @@
     // Don't burn a 24ms interval in a background tab.
     document.addEventListener('visibilitychange', function () {
       if (!started) return;
+      if (document.hidden) halt();
+      else {
+        if (typers[current]) typers[current].run();
+        scheduleRotate();
+      }
+    });
+  }
+
+  /* ------------------------------------------------------------------------
+     The agent terminal
+
+     Same idea, simpler: type the command, then reveal each output line on its
+     own data-at offset. Nothing here is ever un-redacted — the payload line
+     ships as tokens in the markup.
+     ------------------------------------------------------------------------ */
+
+  function initTerminal() {
+    var box = document.querySelector('[data-term]');
+    if (!box) return;
+
+    var cmd = box.querySelector('.term-cmd');
+    var lines = toArray(box.querySelectorAll('.term-line'));
+    if (!cmd || !lines.length) return;
+
+    var full = cmd.textContent;
+    var caret = box.querySelector('.caret');
+    var CHAR_MS = 22;
+    var LEAD = 260;
+
+    var last = lines.reduce(function (n, line) {
+      return Math.max(n, Number(line.getAttribute('data-at')) || 0);
+    }, 0);
+
+    var timers = [];
+    var interval = null;
+    var started = false;
+
+    function settle() {
+      cmd.textContent = full;
+      lines.forEach(function (line) { line.classList.add('is-on'); });
+      if (caret) caret.classList.add('is-hidden');
+    }
+
+    function stop() {
+      timers.forEach(clearTimeout);
+      timers = [];
+      clearInterval(interval);
+      interval = null;
+    }
+
+    function run() {
+      stop();
+      var chars = 0;
+      cmd.textContent = '';
+      lines.forEach(function (line) { line.classList.remove('is-on'); });
+      if (caret) caret.classList.remove('is-hidden');
+
+      interval = setInterval(function () {
+        chars += 1;
+        cmd.textContent = full.slice(0, chars);
+        if (chars < full.length) return;
+        clearInterval(interval);
+        interval = null;
+        if (caret) caret.classList.add('is-hidden');
+
+        lines.forEach(function (line) {
+          var at = LEAD + (Number(line.getAttribute('data-at')) || 0);
+          timers.push(setTimeout(function () { line.classList.add('is-on'); }, at));
+        });
+        timers.push(setTimeout(run, LEAD + last + HOLD_MS));
+      }, CHAR_MS);
+    }
+
+    if (reducedMotion) {
+      settle();
+      return;
+    }
+
+    function start() {
+      if (started) return;
+      started = true;
+      run();
+    }
+
+    if ('IntersectionObserver' in window) {
+      var to = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          to.disconnect();
+          start();
+        });
+      }, { threshold: 0.35 });
+      to.observe(box);
+    } else {
+      start();
+    }
+
+    document.addEventListener('visibilitychange', function () {
+      if (!started) return;
       if (document.hidden) stop();
-      else runCycle();
+      else run();
     });
   }
 
@@ -256,7 +490,8 @@
 
   function init() {
     initReveals();
-    initVignette();
+    initDemos();
+    initTerminal();
     initFaq();
     initNavTheme();
   }

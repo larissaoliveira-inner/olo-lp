@@ -25,6 +25,13 @@
 [data-reveal='wipe'] { transform: scaleX(0) !important; }
 .faq-a { max-height: none !important; opacity: 1 !important; }
 .caret { display: none; }
+
+/* The demos are mid-animation markup. With no JS to run them, show the state
+   that matters — fully redacted — so no real value is ever on screen. */
+.seg--flag .seg-t,
+.seg-bar { display: none !important; }
+.seg--flag .seg-tok { display: inline-block !important; }
+.term-line { opacity: 1 !important; }
 </style>
 </noscript>
 </head>
@@ -40,8 +47,9 @@
 <div class="nav-links">
 <a class="link-wipe" href="#v2s01">the leak</a>
 <a class="link-wipe" href="#v2s04">how it works</a>
-<a class="link-wipe" href="#v2s06">faq</a>
-<a class="btn-ghost" href="#v2s07">request access</a>
+<a class="link-wipe" href="#v2s05">surfaces</a>
+<a class="link-wipe" href="#v2s07">faq</a>
+<a class="btn-ghost" href="#v2s08">request access</a>
 </div>
 </div>
 </nav>
@@ -68,20 +76,53 @@
 </div>
 
 <div data-reveal="up">
-<div class="vignette" id="vignette">
-<div class="vig-head">
-<span class="vig-meta">assistant · new message</span>
-<span class="vig-meta">olo · active</span>
+
+<!-- Browser surface. Every `.seg-t` holds its real text in the markup so the
+     page still reads with JS off; script.js truncates it to a character count,
+     wipes the bar across, then swaps in the token and clears the real value. -->
+<div class="mock" data-demo="browser" role="group" aria-label="Demo: a prompt typed into an AI assistant, with sensitive values rewritten on the device before the request is sent">
+<div class="mock-tabs" role="tablist" aria-label="Assistant">
+<span class="mock-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+<button class="mock-tab is-on" type="button" role="tab" id="tab-claude" aria-controls="panel-claude" aria-selected="true">claude</button>
+<button class="mock-tab" type="button" role="tab" id="tab-chatgpt" aria-controls="panel-chatgpt" aria-selected="false" tabindex="-1">chatgpt</button>
+<button class="mock-tab" type="button" role="tab" id="tab-gemini" aria-controls="panel-gemini" aria-selected="false" tabindex="-1">gemini</button>
 </div>
-<!-- Kept on one line: whitespace between these inline spans would render. -->
-<div class="vig-body" id="vigText"><span class="seg"><span class="seg-t">"Following up on the </span></span><span class="seg seg--flag" data-flag="0"><span class="seg-t">Meridian Health</span><span class="seg-bar"></span></span><span class="seg"><span class="seg-t"> contract for patient Jane Doe, </span></span><span class="seg seg--flag" data-flag="1"><span class="seg-t">MRN 4419827</span><span class="seg-bar"></span></span><span class="seg"><span class="seg-t">, re: the </span></span><span class="seg seg--flag" data-flag="2"><span class="seg-t">$2.4M</span><span class="seg-bar"></span></span><span class="seg"><span class="seg-t"> settlement…"</span></span><span class="caret" id="vigCaret" aria-hidden="true"></span></div>
-<div class="vig-logs">
-<div class="vig-log"><span class="mark" aria-hidden="true"></span>client name — redacted on device</div>
-<div class="vig-log"><span class="mark" aria-hidden="true"></span>MRN — redacted on device</div>
-<div class="vig-log"><span class="mark" aria-hidden="true"></span>settlement figure — redacted on device</div>
+
+<div class="mock-panel" role="tabpanel" id="panel-claude" aria-labelledby="tab-claude">
+<div class="mock-url">claude.ai/new</div>
+<div class="mock-body">
+<p class="mock-greet">What can I help with?</p>
+<div class="mock-input">
+<div class="typer" data-typer data-done="clean · 3 spans rewritten on device"><span class="seg"><span class="seg-t">"Following up on the </span></span><span class="seg seg--flag"><span class="seg-t">Meridian Health</span><span class="seg-bar" aria-hidden="true"></span><span class="seg-tok">[ORG]</span></span><span class="seg"><span class="seg-t"> contract for patient Jane Doe, </span></span><span class="seg seg--flag"><span class="seg-t">MRN 4419827</span><span class="seg-bar" aria-hidden="true"></span><span class="seg-tok">[MRN]</span></span><span class="seg"><span class="seg-t">, re: the </span></span><span class="seg seg--flag"><span class="seg-t">$2.4M</span><span class="seg-bar" aria-hidden="true"></span><span class="seg-tok">[AMOUNT]</span></span><span class="seg"><span class="seg-t"> settlement…"</span></span><span class="caret" aria-hidden="true"></span></div>
 </div>
 </div>
-<p class="vig-caption" id="vigCaption">Nothing left the device. You kept typing.</p>
+<p class="mock-foot"><span class="mock-mark" aria-hidden="true"></span><span class="mock-status">reading on device…</span></p>
+</div>
+
+<div class="mock-panel" role="tabpanel" id="panel-chatgpt" aria-labelledby="tab-chatgpt" hidden>
+<div class="mock-url">chatgpt.com</div>
+<div class="mock-body">
+<p class="mock-greet">Where should we start?</p>
+<div class="mock-input">
+<div class="typer" data-typer data-done="clean · 2 spans rewritten on device"><span class="seg"><span class="seg-t">Why does this request 401? headers = { Authorization: "Bearer </span></span><span class="seg seg--flag"><span class="seg-t">sk-live-9f2KQ81xPZ44</span><span class="seg-bar" aria-hidden="true"></span><span class="seg-tok">[API_KEY]</span></span><span class="seg"><span class="seg-t">" }, it worked yesterday on acct </span></span><span class="seg seg--flag"><span class="seg-t">7731-00452</span><span class="seg-bar" aria-hidden="true"></span><span class="seg-tok">[ACCOUNT]</span></span><span class="seg"><span class="seg-t">.</span></span><span class="caret" aria-hidden="true"></span></div>
+</div>
+</div>
+<p class="mock-foot"><span class="mock-mark" aria-hidden="true"></span><span class="mock-status">reading on device…</span></p>
+</div>
+
+<div class="mock-panel" role="tabpanel" id="panel-gemini" aria-labelledby="tab-gemini" hidden>
+<div class="mock-url">gemini.google.com</div>
+<div class="mock-body">
+<p class="mock-greet">Hello, Alex</p>
+<div class="mock-input">
+<div class="typer" data-typer data-done="clean · 3 spans rewritten on device"><span class="seg"><span class="seg-t">Draft an offer letter for </span></span><span class="seg seg--flag"><span class="seg-t">Priya Sharma</span><span class="seg-bar" aria-hidden="true"></span><span class="seg-tok">[NAME]</span></span><span class="seg"><span class="seg-t">, SSN </span></span><span class="seg seg--flag"><span class="seg-t">545-81-2210</span><span class="seg-bar" aria-hidden="true"></span><span class="seg-tok">[SSN]</span></span><span class="seg"><span class="seg-t">, base </span></span><span class="seg seg--flag"><span class="seg-t">$185,000</span><span class="seg-bar" aria-hidden="true"></span><span class="seg-tok">[AMOUNT]</span></span><span class="seg"><span class="seg-t">, start August 3.</span></span><span class="caret" aria-hidden="true"></span></div>
+</div>
+</div>
+<p class="mock-foot"><span class="mock-mark" aria-hidden="true"></span><span class="mock-status">reading on device…</span></p>
+</div>
+
+</div>
+<p class="vig-caption">Nothing left the device. You kept typing.</p>
 </div>
 
 </div>
@@ -145,15 +186,15 @@
 <div class="steps" data-reveal="up" style="--d:.18s">
 <div class="step">
 <div class="step-head"><span class="step-num">1</span><h3 class="step-title">Detect</h3></div>
-<p class="step-body">A 14.7MB on-device classifier reads the payload where it lives.</p>
+<p class="step-body">A 14.7MB classifier reads the payload on the device, where it already lives.</p>
 </div>
 <div class="step">
 <div class="step-head"><span class="step-num">2</span><h3 class="step-title">Classify</h3></div>
-<p class="step-body">Sensitive items identified locally, in about 4.5 milliseconds.</p>
+<p class="step-body">Every sensitive span is identified on the device in about 4.5 milliseconds. That is on-device time, not end-to-end request latency.</p>
 </div>
 <div class="step">
 <div class="step-head"><span class="step-num">3</span><h3 class="step-title">Redact</h3></div>
-<p class="step-body">Stripped in place. Nothing downstream to log, subpoena, or breach.</p>
+<p class="step-body">Each span is rewritten in place. Nothing downstream to log, subpoena, or breach.</p>
 </div>
 </div>
 
@@ -163,7 +204,105 @@
 <!-- 05 ------------------------------------------------------------------ -->
 <section class="section" id="v2s05">
 <div class="wrap">
-<p class="eyebrow eyebrow--loose" data-reveal="up">[ 04 ] the numbers</p>
+<p class="eyebrow" data-reveal="up">[ 04 ] the surfaces</p>
+<h2 class="h2" data-reveal="up" style="--d:.06s;max-width:18ch">One layer. Every surface it can leave from.</h2>
+<p class="lede" data-reveal="up" style="--d:.12s;max-width:44ch">A chat box, a native client, an agent working with no one at the keyboard — the payload is rewritten at the same place every time.</p>
+
+<div class="surface-row">
+<div>
+<h3 class="surface-h" data-reveal="up">Native clients too.</h3>
+<p class="surface-p" data-reveal="up" style="--d:.06s">The same layer sits inside the desktop apps your team already has open. The message is cleaned before it leaves the machine.</p>
+</div>
+
+<div data-reveal="up" style="--d:.12s">
+<div class="mock" data-demo="desktop" role="group" aria-label="Demo: a message composed in a desktop app, with sensitive values rewritten on the device before it is sent">
+
+<div class="mock-panel" role="tabpanel" id="app-slack" aria-labelledby="app-tab-slack">
+<div class="mock-bar"><span class="mock-dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="mock-title">Acme Co · Slack</span></div>
+<div class="mock-body">
+<p class="app-ctx"># offers · 12 members</p>
+<p class="app-line"><b>Kim L.</b> offer docs are ready for review</p>
+<div class="mock-input">
+<div class="typer" data-typer data-done="clean · 3 spans rewritten before send"><span class="seg"><span class="seg-t">@assistant summarize the offer for </span></span><span class="seg seg--flag"><span class="seg-t">Jordan Patel</span><span class="seg-bar" aria-hidden="true"></span><span class="seg-tok">[NAME]</span></span><span class="seg"><span class="seg-t">: SSN </span></span><span class="seg seg--flag"><span class="seg-t">545-81-2210</span><span class="seg-bar" aria-hidden="true"></span><span class="seg-tok">[SSN]</span></span><span class="seg"><span class="seg-t">, base </span></span><span class="seg seg--flag"><span class="seg-t">$185,000</span><span class="seg-bar" aria-hidden="true"></span><span class="seg-tok">[AMOUNT]</span></span><span class="seg"><span class="seg-t">.</span></span><span class="caret" aria-hidden="true"></span></div>
+</div>
+</div>
+<p class="mock-foot"><span class="mock-mark" aria-hidden="true"></span><span class="mock-status">reading on device…</span></p>
+</div>
+
+<div class="mock-panel" role="tabpanel" id="app-cursor" aria-labelledby="app-tab-cursor" hidden>
+<div class="mock-bar"><span class="mock-dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="mock-title">acme-billing · Cursor</span></div>
+<div class="mock-body">
+<p class="app-ctx">chat · agent</p>
+<p class="app-line"><b>@ reconcile.ts</b> charge() returns 401</p>
+<div class="mock-input">
+<div class="typer" data-typer data-done="clean · 2 spans rewritten before the request left the editor"><span class="seg"><span class="seg-t">Charge fails with 401. Key </span></span><span class="seg seg--flag"><span class="seg-t">sk-live-4Qz88LmXo2</span><span class="seg-bar" aria-hidden="true"></span><span class="seg-tok">[API_KEY]</span></span><span class="seg"><span class="seg-t"> on account </span></span><span class="seg seg--flag"><span class="seg-t">7731-00452</span><span class="seg-bar" aria-hidden="true"></span><span class="seg-tok">[ACCOUNT]</span></span><span class="seg"><span class="seg-t">.</span></span><span class="caret" aria-hidden="true"></span></div>
+</div>
+</div>
+<p class="mock-foot"><span class="mock-mark" aria-hidden="true"></span><span class="mock-status">reading on device…</span></p>
+</div>
+
+<div class="mock-panel" role="tabpanel" id="app-granola" aria-labelledby="app-tab-granola" hidden>
+<div class="mock-bar"><span class="mock-dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="mock-title">Intro call: Northwind · Granola</span></div>
+<div class="mock-body">
+<p class="app-ctx">notes · today</p>
+<p class="app-line">Renewal scoped at <span class="seg-tok">[AMOUNT]</span> ARR with <span class="seg-tok">[ORG]</span></p>
+<div class="mock-input">
+<div class="typer" data-typer data-done="clean · 2 spans rewritten on device"><span class="seg"><span class="seg-t">What did we agree with </span></span><span class="seg seg--flag"><span class="seg-t">Northwind Trading</span><span class="seg-bar" aria-hidden="true"></span><span class="seg-tok">[ORG]</span></span><span class="seg"><span class="seg-t"> on the </span></span><span class="seg seg--flag"><span class="seg-t">$120,000</span><span class="seg-bar" aria-hidden="true"></span><span class="seg-tok">[AMOUNT]</span></span><span class="seg"><span class="seg-t"> renewal?</span></span><span class="caret" aria-hidden="true"></span></div>
+</div>
+</div>
+<p class="mock-foot"><span class="mock-mark" aria-hidden="true"></span><span class="mock-status">reading on device…</span></p>
+</div>
+
+<div class="mock-panel" role="tabpanel" id="app-browserbase" aria-labelledby="app-tab-browserbase" hidden>
+<div class="mock-bar"><span class="mock-dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="mock-title">acme-invoices · Browserbase</span></div>
+<div class="mock-body">
+<p class="app-ctx">session bb_7f3a92 · running</p>
+<p class="app-line"><b>vendors.acmepay.com/login</b> waiting for credentials</p>
+<div class="mock-input">
+<div class="typer" data-typer data-done="clean · 2 spans rewritten before the cloud browser sees them"><span class="seg"><span class="seg-t">Download May invoices. Sign in as </span></span><span class="seg seg--flag"><span class="seg-t">jordan@acme.com</span><span class="seg-bar" aria-hidden="true"></span><span class="seg-tok">[EMAIL]</span></span><span class="seg"><span class="seg-t"> with </span></span><span class="seg seg--flag"><span class="seg-t">Tr0ub4dor&amp;3</span><span class="seg-bar" aria-hidden="true"></span><span class="seg-tok">[PASSWORD]</span></span><span class="seg"><span class="seg-t">.</span></span><span class="caret" aria-hidden="true"></span></div>
+</div>
+</div>
+<p class="mock-foot"><span class="mock-mark" aria-hidden="true"></span><span class="mock-status">reading on device…</span></p>
+</div>
+
+</div>
+
+<div class="dock" role="tablist" aria-label="Desktop app">
+<button class="dock-btn is-on" type="button" role="tab" id="app-tab-slack" aria-controls="app-slack" aria-selected="true"><span class="dock-tile" aria-hidden="true">S</span>slack</button>
+<button class="dock-btn" type="button" role="tab" id="app-tab-cursor" aria-controls="app-cursor" aria-selected="false" tabindex="-1"><span class="dock-tile" aria-hidden="true">C</span>cursor</button>
+<button class="dock-btn" type="button" role="tab" id="app-tab-granola" aria-controls="app-granola" aria-selected="false" tabindex="-1"><span class="dock-tile" aria-hidden="true">G</span>granola</button>
+<button class="dock-btn" type="button" role="tab" id="app-tab-browserbase" aria-controls="app-browserbase" aria-selected="false" tabindex="-1"><span class="dock-tile" aria-hidden="true">B</span>browserbase</button>
+</div>
+</div>
+</div>
+
+<div class="surface-row">
+<div>
+<h3 class="surface-h" data-reveal="up">No human at the keyboard.</h3>
+<p class="surface-p" data-reveal="up" style="--d:.06s">Autonomous agents send payloads no one reviews. They are gated the same way, at the same edge.</p>
+</div>
+
+<div data-reveal="up" style="--d:.12s">
+<div class="mock mock--term" role="group" aria-label="Demo: an autonomous agent's request, with sensitive values rewritten on the device before the payload leaves">
+<div class="mock-bar"><span class="mock-dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="mock-title">agent · zsh</span></div>
+<div class="term" data-term>
+<p class="term-row"><span class="term-user">ops@macbook</span><span class="term-dim"> ~ % </span><span class="term-cmd">agent run finance-reconciler --task "reconcile May invoices"</span><span class="caret" aria-hidden="true"></span></p>
+<p class="term-line" data-at="300">agent composing request → api.anthropic.com</p>
+<p class="term-line term-line--bright" data-at="950">payload: { "context": "from <span class="seg-tok">[ORG]</span>, <span class="seg-tok">[AMOUNT]</span>, acct <span class="seg-tok">[ACCOUNT]</span>" }</p>
+<p class="term-line term-line--bright" data-at="1700"><b class="term-olo">olo</b> 3 spans rewritten · policy pass · 0 sensitive bytes out</p>
+<p class="term-line" data-at="2450">→ 200 OK · response restored locally</p>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+</section>
+
+<!-- 06 ------------------------------------------------------------------ -->
+<section class="section" id="v2s06">
+<div class="wrap">
+<p class="eyebrow eyebrow--loose" data-reveal="up">[ 05 ] the numbers</p>
 <div class="stats">
 <div data-reveal="up">
 <div class="stat-n">~4.5 ms</div>
@@ -181,10 +320,10 @@
 </div>
 </section>
 
-<!-- 06 ------------------------------------------------------------------ -->
-<section class="section" id="v2s06">
+<!-- 07 ------------------------------------------------------------------ -->
+<section class="section" id="v2s07">
 <div class="wrap">
-<p class="eyebrow eyebrow--faq" data-reveal="up">[ 05 ] faq</p>
+<p class="eyebrow eyebrow--faq" data-reveal="up">[ 06 ] faq</p>
 <div class="faq">
 
 <div class="faq-item">
@@ -227,8 +366,8 @@
 </div>
 </section>
 
-<!-- 07 ------------------------------------------------------------------ -->
-<section class="statement statement--cta" id="v2s07">
+<!-- 08 ------------------------------------------------------------------ -->
+<section class="statement statement--cta" id="v2s08">
 <div class="wrap">
 <h2 class="statement-h statement-h--cta">Privacy is a right.<br><span class="dim">Olo is the way to hold it.</span><span data-reveal="wipe"></span></h2>
 <div class="cta-actions" data-reveal="up" style="--d:.5s">

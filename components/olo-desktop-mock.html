@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>olo · desktop surface mock</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+/* ===========================================================================
+   olo — desktop surface mock (standalone)
+   Extracted from slackDemo() in "Olo Security - Landing.dc.html".
+   Four app views (Slack / Cursor / Granola / Browserbase) behind a dock.
+   Plain HTML + CSS + vanilla JS. No framework, no storage, no build step.
+   =========================================================================== */
+
+*{box-sizing:border-box}
+
+/* --- page shell (preview only — not part of the component) --- */
+body{
+  margin:0;min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:26px;padding:48px 24px;
+  background:#070706;
+  font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+  transition:background .4s ease;
+}
+body[data-page-theme="light"]{background:#EDE9E0}
+.stage{width:100%;max-width:860px}
+.shell-bar{
+  width:100%;max-width:860px;display:flex;align-items:center;gap:14px;
+  font-family:'Geist Mono',ui-monospace,'SF Mono',Menlo,monospace;
+  font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#8C8B83;
+}
+.shell-bar .sp{flex:1}
+.shell-btn{
+  font:inherit;letter-spacing:.08em;text-transform:uppercase;
+  background:transparent;color:#8C8B83;border:1px solid rgba(244,243,238,0.16);
+  border-radius:999px;padding:7px 15px;cursor:pointer;transition:color .2s,border-color .2s;
+}
+.shell-btn:hover{color:#F4F3EE;border-color:rgba(244,243,238,0.4)}
+body[data-page-theme="light"] .shell-bar{color:#6E6C64}
+body[data-page-theme="light"] .shell-btn{color:#6E6C64;border-color:rgba(27,26,23,0.16)}
+body[data-page-theme="light"] .shell-btn:hover{color:#1B1A17;border-color:rgba(27,26,23,0.4)}
+
+/* ======================= COMPONENT STARTS HERE ======================= */
+
+.omk{
+  --paper:#151513; --paper-2:#1C1C1A; --paper-3:#100F0E; --paper-head:#0D0D0C;
+  --ink:#ECEAE3; --ink-sub:#9C9A91;
+  --paper-line:rgba(244,243,238,0.09); --paper-line-2:rgba(244,243,238,0.15);
+  --win-edge:rgba(244,243,238,0.16);
+  --detect:#B53A2A;
+  --mono:'Geist Mono',ui-monospace,'SF Mono',Menlo,monospace;
+  --sans:'Helvetica Neue',Helvetica,Arial,sans-serif;
+  --sig:#5CE0C6;
+  width:100%;position:relative;padding-bottom:78px;
+  font-family:var(--sans);
+}
+.omk[data-theme="light"]{
+  --paper:#FDFCFA; --paper-2:#FFFFFF; --paper-3:#F7F5F0; --paper-head:#F4F1EB;
+  --ink:#1B1A17; --ink-sub:#6E6C64;
+  /* landing page sets --paper-line:var(--paper-line) here (self-referential,
+     therefore invalid); resolved to the mirrored value */
+  --paper-line:rgba(27,26,23,0.09); --paper-line-2:rgba(27,26,23,0.13);
+  --win-edge:rgba(27,26,23,0.16);
+}
+
+.omk-win{
+  border:1px solid var(--win-edge);
+  border-radius:14px;
+  overflow:hidden;
+}
+
+/* --- window chrome --- */
+.omk-chrome{display:flex;align-items:center;padding:11px 16px}
+.omk-dots{display:flex;gap:7px;flex-shrink:0}
+.omk-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0}
+.omk-title{
+  flex:1;min-width:0;max-width:calc(50% - 130px);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  text-align:left;margin-left:12px;font-size:12px;
+}
+.omk-chrome-sp{width:47px;flex-shrink:0}
+
+/* --- olo status strip --- */
+.omk-olo{display:flex;align-items:center;gap:10px;padding:11px 18px;font-size:12.5px}
+.omk-olo.is-light{border-top:1px solid var(--paper-line);color:var(--ink-sub);background:var(--paper-head)}
+.omk-olo.is-dark{border-top:1px solid rgba(244,243,238,0.08);color:#8C8B83;background:#111110}
+.omk-olo img{display:block}
+
+/* --- typing + redaction --- */
+.ty-box{line-height:1.95;min-height:52px}
+.ty-box.is-light{color:var(--ink)}
+.ty-box.is-dark{color:#C9C8C0}
+.ty-tok{
+  font-family:var(--mono);font-size:0.8em;
+  padding:1px 7px;border-radius:5px;white-space:nowrap;
+}
+.ty-box.is-light .ty-tok{color:var(--ink);background:var(--paper-line);border:1px solid var(--paper-line-2)}
+.ty-box.is-dark  .ty-tok{color:#E8E6DF;background:rgba(244,243,238,0.08);border:1px solid rgba(244,243,238,0.3)}
+.ty-caret{display:inline-block;width:6px;height:1.05em;vertical-align:-2px;margin-left:1px}
+.ty-box.is-light .ty-caret{background:var(--ink)}
+.ty-box.is-dark  .ty-caret{background:#E8E6DF}
+
+@keyframes oloCaret{0%,50%{opacity:1}51%,100%{opacity:0}}
+@keyframes redPop{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
+
+@media (prefers-reduced-motion:no-preference){
+  .ty-caret{animation:oloCaret 1.06s step-end infinite}
+  .ty-tok{animation:redPop .3s ease}
+}
+
+/* --- app switcher dock --- */
+.omk-dock{
+  position:absolute;bottom:0;left:50%;transform:translateX(-50%);
+  display:flex;align-items:flex-end;gap:12px;z-index:3;
+  padding:9px 12px 5px;border-radius:17px;
+  background:rgba(244,243,238,0.09);
+  border:1px solid rgba(244,243,238,0.14);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  box-shadow:0 10px 28px rgba(0,0,0,0.4);
+}
+.omk[data-theme="light"] .omk-dock{
+  background:rgba(27,26,23,0.06);
+  border-color:rgba(27,26,23,0.12);
+  box-shadow:0 10px 28px rgba(0,0,0,0.16);
+}
+.omk-dockbtn{
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  background:none;border:none;padding:0;cursor:pointer;font:inherit;
+}
+.omk-tile{
+  width:40px;height:40px;border-radius:11px;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 2px 6px rgba(0,0,0,0.35);
+  transition:transform .18s,box-shadow .18s;
+}
+.omk-dockbtn[aria-pressed="true"] .omk-tile{transform:scale(1.04)}
+.omk-dockbtn:hover .omk-tile,.omk-dockbtn:focus-visible .omk-tile{
+  transform:translateY(-4px) scale(1.1);
+  box-shadow:0 6px 14px rgba(0,0,0,0.45);
+}
+.omk-tile img,.omk-tile svg{display:block}
+.omk-tile .tile-fb{display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:600;font-family:var(--sans)}
+.omk-dockdot{width:4px;height:4px;border-radius:50%;background:transparent;transition:background .18s}
+.omk-dockbtn[aria-pressed="true"] .omk-dockdot{background:rgba(244,243,238,0.85)}
+.omk[data-theme="light"] .omk-dockbtn[aria-pressed="true"] .omk-dockdot{background:rgba(27,26,23,0.7)}
+
+/* ======================== COMPONENT ENDS HERE ======================== */
+</style>
+</head>
+<body data-page-theme="dark">
+
+<div class="shell-bar">
+  <span>olo · desktop surface</span>
+  <span class="sp"></span>
+  <button class="shell-btn" id="themeBtn" type="button">theme: dark</button>
+</div>
+
+<div class="stage">
+  <div class="omk" id="mock" data-theme="dark"></div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* -------------------------------------------------------------------------
+     Per-app redaction examples, verbatim from slackDemo().
+
+     A segment is either { t: "plain text" } or
+     { real: "the sensitive value", tok: "[TOKEN]" }.
+     `dark` selects the dark-surface token-chip and caret variants.
+     ---------------------------------------------------------------------- */
+  var APPS = [
+    { name: "Slack", dark: false, fs: "13px",
+      done: "clean · 3 spans rewritten before send",
+      segs: [
+        { t: "@assistant summarize the offer for " }, { real: "Jordan Patel", tok: "[NAME]" },
+        { t: ": SSN " }, { real: "545-81-2210", tok: "[SSN]" },
+        { t: ", base " }, { real: "$185,000", tok: "[AMOUNT]" }, { t: "." }
+      ] },
+    { name: "Cursor", dark: true, fs: "12px",
+      done: "clean · 2 spans rewritten before the request left the editor",
+      segs: [
+        { t: "Charge fails with 401. Key " }, { real: "sk-live-4Qz88LmXo2", tok: "[API_KEY]" },
+        { t: " on account " }, { real: "7731-00452", tok: "[ACCOUNT]" }, { t: "." }
+      ] },
+    { name: "Granola", dark: false, fs: "12.5px",
+      done: "clean · 2 spans rewritten on device",
+      segs: [
+        { t: "What did we agree with " }, { real: "Northwind Trading", tok: "[ORG]" },
+        { t: " on the " }, { real: "$120,000", tok: "[AMOUNT]" }, { t: " renewal?" }
+      ] },
+    { name: "Browserbase", dark: false, fs: "12px",
+      done: "clean · 2 spans rewritten before the cloud browser sees them",
+      segs: [
+        { t: "Download May invoices. Sign in as " }, { real: "jordan@acme.com", tok: "[EMAIL]" },
+        { t: " with " }, { real: "Tr0ub4dor&3", tok: "[PASSWORD]" }, { t: "." }
+      ] }
+  ];
+
+  var DOTS = ["#FF5F57", "#FEBC2E", "#28C840"];
+  var MARK_BLACK = "../olo-brand-assets/logo/olo-mark-black.svg";
+  var MARK_WHITE = "../olo-brand-assets/logo/olo-mark-white.svg";
+  var SVGNS = "http://www.w3.org/2000/svg";
+
+  var root = document.getElementById("mock");
+  var ap = 0;
+  var paused = false;
+
+  /* ---- tiny DOM helpers ------------------------------------------------ */
+  function h(tag, css, kids) {
+    var n = document.createElement(tag);
+    if (css) n.setAttribute("style", css);
+    add(n, kids);
+    return n;
+  }
+  function add(n, kids) {
+    if (kids === null || kids === undefined) return n;
+    if (!Array.isArray(kids)) kids = [kids];
+    kids.forEach(function (k) {
+      if (k === null || k === undefined || k === false) return;
+      n.appendChild(typeof k === "string" ? document.createTextNode(k) : k);
+    });
+    return n;
+  }
+  function cls(tag, className, css, kids) {
+    var n = h(tag, css, kids);
+    n.className = className;
+    return n;
+  }
+  function svg(tag, attrs) {
+    var n = document.createElementNS(SVGNS, tag);
+    Object.keys(attrs || {}).forEach(function (k) { n.setAttribute(k, attrs[k]); });
+    return n;
+  }
+
+  function dots() {
+    var d = cls("div", "omk-dots");
+    DOTS.forEach(function (c) { d.appendChild(cls("span", "omk-dot", "background:" + c)); });
+    return d;
+  }
+
+  /* chrome(title, background, titleColor, borderBottom) */
+  function chrome(title, bg, fg, bb) {
+    var c = cls("div", "omk-chrome", "background:" + bg + ";border-bottom:" + (bb || "none"));
+    c.appendChild(dots());
+    c.appendChild(cls("span", "omk-title", "color:" + fg, title));
+    c.appendChild(cls("span", "omk-chrome-sp"));
+    return c;
+  }
+
+  /* window wrapper */
+  function win(bg, color, kids) {
+    return cls("div", "omk-win", "background:" + bg + ";color:" + color, kids);
+  }
+
+  /* olo status strip. `dark` describes the strip's own surface; the mark is
+     picked so it is never black-on-black (the landing page keys the invert
+     filter off the app view only, which leaves it invisible on dark themes). */
+  function oloBar(dark) {
+    var barDark = dark || root.getAttribute("data-theme") !== "light";
+    var bar = cls("div", "omk-olo " + (dark ? "is-dark" : "is-light"));
+    var mark = document.createElement("img");
+    mark.src = barDark ? MARK_WHITE : MARK_BLACK;
+    mark.width = 15; mark.height = 15; mark.alt = "";
+    var st = document.createElement("span");
+    st.id = "app-status";
+    st.textContent = "reading on device…";
+    bar.appendChild(mark);
+    bar.appendChild(st);
+    return bar;
+  }
+
+  /* static token chip (used in the Granola notes body) */
+  function T(label) {
+    var s = document.createElement("span");
+    s.className = "ty-tok";
+    s.setAttribute("style", "font-family:var(--mono);font-size:0.8em;color:var(--ink);background:var(--paper-line);border:1px solid var(--paper-line-2);padding:1px 7px;border-radius:5px;white-space:nowrap;animation:none");
+    s.textContent = label;
+    return s;
+  }
+
+  /* Builds the .ty-box. data-gen restarts the typer when the app switches. */
+  function mkTy(app) {
+    var box = cls("div", "ty-box " + (app.dark ? "is-dark" : "is-light"), "font-size:" + app.fs);
+    box.setAttribute("data-tykey", "app");
+    box.setAttribute("data-gen", "app" + ap);
+    box.setAttribute("data-status", "app-status");
+    box.setAttribute("data-done", app.done);
+
+    app.segs.forEach(function (seg) {
+      var s = cls("span", "ty-seg");
+      if (seg.t) {
+        s.setAttribute("data-text", seg.t);
+      } else {
+        s.setAttribute("data-text", seg.real);
+        s.setAttribute("data-sensitive", "1");
+        s.appendChild(cls("span", "ty-real"));
+        var tok = cls("span", "ty-tok", "display:none");
+        tok.textContent = seg.tok;
+        s.appendChild(tok);
+      }
+      box.appendChild(s);
+    });
+    box.appendChild(cls("span", "ty-caret"));
+    return box;
+  }
+
+  /* ---- view 0: Slack --------------------------------------------------- */
+  function viewSlack() {
+    var app = APPS[0];
+    var sbItem = function (label, css) {
+      return h("div", "padding:4px 14px;" + css, label);
+    };
+    return win("var(--paper)", "var(--ink)", [
+      chrome("Acme Co · Slack", "#3F0E40", "rgba(255,255,255,0.72)"),
+      h("div", "display:flex;height:352px", [
+        h("div", "width:146px;flex-shrink:0;background:#3F0E40;padding:10px 0 14px;font-size:12.5px", [
+          h("div", "padding:0 14px 11px;font-weight:700;font-size:13.5px;color:#FFFFFF;border-bottom:1px solid rgba(255,255,255,0.12);margin-bottom:10px", "Acme Co  ▾"),
+          h("div", "padding:0 14px;font-size:11px;letter-spacing:0.04em;color:rgba(255,255,255,0.5);margin-bottom:5px", "Channels"),
+          sbItem("#  general", "color:rgba(255,255,255,0.72)"),
+          sbItem("#  offers", "background:#1164A3;color:#FFFFFF;font-weight:600"),
+          sbItem("#  eng", "color:rgba(255,255,255,0.72)")
+        ]),
+        h("div", "flex:1;min-width:0;display:flex;flex-direction:column", [
+          h("div", "display:flex;align-items:baseline;gap:10px;padding:11px 18px;border-bottom:1px solid var(--paper-line)", [
+            h("span", "font-size:14.5px;font-weight:700", "# offers"),
+            h("span", "font-size:11.5px;color:var(--ink-sub)", "12 members")
+          ]),
+          h("div", "flex:1;padding:14px 18px;display:flex;gap:10px;align-items:flex-start", [
+            h("span", "width:32px;height:32px;border-radius:7px;background:#E6E2DA;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--ink-sub);font-weight:600", "KL"),
+            h("div", "min-width:0", [
+              h("div", "font-size:13px;margin-bottom:3px", [
+                h("b", null, "Kim L."),
+                h("span", "color:var(--ink-sub);font-size:11px;margin-left:8px", "11:38 AM")
+              ]),
+              h("div", "font-size:13.5px;line-height:1.7;color:var(--ink)", "offer docs are ready for review")
+            ])
+          ]),
+          h("div", "margin:0 16px 16px;border:1px solid var(--paper-line-2);border-radius:9px;overflow:hidden;background:var(--paper-2)", [
+            h("div", "padding:9px 12px 6px", mkTy(app)),
+            h("div", "display:flex;align-items:center;gap:10px;padding:5px 8px;background:var(--paper-3)", [
+              h("span", "width:21px;height:21px;border-radius:50%;border:1px solid var(--paper-line-2);display:inline-flex;align-items:center;justify-content:center;font-size:13px;color:var(--ink-sub)", "+"),
+              h("span", "font-size:11.5px;color:var(--ink-sub)", "Aa"),
+              h("span", "flex:1"),
+              h("span", "width:26px;height:21px;border-radius:5px;background:#007A5A;color:#FFFFFF;display:inline-flex;align-items:center;justify-content:center;font-size:11px", "➤")
+            ])
+          ])
+        ])
+      ]),
+      oloBar(false)
+    ]);
+  }
+
+  /* ---- view 1: Cursor -------------------------------------------------- */
+  function viewCursor() {
+    var app = APPS[1];
+    var kw = function (s) { return h("span", "color:#C586C0", s); };
+    var fn = function (s) { return h("span", "color:#DCDCAA", s); };
+    var cln = function (n, kids) {
+      return h("div", "display:flex;gap:13px", [
+        h("span", "color:#55544D;width:12px;text-align:right;flex-shrink:0", String(n)),
+        h("span", "white-space:pre", kids)
+      ]);
+    };
+    return win("#161616", "#B7B6AE", [
+      chrome("acme-billing · Cursor", "#1D1D1D", "#8C8B83", "1px solid rgba(244,243,238,0.08)"),
+      h("div", "display:flex;height:352px;background:#161616", [
+        h("div", "flex:1;min-width:0;display:flex;flex-direction:column", [
+          h("div", "display:flex;border-bottom:1px solid rgba(244,243,238,0.07)",
+            h("span", "padding:8px 16px;font-size:11px;font-family:var(--mono);color:#D4D4D4;background:#1E1E1E;border-right:1px solid rgba(244,243,238,0.07)", "reconcile.ts")),
+          h("div", "padding:12px 16px;font-family:var(--mono);font-size:11.5px;line-height:2.1;color:#D4D4D4;overflow:hidden", [
+            cln(1, [kw("async function "), fn("reconcile"), "(acct) {"]),
+            cln(2, ["  ", kw("const"), " res = ", kw("await"), " api.", fn("charge"), "(acct);"]),
+            cln(3, ["  ", kw("return"), " res.status;"]),
+            cln(4, ["}"])
+          ])
+        ]),
+        h("div", "width:256px;flex-shrink:0;border-left:1px solid rgba(244,243,238,0.09);background:#1B1B1B;display:flex;flex-direction:column", [
+          h("div", "display:flex;justify-content:space-between;padding:10px 13px;font-size:10.5px;letter-spacing:0.06em;color:#8C8B83;border-bottom:1px solid rgba(244,243,238,0.07)", [
+            h("span", null, "CHAT"), h("span", null, "Agent ▾")
+          ]),
+          h("div", "flex:1;padding:12px 13px",
+            h("span", "font-size:10.5px;font-family:var(--mono);color:#8C8B83;border:1px solid rgba(244,243,238,0.12);border-radius:5px;padding:2px 8px", "@ reconcile.ts")),
+          h("div", "margin:0 12px 12px;border:1px solid rgba(244,243,238,0.16);border-radius:8px;padding:8px 11px 6px;background:#161616", [
+            mkTy(app),
+            h("div", "display:flex;justify-content:space-between;align-items:center;margin-top:6px;font-size:10px;color:#6E6C64;font-family:var(--mono)", [
+              h("span", null, "claude-4.5"), h("span", null, "⏎ send")
+            ])
+          ])
+        ])
+      ]),
+      oloBar(true)
+    ]);
+  }
+
+  /* ---- view 2: Granola ------------------------------------------------- */
+  function viewGranola() {
+    var app = APPS[2];
+    var GRN = "#1E7A4F", GLINK = "#45A06C";
+    var chip = function (kids) {
+      return h("span", "display:inline-flex;align-items:center;gap:5px;border:1px solid var(--paper-line);background:var(--paper-3);border-radius:6px;padding:3px 9px;font-size:11px;color:#55534B", kids);
+    };
+    var askChip = function (t) {
+      return h("div", "background:var(--paper-3);border-radius:8px;padding:5px 10px;font-size:11.5px;color:var(--ink);margin-bottom:6px;width:fit-content", t);
+    };
+    var sideLabel = function (t) {
+      return h("div", "font-size:10px;letter-spacing:0.08em;color:#8C8B83;text-transform:uppercase;font-weight:600;margin-bottom:8px", t);
+    };
+    var sideBtn = function (t) {
+      return h("span", "flex:1;text-align:center;background:var(--paper-2);border:1px solid var(--paper-line-2);border-radius:8px;padding:4px 0;font-size:11.5px;font-weight:600;color:var(--ink)", t);
+    };
+    var gchrome = h("div", "display:flex;align-items:center;gap:12px;padding:9px 16px;background:var(--paper-2);border-bottom:1px solid var(--paper-line)", [
+      dots(),
+      h("span", "color:var(--ink-sub);font-size:13px;flex-shrink:0", "←"),
+      h("div", "flex:1;max-width:200px;margin-right:auto;background:var(--paper-3);border-radius:8px;padding:4px 12px;font-size:11.5px;color:var(--ink-sub);text-align:center", "⌕  Search meetings"),
+      h("span", "width:70px;flex-shrink:0")
+    ]);
+    return win("var(--paper-2)", "var(--ink)", [
+      gchrome,
+      h("div", "display:flex;height:352px", [
+        h("div", "flex:1;min-width:0;display:flex;flex-direction:column;padding:18px 24px 14px;box-sizing:border-box;background:var(--paper-2)", [
+          h("div", "font-size:17px;font-weight:700;letter-spacing:-0.01em;color:var(--ink)", "Intro call: Northwind"),
+          h("div", "display:flex;gap:6px;margin:8px 0 16px", [
+            chip("▢ Today"),
+            chip([
+              h("span", "width:13px;height:13px;border-radius:50%;background:#D7E8DC;display:inline-block"),
+              "Jessica M.",
+              h("span", "color:#9A988F", "+1")
+            ])
+          ]),
+          h("div", "font-size:13px;font-weight:700;color:" + GLINK + ";margin-bottom:2px", "Northwind Overview"),
+          h("div", "font-size:13px;line-height:2;color:var(--ink)", ["•  Renewal scoped at ", T("[AMOUNT]"), " ARR with ", T("[ORG]")]),
+          h("div", "font-size:13px;line-height:2;color:#8C8B83", "•  Offices in San Francisco and Austin"),
+          h("div", "flex:1"),
+          h("div", "display:flex;gap:10px;align-items:flex-start;border:1px solid var(--paper-line-2);border-radius:999px;padding:8px 18px 5px;background:var(--paper-2);box-shadow:0 3px 12px var(--paper-line);margin-top:14px", [
+            h("span", "font-size:13px;color:" + GRN + ";line-height:1.9", "✦"),
+            h("div", "min-width:0;flex:1", mkTy(app))
+          ])
+        ]),
+        h("div", "width:158px;flex-shrink:0;border-left:1px solid var(--paper-line);padding:16px 14px;background:var(--paper-3);box-sizing:border-box", [
+          sideLabel("Share notes"),
+          h("div", "display:flex;gap:6px;margin-bottom:18px", [sideBtn("✉ Email"), sideBtn("Slack")]),
+          sideLabel("Ask Granola"),
+          askChip("List action items"),
+          askChip("Write follow-up email"),
+          askChip("List Q&A")
+        ])
+      ]),
+      oloBar(false)
+    ]);
+  }
+
+  /* ---- view 3: Browserbase --------------------------------------------- */
+  function viewBrowserbase() {
+    var app = APPS[3];
+    var BB = "#F23A00", BBTXT = "#5F7EA8", BBLINE = "rgba(95,126,168,0.32)", BBFILL = "#DBE4F0";
+    var logLn = function (t, tm, hl) {
+      return h("div", "display:flex;justify-content:space-between;gap:10px;padding:4px 0;font-size:10.5px;font-family:var(--mono);color:" + (hl ? BB : BBTXT), [
+        h("span", "min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap", t),
+        h("span", "color:rgba(95,126,168,0.55);flex-shrink:0", tm)
+      ]);
+    };
+    var field = function (lb, v, w) {
+      return h("div", "border:1px solid " + BBLINE + ";border-radius:3px;padding:7px 10px;margin-bottom:9px;max-width:210px", [
+        h("div", "font-size:9px;color:" + BBTXT + ";font-family:var(--mono);letter-spacing:0.04em;margin-bottom:5px", lb),
+        v ? h("div", "font-size:10.5px;color:#3D5570;font-family:var(--mono)", v)
+          : h("div", "height:9px;width:" + (w || "60%") + ";background:" + BBFILL + ";border-radius:2px")
+      ]);
+    };
+    var urlDot = function (shift) {
+      return h("span", "width:11px;height:11px;border-radius:50%;border:1px solid " + BBLINE + ";flex-shrink:0" + (shift ? ";margin-left:-5px" : ""));
+    };
+    var cursorSvg = svg("svg", { width: 15, height: 15, viewBox: "0 0 24 24", style: "display:block;margin-top:-6px" });
+    cursorSvg.appendChild(svg("path", { fill: BB, d: "M5 3l14 8-6.5 1.5L16 19l-3 1.5-3.5-6.5L5 18V3z" }));
+
+    return win("var(--paper-2)", BBTXT, [
+      chrome("acme-invoices · Browserbase", "var(--paper-2)", BBTXT, "1px solid " + BBLINE),
+      h("div", "display:flex;height:352px;background:var(--paper-2);font-family:var(--mono)", [
+        h("div", "flex:1;min-width:0;display:flex;flex-direction:column;padding:12px 14px;box-sizing:border-box", [
+          h("div", "display:flex;align-items:center;gap:9px;margin-bottom:10px;font-family:var(--mono);font-size:10.5px;color:" + BBTXT, [
+            h("span", "width:7px;height:7px;border-radius:50%;background:#28C840;flex-shrink:0"),
+            h("span", "color:#3D5570", "session bb_7f3a92"),
+            h("span", null, "running · 00:42"),
+            h("span", "flex:1"),
+            h("span", "border:1px solid " + BBLINE + ";border-radius:3px;padding:1px 8px;color:" + BBTXT + ";letter-spacing:0.06em", "LIVE VIEW")
+          ]),
+          h("div", "position:relative;border:1px solid " + BBLINE + ";background:var(--paper-2);color:" + BBTXT, [
+            h("div", "display:flex;align-items:center;gap:8px;padding:6px 10px;border-bottom:1px solid " + BBLINE, [
+              urlDot(false), urlDot(true), urlDot(true),
+              h("span", "flex:1;border:1px solid " + BBLINE + ";border-radius:2px;padding:2px 10px;font-size:10px;font-family:var(--mono);color:" + BBTXT, "vendors.acmepay.com/login")
+            ]),
+            h("div", "padding:14px 18px 14px", [
+              h("div", "font-size:14px;font-weight:500;margin-bottom:11px;color:" + BBTXT + ";font-family:var(--mono);letter-spacing:0.02em", "Vendor sign in"),
+              field("Email", "[EMAIL]"),
+              field("Password", "••••••••••"),
+              h("div", "display:inline-block;background:" + BB + ";color:#FFFFFF;border-radius:999px;padding:4px 16px;font-size:10.5px;font-weight:500;font-family:var(--mono)", "Sign in")
+            ]),
+            h("div", "position:absolute;right:16px;bottom:14px;display:flex;align-items:flex-start;gap:2px", [
+              cursorSvg,
+              h("span", "background:" + BB + ";color:#FFFFFF;border-radius:999px;padding:3px 11px;font-size:9.5px;font-family:var(--mono);white-space:nowrap", "Your agent")
+            ])
+          ]),
+          h("div", "border:1px solid " + BBLINE + ";border-radius:3px;padding:8px 11px 6px;background:var(--paper-2);margin-top:10px", [
+            mkTy(app),
+            h("div", "display:flex;justify-content:space-between;align-items:center;margin-top:6px;font-size:10px;color:" + BBTXT + ";font-family:var(--mono)", [
+              h("span", null, "browser agent"), h("span", null, "⏎ run")
+            ])
+          ])
+        ]),
+        h("div", "width:176px;flex-shrink:0;border-left:1px solid " + BBLINE + ";background:var(--paper-3);padding:12px 13px;box-sizing:border-box", [
+          h("div", "font-size:9.5px;letter-spacing:0.08em;color:" + BBTXT + ";font-family:var(--mono);margin-bottom:8px", "SESSION LOG"),
+          logLn("goto /login", "0:03"),
+          logLn("act: fill #email", "0:09"),
+          logLn("act: fill #password", "0:11"),
+          logLn("olo: 2 spans rewritten", "0:11", true),
+          logLn("act: click Sign in", "0:14"),
+          logLn("download invoices.zip", "0:38")
+        ])
+      ]),
+      oloBar(false)
+    ]);
+  }
+
+  var VIEWS = [viewSlack, viewCursor, viewGranola, viewBrowserbase];
+
+  /* ---- dock ------------------------------------------------------------ */
+  function slackLogo() {
+    var s = svg("svg", { viewBox: "0 0 122.8 122.8", width: 20, height: 20 });
+    [
+      ["#E01E5A", "M25.8 77.6c0 7.1-5.8 12.9-12.9 12.9S0 84.7 0 77.6s5.8-12.9 12.9-12.9h12.9v12.9zM32.3 77.6c0-7.1 5.8-12.9 12.9-12.9s12.9 5.8 12.9 12.9v32.3c0 7.1-5.8 12.9-12.9 12.9s-12.9-5.8-12.9-12.9V77.6z"],
+      ["#36C5F0", "M45.2 25.8c-7.1 0-12.9-5.8-12.9-12.9S38.1 0 45.2 0s12.9 5.8 12.9 12.9v12.9H45.2zM45.2 32.3c7.1 0 12.9 5.8 12.9 12.9s-5.8 12.9-12.9 12.9H12.9C5.8 58.1 0 52.3 0 45.2s5.8-12.9 12.9-12.9h32.3z"],
+      ["#2EB67D", "M97 45.2c0-7.1 5.8-12.9 12.9-12.9s12.9 5.8 12.9 12.9-5.8 12.9-12.9 12.9H97V45.2zM90.5 45.2c0 7.1-5.8 12.9-12.9 12.9s-12.9-5.8-12.9-12.9V12.9C64.7 5.8 70.5 0 77.6 0s12.9 5.8 12.9 12.9v32.3z"],
+      ["#ECB22E", "M77.6 97c7.1 0 12.9 5.8 12.9 12.9s-5.8 12.9-12.9 12.9-12.9-5.8-12.9-12.9V97h12.9zM77.6 90.5c-7.1 0-12.9-5.8-12.9-12.9s5.8-12.9 12.9-12.9h32.3c7.1 0 12.9 5.8 12.9 12.9s-5.8 12.9-12.9 12.9H77.6z"]
+    ].forEach(function (p) { s.appendChild(svg("path", { fill: p[0], d: p[1] })); });
+    return s;
+  }
+
+  /* simpleicons image with a letter fallback if the CDN is unreachable */
+  function tileIcon(slug, letter, letterCss) {
+    var out = [];
+    if (slug) {
+      var img = document.createElement("img");
+      img.src = "https://cdn.simpleicons.org/" + slug;
+      img.width = 20; img.height = 20; img.alt = "";
+      img.addEventListener("error", function () {
+        img.style.display = "none";
+        var fb = img.parentElement && img.parentElement.querySelector(".tile-fb");
+        if (fb) fb.style.display = "flex";
+      });
+      out.push(img);
+    }
+    var fb = cls("span", "tile-fb", (slug ? "display:none;" : "") + (letterCss || ""), letter);
+    out.push(fb);
+    return out;
+  }
+
+  function tiles() {
+    return [
+      { bg: "#4A154B", ic: [slackLogo()] },
+      { bg: "#000000", ic: tileIcon("cursor/white", "C", "color:#FFFFFF") },
+      { bg: "#F2F8EE", ic: [h("span", "display:flex;align-items:center;gap:1.5px", [
+          h("span", "color:#1D5C33;font-weight:800;font-size:23px;font-family:var(--sans);line-height:1;margin-top:-3px", "g"),
+          h("span", "width:5px;height:20px;border-radius:4px;background:#5BE05B;display:inline-block")
+        ])] },
+      { bg: "#F23A00", ic: tileIcon(null, "B", "color:#FFFFFF") }
+    ];
+  }
+
+  function buildDock() {
+    var dock = cls("div", "omk-dock");
+    var TL = tiles();
+    APPS.forEach(function (a, i) {
+      var b = cls("button", "omk-dockbtn");
+      b.type = "button";
+      b.title = a.name;
+      b.setAttribute("aria-pressed", i === ap ? "true" : "false");
+      b.appendChild(cls("div", "omk-tile", "background:" + TL[i].bg, TL[i].ic));
+      b.appendChild(cls("span", "omk-dockdot"));
+      b.addEventListener("click", function () { paused = true; setApp(i); });
+      b.addEventListener("mouseenter", function () { paused = true; });
+      b.addEventListener("mouseleave", function () { paused = false; });
+      dock.appendChild(b);
+    });
+    return dock;
+  }
+
+  /* ---- render ---------------------------------------------------------- */
+  function render() {
+    root.textContent = "";
+    root.appendChild(VIEWS[ap]());
+    root.appendChild(buildDock());
+  }
+
+  function setApp(i) {
+    if (i === ap) return;
+    ap = i;
+    render();
+  }
+
+  /* auto-advance every 5s, matching the landing page; hover or click pauses */
+  setInterval(function () {
+    if (paused) return;
+    setApp((ap + 1) % APPS.length);
+  }, 5000);
+
+  /* ---- typer ----------------------------------------------------------
+     Faithful port of typeBox() from ensureTyper(). Stateless per frame.
+     -------------------------------------------------------------------- */
+  var SPEED = 34, LAG = 14, PAUSE = 3200;
+  var boxes = {};
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)");
+
+  function typeBox(box) {
+    var key = box.getAttribute("data-tykey") || "k";
+    var gen = key + "|" + (box.getAttribute("data-gen") || "");
+    var bs = boxes[key];
+    if (!bs || bs.gen !== gen) bs = boxes[key] = { gen: gen, t0: Date.now() };
+
+    var rect = box.getBoundingClientRect();
+    if (rect.top > window.innerHeight || rect.bottom < 0) bs.t0 = Date.now();
+
+    var segs = box.querySelectorAll(".ty-seg");
+    var total = 0;
+    segs.forEach(function (e) { total += (e.getAttribute("data-text") || "").length; });
+
+    if (Date.now() - bs.t0 > total * SPEED + LAG * SPEED + PAUSE) bs.t0 = Date.now();
+
+    var chars = (reduce && reduce.matches) ? total + LAG : Math.floor((Date.now() - bs.t0) / SPEED);
+
+    var pos = 0;
+    segs.forEach(function (e) {
+      var txt = e.getAttribute("data-text") || "";
+      var start = pos, end = pos + txt.length;
+      pos = end;
+      var vis = Math.max(0, Math.min(chars - start, txt.length));
+
+      if (!e.getAttribute("data-sensitive")) {
+        var s = txt.slice(0, vis);
+        if (e.textContent !== s) e.textContent = s;
+        return;
+      }
+      var real = e.querySelector(".ty-real");
+      var tok = e.querySelector(".ty-tok");
+      if (!real || !tok) return;
+
+      if (vis >= txt.length && chars >= end + LAG) {
+        if (tok.style.display === "none") {
+          tok.style.display = "inline-block";
+          real.style.display = "none";
+        }
+      } else {
+        if (tok.style.display !== "none") {
+          tok.style.display = "none";
+          real.style.display = "inline";
+        }
+        var r = txt.slice(0, vis);
+        if (real.textContent !== r) real.textContent = r;
+        real.style.boxShadow = vis >= txt.length ? "inset 0 -2px 0 var(--detect)" : "none";
+      }
+    });
+
+    var done = chars >= total + LAG;
+    var caret = box.querySelector(".ty-caret");
+    if (caret) caret.style.display = done ? "none" : "inline-block";
+
+    var status = document.getElementById(box.getAttribute("data-status") || "");
+    if (status) {
+      var wanted = done ? (box.getAttribute("data-done") || "clean") : "reading on device…";
+      if (status.textContent !== wanted) status.textContent = wanted;
+    }
+  }
+
+  function step() {
+    document.querySelectorAll(".ty-box").forEach(typeBox);
+    requestAnimationFrame(step);
+  }
+
+  /* ---- preview shell theme toggle ------------------------------------- */
+  var btn = document.getElementById("themeBtn");
+  btn.addEventListener("click", function () {
+    var next = root.getAttribute("data-theme") === "light" ? "dark" : "light";
+    root.setAttribute("data-theme", next);
+    document.body.setAttribute("data-page-theme", next);
+    btn.textContent = "theme: " + next;
+    render();
+  });
+
+  render();
+  requestAnimationFrame(step);
+})();
+</script>
+</body>
+</html>

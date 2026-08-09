@@ -322,7 +322,7 @@ header[id], section[id] { scroll-margin-top: var(--nav-h); }
 }
 
 .hero-tagline {
-  font: 400 clamp(17px, 1.9vw, 21px)/1.5 var(--sans);
+  font: 400 clamp(19px, 2.1vw, 24px)/1.5 var(--sans);
   color: var(--hero-ink);
   margin: 38px 0 0;
   max-width: 62ch;
@@ -382,7 +382,12 @@ header[id], section[id] { scroll-margin-top: var(--nav-h); }
   align-items: start;
 }
 
-.vignette {
+/* --------------------------------------------------------------------------
+   Device mockups — shared by the browser (01), the desktop apps and the
+   agent terminal (05). One window frame, one status strip, one typer.
+   -------------------------------------------------------------------------- */
+
+.mock {
   border: 1px solid var(--line-3);
   background: var(--surface);
   border-radius: 3px;
@@ -390,26 +395,142 @@ header[id], section[id] { scroll-margin-top: var(--nav-h); }
   box-shadow: 0 1px 2px rgba(20, 18, 14, .04);
 }
 
-.vig-head {
+.mock-panel[hidden] { display: none; }
+
+/* Window furniture. The dots are deliberately monochrome — traffic-light
+   colours are the only saturated thing on this page besides --ac. */
+.mock-dots { display: flex; gap: 6px; flex: none; }
+
+.mock-dots i {
+  display: block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--line-5);
+}
+
+.mock-bar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 14px;
   padding: 12px 16px;
+  background: var(--surface-2);
   border-bottom: 1px solid var(--line-4);
 }
 
-.vig-meta {
+.mock-title {
   font: 400 11px/1 var(--mono);
   letter-spacing: .12em;
   color: var(--muted-2);
 }
 
-.vig-body {
-  padding: 26px 20px 30px;
-  min-height: 172px;
-  font: 400 16px/1.75 var(--mono);
+/* Browser tab strip */
+.mock-tabs {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0 14px;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--line-4);
+}
+
+.mock-tabs .mock-dots { margin-right: 14px; }
+
+.mock-tab {
+  font: 400 12px/1 var(--mono);
+  letter-spacing: .04em;
+  color: var(--muted-2);
+  background: none;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  padding: 15px 14px 13px;
+  margin-bottom: -1px;
+  cursor: pointer;
+  transition: color 250ms, border-color 250ms, background 250ms;
+}
+
+.mock-tab:hover { color: var(--ink); }
+
+.mock-tab.is-on {
+  color: var(--ink);
+  background: var(--surface);
+  border-bottom-color: var(--ac);
+}
+
+.mock-url {
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--line-4);
+  font: 400 11px/1 var(--mono);
+  letter-spacing: .08em;
+  color: var(--muted-3);
+}
+
+.mock-body { padding: 24px 20px 22px; }
+
+.mock-greet {
+  font: 400 19px/1.3 var(--sans);
+  letter-spacing: -.02em;
+  color: var(--muted-3);
+  text-align: center;
+  margin: 12px 0 26px;
+}
+
+.mock-input {
+  border: 1px solid var(--line-2);
+  border-radius: 3px;
+  background: var(--bg);
+  padding: 14px 16px;
+}
+
+.typer {
+  font: 400 15px/1.8 var(--mono);
   color: var(--ink-2);
 }
+
+[data-demo='browser'] .typer { min-height: 84px; }
+
+[data-demo='desktop'] .typer {
+  font-size: 14px;
+  min-height: 76px;
+}
+
+/* Status strip. The accent bar stands in for the olo mark — same shape as
+   the redaction bar, which is the point. */
+.mock-foot {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  padding: 13px 16px;
+  border-top: 1px solid var(--line-4);
+  background: var(--surface-2);
+  font: 400 12px/1.3 var(--mono);
+  color: var(--muted-2);
+}
+
+.mock-mark {
+  display: block;
+  width: 26px;
+  height: 9px;
+  background: var(--ac);
+  flex: none;
+}
+
+/* Desktop app context lines */
+.app-ctx {
+  font: 400 11px/1 var(--mono);
+  letter-spacing: .12em;
+  color: var(--muted-3);
+  margin: 0 0 14px;
+}
+
+.app-line {
+  font: 400 14px/1.7 var(--sans);
+  color: var(--muted);
+  margin: 0 0 20px;
+}
+
+.app-line b { font-weight: 500; color: var(--ink-2); }
 
 .seg { position: relative; }
 
@@ -430,6 +551,35 @@ header[id], section[id] { scroll-margin-top: var(--nav-h); }
 
 .seg.is-redacted .seg-bar { width: calc(100% + 4px); }
 
+/* The bar wipes across the real value, then the value is replaced by its
+   token. Outside a flagged span the chip is just a static label. */
+.seg-tok {
+  display: inline-block;
+  font: 400 .84em/1.35 var(--mono);
+  letter-spacing: .02em;
+  color: var(--ink-2);
+  background: var(--surface-2);
+  border: 1px solid var(--line-2);
+  border-radius: 2px;
+  padding: 1px 7px;
+  white-space: nowrap;
+}
+
+.seg--flag .seg-tok { display: none; }
+
+.seg--flag.is-tokenized .seg-t,
+.seg--flag.is-tokenized .seg-bar { display: none; }
+
+.seg--flag.is-tokenized .seg-tok {
+  display: inline-block;
+  animation: tokPop 240ms ease both;
+}
+
+@keyframes tokPop {
+  from { opacity: 0; transform: translateY(2px); }
+  to { opacity: 1; transform: none; }
+}
+
 .caret {
   display: inline-block;
   width: 9px;
@@ -442,43 +592,115 @@ header[id], section[id] { scroll-margin-top: var(--nav-h); }
 
 .caret.is-hidden { opacity: 0; }
 
-.vig-logs {
-  border-top: 1px solid var(--line-4);
-  padding: 16px 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 9px;
-}
-
-.vig-log {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font: 400 12px/1.3 var(--mono);
-  color: var(--muted-3);
-  opacity: .15;
-  transition: opacity 300ms ease;
-}
-
-.vig-log.is-on { opacity: 1; }
-
-.mark {
-  display: block;
-  width: 26px;
-  height: 9px;
-  background: var(--ac);
-  flex: none;
-}
-
+/* Enters with its parent [data-reveal='up'] rather than on its own timer. */
 .vig-caption {
   font: 500 15px/1.5 var(--sans);
   color: var(--ink);
   margin: 20px 0 0;
-  opacity: 0;
-  transition: opacity 400ms ease;
 }
 
-.vig-caption.is-on { opacity: 1; }
+/* --------------------------------------------------------------------------
+   05 — the surfaces
+   -------------------------------------------------------------------------- */
+
+.surface-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  gap: 70px;
+  align-items: start;
+  margin: 78px 0 0;
+}
+
+.surface-h {
+  font: 500 24px/1.2 var(--sans);
+  letter-spacing: -.02em;
+  color: var(--ink);
+  margin: 0;
+}
+
+.surface-p {
+  font: 400 16px/1.6 var(--sans);
+  color: var(--muted);
+  margin: 16px 0 0;
+  max-width: 34ch;
+}
+
+/* App switcher under the desktop window */
+.dock {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 16px 0 0;
+}
+
+.dock-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 6px 14px 6px 6px;
+  border: 1px solid var(--line-2);
+  border-radius: 999px;
+  background: var(--surface);
+  cursor: pointer;
+  font: 400 12px/1 var(--mono);
+  color: var(--muted-2);
+  transition: border-color 250ms, color 250ms;
+}
+
+.dock-btn:hover { color: var(--ink); border-color: var(--line-5); }
+.dock-btn.is-on { color: var(--ink); border-color: var(--ac); }
+
+.dock-tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  background: var(--surface-2);
+  color: var(--muted-2);
+  font: 500 11px/1 var(--mono);
+  transition: background 250ms, color 250ms;
+}
+
+.dock-btn.is-on .dock-tile { background: var(--ac); color: var(--bg); }
+
+/* The one dark window on the page. Re-point the surface tokens rather than
+   restyling each child, the same trick .hero-shell and .nav--on-dark use. */
+.mock--term {
+  --surface: #17171B;
+  --surface-2: #101014;
+  --line-2: #2F2F37;
+  --line-3: #2A2A31;
+  --line-4: #26262D;
+  --line-5: #3C3C44;
+  --ink-2: #B9B4AB;
+  --muted-2: #85807A;
+  --muted-3: #6E6A62;
+  background: var(--surface);
+}
+
+.term {
+  padding: 20px 20px 24px;
+  min-height: 168px;
+  font: 400 13px/2.1 var(--mono);
+  color: var(--ink-2);
+}
+
+.term p { margin: 0; }
+
+.term-user { color: #6FA37C; }
+.term-dim { color: #5A5A63; }
+
+.term-line {
+  color: var(--muted-2);
+  opacity: 0;
+  transition: opacity 300ms ease;
+}
+
+.term-line.is-on { opacity: 1; }
+.term-line--bright { color: var(--ink-2); }
+.term-olo { color: #F4F2ED; font-weight: 500; }
 
 /* --------------------------------------------------------------------------
    02 — proxy model vs olo
@@ -768,11 +990,14 @@ header[id], section[id] { scroll-margin-top: var(--nav-h); }
 
 @media (max-width: 900px) {
   .leak-grid,
+  .surface-row,
   .steps,
   .stats {
     grid-template-columns: 1fr;
     gap: 44px;
   }
+
+  .surface-row { margin-top: 56px; }
 
   .compare { grid-template-columns: 1fr; }
 

@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>olo · browser surface mock</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+/* ===========================================================================
+   olo — browser surface mock (standalone)
+   Extracted from browserDemo() in "Olo Security - Landing.dc.html".
+   Plain HTML + CSS + vanilla JS. No framework, no storage, no build step.
+
+   To embed: copy the .omk rules below plus the script block at the end, and
+   keep olo-brand-assets/logo/ reachable at the MARK_* paths (or inline the SVG).
+   =========================================================================== */
+
+*{box-sizing:border-box}
+
+/* --- page shell (preview only — not part of the component) --- */
+body{
+  margin:0;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:26px;
+  padding:48px 24px;
+  background:#070706;
+  font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+  transition:background .4s ease;
+}
+body[data-page-theme="light"]{background:#EDE9E0}
+.stage{width:100%;max-width:860px}
+.shell-bar{
+  width:100%;max-width:860px;display:flex;align-items:center;gap:14px;
+  font-family:'Geist Mono',ui-monospace,'SF Mono',Menlo,monospace;
+  font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#8C8B83;
+}
+.shell-bar .sp{flex:1}
+.shell-btn{
+  font:inherit;letter-spacing:.08em;text-transform:uppercase;
+  background:transparent;color:#8C8B83;border:1px solid rgba(244,243,238,0.16);
+  border-radius:999px;padding:7px 15px;cursor:pointer;transition:color .2s,border-color .2s;
+}
+.shell-btn:hover{color:#F4F3EE;border-color:rgba(244,243,238,0.4)}
+body[data-page-theme="light"] .shell-bar{color:#6E6C64}
+body[data-page-theme="light"] .shell-btn{color:#6E6C64;border-color:rgba(27,26,23,0.16)}
+body[data-page-theme="light"] .shell-btn:hover{color:#1B1A17;border-color:rgba(27,26,23,0.4)}
+
+/* ======================= COMPONENT STARTS HERE ======================= */
+
+/* Design tokens, lifted verbatim from #olo-root in the landing page.
+   Dark is the default there, so it is the default here too. */
+.omk{
+  --paper:#151513; --paper-2:#1C1C1A; --paper-3:#100F0E; --paper-head:#0D0D0C;
+  --ink:#ECEAE3; --ink-sub:#9C9A91;
+  --paper-line:rgba(244,243,238,0.09); --paper-line-2:rgba(244,243,238,0.15);
+  --win-edge:rgba(244,243,238,0.16);
+  --detect:#B53A2A;
+  --mono:'Geist Mono',ui-monospace,'SF Mono',Menlo,monospace;
+  --sans:'Helvetica Neue',Helvetica,Arial,sans-serif;
+  --sig:#5CE0C6;
+  width:100%;
+  font-family:var(--sans);
+}
+.omk[data-theme="light"]{
+  --paper:#FDFCFA; --paper-2:#FFFFFF; --paper-3:#F7F5F0; --paper-head:#F4F1EB;
+  --ink:#1B1A17; --ink-sub:#6E6C64;
+  /* The landing page sets --paper-line:var(--paper-line) here, which is a
+     self-reference and therefore invalid. Resolved to the mirrored value. */
+  --paper-line:rgba(27,26,23,0.09); --paper-line-2:rgba(27,26,23,0.13);
+  --win-edge:rgba(27,26,23,0.16);
+}
+
+.omk-win{
+  border:1px solid var(--win-edge);
+  border-radius:14px;
+  background:var(--paper);
+  overflow:hidden;
+  color:var(--ink);
+}
+
+/* --- chrome: tab strip --- */
+.omk-tabs{
+  display:flex;align-items:flex-end;gap:4px;
+  padding:12px 16px 0;
+  background:var(--paper-3);
+}
+.omk-dots{display:flex;gap:7px;padding-bottom:13px;margin-right:10px}
+.omk-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0}
+.omk-tab{
+  display:flex;align-items:center;gap:8px;
+  background:transparent;
+  border:none;
+  border-radius:10px 10px 0 0;
+  padding:9px 18px;
+  font-family:inherit;font-size:12.5px;font-weight:500;
+  color:var(--ink-sub);
+  cursor:pointer;
+  transition:background .2s,color .2s;
+}
+.omk-tab[aria-selected="true"]{background:var(--paper);color:var(--ink)}
+.omk-tab img{display:block;flex-shrink:0}
+
+/* --- chrome: url bar --- */
+.omk-url{padding:8px 14px;border-bottom:1px solid var(--paper-line);background:var(--paper)}
+.omk-urlpill{
+  background:var(--paper-3);border-radius:8px;padding:7px 14px;
+  font-family:var(--mono);font-size:12px;color:var(--ink-sub);
+}
+
+/* --- body --- */
+.omk-body{
+  padding:34px 30px 26px;
+  min-height:225px;
+  display:flex;flex-direction:column;justify-content:flex-end;gap:24px;
+}
+.omk-greet{text-align:center;font-size:21px;color:#55534B;letter-spacing:-0.01em}
+.omk-input{
+  border:1px solid var(--paper-line-2);
+  border-radius:16px;
+  padding:16px 16px 12px;
+  background:var(--paper-2);
+  box-shadow:0 3px 14px var(--paper-line);
+}
+.omk-send-row{display:flex;justify-content:flex-end;margin-top:12px}
+.omk-send{
+  width:30px;height:30px;border-radius:9px;
+  color:#fff;display:inline-flex;align-items:center;justify-content:center;
+  font-size:15px;
+}
+
+/* --- olo status strip --- */
+.omk-olo{
+  display:flex;align-items:center;gap:10px;
+  border-top:1px solid var(--paper-line);
+  padding:11px 18px;
+  font-size:12.5px;color:var(--ink-sub);
+  background:var(--paper-head);
+}
+.omk-olo img{display:block}
+
+/* --- typing + redaction --- */
+.ty-box{font-size:15.5px;line-height:1.9;color:var(--ink);min-height:59px}
+.ty-tok{
+  font-family:var(--mono);font-size:0.8em;
+  color:var(--ink);
+  background:var(--paper-line);
+  border:1px solid var(--paper-line-2);
+  padding:1px 7px;border-radius:5px;white-space:nowrap;
+}
+.ty-caret{
+  display:inline-block;width:7px;height:1.05em;
+  background:var(--ink);vertical-align:-2px;margin-left:1px;
+}
+
+@keyframes oloCaret{0%,50%{opacity:1}51%,100%{opacity:0}}
+@keyframes redPop{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
+
+@media (prefers-reduced-motion:no-preference){
+  .ty-caret{animation:oloCaret 1.06s step-end infinite}
+  .ty-tok{animation:redPop .3s ease}
+}
+
+/* ======================== COMPONENT ENDS HERE ======================== */
+</style>
+</head>
+<body data-page-theme="dark">
+
+<div class="shell-bar">
+  <span>olo · browser surface</span>
+  <span class="sp"></span>
+  <button class="shell-btn" id="themeBtn" type="button">theme: dark</button>
+</div>
+
+<div class="stage">
+  <div class="omk" id="mock" data-theme="dark"></div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* -------------------------------------------------------------------------
+     The three tab scripts, verbatim from scripts() in the landing page.
+
+     A segment is either { t: "plain text" } or
+     { real: "the sensitive value", tok: "[TOKEN]" }.
+     Real values are typed out, then swapped for the token chip.
+     ---------------------------------------------------------------------- */
+  var SCRIPTS = [
+    { slug: "claude", label: "Claude", url: "claude.ai/new", greet: "What can I help with?", accent: "#D97757", segs: [
+      { t: "Loop " }, { real: "Sarah Chen", tok: "[NAME]" }, { t: " in on the Northwind raise, the " }, { real: "$4.2M", tok: "[AMOUNT]" }, { t: " goes to acct " }, { real: "0142-99817", tok: "[ACCOUNT]" }, { t: ", close by Friday." }
+    ] },
+    { slug: null, label: "ChatGPT", url: "chatgpt.com", greet: "Where should we start?", accent: "#1B1A17", segs: [
+      { t: "Why does this request 401? headers = { Authorization: \"Bearer " }, { real: "sk-live-9f2KQ81xPZ44", tok: "[API_KEY]" }, { t: "\" }, it worked yesterday on acct " }, { real: "7731-00452", tok: "[ACCOUNT]" }, { t: "." }
+    ] },
+    { slug: "googlegemini", label: "Gemini", url: "gemini.google.com", greet: "Hello, Alex", accent: "#4E7FE1", segs: [
+      { t: "Draft an offer letter for " }, { real: "Priya Sharma", tok: "[NAME]" }, { t: ", SSN " }, { real: "545-81-2210", tok: "[SSN]" }, { t: ", base " }, { real: "$185,000", tok: "[AMOUNT]" }, { t: ", start August 3." }
+    ] }
+  ];
+
+  var DOTS = ["#FF5F57", "#FEBC2E", "#28C840"];
+  var MARK_BLACK = "../olo-brand-assets/logo/olo-mark-black.svg";
+  var MARK_WHITE = "../olo-brand-assets/logo/olo-mark-white.svg";
+
+  var root = document.getElementById("mock");
+  var tab = 0;
+
+  function el(tag, cls, css) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (css) n.setAttribute("style", css);
+    return n;
+  }
+
+  /* ---- render ---------------------------------------------------------- */
+  function render() {
+    var sc = SCRIPTS[tab];
+    var dark = root.getAttribute("data-theme") !== "light";
+    root.textContent = "";
+
+    var win = el("div", "omk-win");
+
+    /* tab strip */
+    var tabs = el("div", "omk-tabs");
+    var dots = el("div", "omk-dots");
+    DOTS.forEach(function (c) {
+      dots.appendChild(el("span", "omk-dot", "background:" + c));
+    });
+    tabs.appendChild(dots);
+
+    SCRIPTS.forEach(function (t, i) {
+      var b = el("button", "omk-tab");
+      b.type = "button";
+      b.setAttribute("role", "tab");
+      b.setAttribute("aria-selected", i === tab ? "true" : "false");
+      if (t.slug) {
+        var ic = el("img");
+        ic.src = "https://cdn.simpleicons.org/" + t.slug;
+        ic.width = 13; ic.height = 13; ic.alt = "";
+        b.appendChild(ic);
+      }
+      b.appendChild(document.createTextNode(t.label));
+      b.addEventListener("click", function () { setTab(i); });
+      tabs.appendChild(b);
+    });
+    win.appendChild(tabs);
+
+    /* url bar */
+    var url = el("div", "omk-url");
+    var pill = el("div", "omk-urlpill");
+    pill.textContent = sc.url;
+    url.appendChild(pill);
+    win.appendChild(url);
+
+    /* body */
+    var body = el("div", "omk-body");
+    var greet = el("div", "omk-greet");
+    greet.textContent = sc.greet;
+    body.appendChild(greet);
+
+    var input = el("div", "omk-input");
+    var box = buildTyBox(sc);
+    input.appendChild(box);
+
+    var row = el("div", "omk-send-row");
+    var send = el("span", "omk-send", "background:" + sc.accent);
+    send.textContent = "↑";
+    row.appendChild(send);
+    input.appendChild(row);
+    body.appendChild(input);
+    win.appendChild(body);
+
+    /* olo strip */
+    var bar = el("div", "omk-olo");
+    var mark = el("img");
+    mark.src = dark ? MARK_WHITE : MARK_BLACK;
+    mark.width = 15; mark.height = 15; mark.alt = "";
+    var status = el("span");
+    status.id = "ty-status";
+    status.textContent = "reading on device…";
+    bar.appendChild(mark);
+    bar.appendChild(status);
+    win.appendChild(bar);
+
+    root.appendChild(win);
+  }
+
+  /* Builds the .ty-box: one .ty-seg per segment, sensitive ones carrying
+     both the real value and its token chip. data-gen restarts the timer. */
+  function buildTyBox(sc) {
+    var box = el("div", "ty-box");
+    box.setAttribute("data-tykey", "browser");
+    box.setAttribute("data-gen", "tab" + tab);
+    box.setAttribute("data-status", "ty-status");
+    box.setAttribute("data-done", "clean · " + sc.segs.filter(function (s) { return s.real; }).length + " spans rewritten on device");
+
+    sc.segs.forEach(function (seg) {
+      var s = el("span", "ty-seg");
+      if (seg.t) {
+        s.setAttribute("data-text", seg.t);
+      } else {
+        s.setAttribute("data-text", seg.real);
+        s.setAttribute("data-sensitive", "1");
+        s.appendChild(el("span", "ty-real"));
+        var tok = el("span", "ty-tok", "display:none");
+        tok.textContent = seg.tok;
+        s.appendChild(tok);
+      }
+      box.appendChild(s);
+    });
+    box.appendChild(el("span", "ty-caret"));
+    return box;
+  }
+
+  function setTab(i) {
+    if (i === tab) return;
+    tab = i;
+    render();
+  }
+
+  /* ---- typer ----------------------------------------------------------
+     Faithful port of typeBox() from ensureTyper(). Stateless per frame:
+     everything derives from elapsed time, so there is nothing to unwind.
+     -------------------------------------------------------------------- */
+  var SPEED = 34, LAG = 14, PAUSE = 3200;
+  var boxes = {};
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)");
+
+  function typeBox(box) {
+    var key = box.getAttribute("data-tykey") || "k";
+    var gen = key + "|" + (box.getAttribute("data-gen") || "");
+    var bs = boxes[key];
+    if (!bs || bs.gen !== gen) bs = boxes[key] = { gen: gen, t0: Date.now() };
+
+    var rect = box.getBoundingClientRect();
+    if (rect.top > window.innerHeight || rect.bottom < 0) bs.t0 = Date.now();
+
+    var segs = box.querySelectorAll(".ty-seg");
+    var total = 0;
+    segs.forEach(function (e) { total += (e.getAttribute("data-text") || "").length; });
+
+    if (Date.now() - bs.t0 > total * SPEED + LAG * SPEED + PAUSE) bs.t0 = Date.now();
+
+    /* Reduced motion: skip the animation, present the finished state. */
+    var chars = (reduce && reduce.matches) ? total + LAG : Math.floor((Date.now() - bs.t0) / SPEED);
+
+    var pos = 0;
+    segs.forEach(function (e) {
+      var txt = e.getAttribute("data-text") || "";
+      var start = pos, end = pos + txt.length;
+      pos = end;
+      var vis = Math.max(0, Math.min(chars - start, txt.length));
+
+      if (!e.getAttribute("data-sensitive")) {
+        var s = txt.slice(0, vis);
+        if (e.textContent !== s) e.textContent = s;
+        return;
+      }
+      var real = e.querySelector(".ty-real");
+      var tok = e.querySelector(".ty-tok");
+      if (!real || !tok) return;
+
+      if (vis >= txt.length && chars >= end + LAG) {
+        if (tok.style.display === "none") {
+          tok.style.display = "inline-block";
+          real.style.display = "none";
+        }
+      } else {
+        if (tok.style.display !== "none") {
+          tok.style.display = "none";
+          real.style.display = "inline";
+        }
+        var r = txt.slice(0, vis);
+        if (real.textContent !== r) real.textContent = r;
+        real.style.boxShadow = vis >= txt.length ? "inset 0 -2px 0 var(--detect)" : "none";
+      }
+    });
+
+    var done = chars >= total + LAG;
+    var caret = box.querySelector(".ty-caret");
+    if (caret) caret.style.display = done ? "none" : "inline-block";
+
+    var status = document.getElementById(box.getAttribute("data-status") || "");
+    if (status) {
+      var wanted = done ? (box.getAttribute("data-done") || "clean") : "reading on device…";
+      if (status.textContent !== wanted) status.textContent = wanted;
+    }
+  }
+
+  function step() {
+    document.querySelectorAll(".ty-box").forEach(typeBox);
+    requestAnimationFrame(step);
+  }
+
+  /* ---- preview shell theme toggle ------------------------------------- */
+  var btn = document.getElementById("themeBtn");
+  btn.addEventListener("click", function () {
+    var next = root.getAttribute("data-theme") === "light" ? "dark" : "light";
+    root.setAttribute("data-theme", next);
+    document.body.setAttribute("data-page-theme", next);
+    btn.textContent = "theme: " + next;
+    render();
+  });
+
+  render();
+  requestAnimationFrame(step);
+})();
+</script>
+</body>
+</html>

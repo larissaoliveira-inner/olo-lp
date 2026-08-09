@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&amp;family=Quicksand:wght@600;700&amp;display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  #olo-root{
+    --bg:#070706; --bg-nav:rgba(17,17,16,0.72);
+    --text:#F4F3EE; --text-2:#B7B6AE; --text-3:#8C8B83; --text-4:#56554E;
+    --line:rgba(244,243,238,0.08); --line-2:rgba(244,243,238,0.14); --line-3:rgba(244,243,238,0.06);
+    --paper:#151513; --paper-2:#1C1C1A; --paper-3:#100F0E; --paper-head:#0D0D0C;
+    --ink:#ECEAE3; --ink-sub:#9C9A91;
+    --paper-line:rgba(244,243,238,0.09); --paper-line-2:rgba(244,243,238,0.15);
+    --btn-bg:#F4F3EE; --btn-bg-h:#ffffff; --btn-fg:#0A0A09;
+    background:var(--bg);min-height:100vh;transition:background .4s ease,color .4s ease;color:var(--text);
+  }
+  #olo-root[data-theme="light"]{
+    --bg:#EDE9E0; --bg-nav:rgba(255,255,255,0.74);
+    --text:#1B1A17; --text-2:#55534B; --text-3:#6E6C64; --text-4:#96938A;
+    --line:var(--paper-line); --line-2:var(--paper-line-2); --line-3:var(--paper-line);
+    --paper:#FDFCFA; --paper-2:#FFFFFF; --paper-3:#F7F5F0; --paper-head:#F4F1EB;
+    --ink:#1B1A17; --ink-sub:#6E6C64;
+    --paper-line:var(--paper-line); --paper-line-2:rgba(27,26,23,0.13);
+    --btn-bg:#1B1A17; --btn-bg-h:#000000; --btn-fg:#F4F3EE;
+  }
+  body{margin:0;background:var(--bg);color:var(--text);font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+  ::selection{background:var(--text);color:var(--bg)}
+  a{color:inherit}
+  @keyframes oloIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+  @keyframes oloRise{from{transform:translateY(10px)}to{transform:none}}
+  @keyframes oloTravel{0%{left:8%;opacity:0}18%{opacity:1}72%{left:58%;opacity:1}100%{left:60%;opacity:0}}
+  @keyframes oloHandle{from{left:6%}to{left:47%}}
+  @keyframes oloCaret{0%,50%{opacity:1}51%,100%{opacity:0}}
+  
+  @keyframes oloScan{0%{transform:translateY(-12px)}100%{transform:translateY(360px)}}
+  .lbl{font-family:'Geist Mono',ui-monospace,'SF Mono',Menlo,monospace;letter-spacing:0.08em;text-transform:uppercase;font-size:11px;color:var(--text-3)}
+  .navlink{text-decoration:none;color:var(--text-2);font-size:14px;transition:color .2s;white-space:nowrap;padding:8px 14px;border-radius:999px}
+  .navlink:hover{color:var(--text);background:var(--line-3)}
+  .btnp{display:inline-flex;align-items:center;gap:9px;background:var(--btn-bg);color:var(--btn-fg);font-size:14px;font-weight:600;letter-spacing:-0.005em;padding:11px 22px;border-radius:999px;text-decoration:none;white-space:nowrap;transition:transform .18s ease,background .2s}
+  .btnp:hover{background:var(--btn-bg-h);transform:translateY(-1px)}
+  .theme-btn{display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;flex-shrink:0;border-radius:999px;border:1px solid var(--line-2);background:transparent;color:var(--text-2);cursor:pointer;transition:color .2s,background .2s,border-color .2s}
+  .theme-btn:hover{color:var(--text);background:var(--line-3)}
+  .btnp .ar{transition:transform .2s}
+  .btnp:hover .ar{transform:translateX(3px)}
+  section,header,footer{scroll-margin-top:96px}
+  .olo-link{display:inline-flex;align-items:center;gap:8px;font-size:15px;color:var(--text);text-decoration:none;border-bottom:1px solid rgba(244,243,238,0.3);padding-bottom:3px;transition:border-color .2s,gap .2s}
+  .olo-link:hover{border-color:var(--text);gap:12px}
+  .olo-link .ar,.olo-link-m .ar{transition:transform .2s}
+  .olo-link:hover .ar{transform:translateX(3px)}
+  .olo-link-m{display:inline-flex;align-items:center;gap:8px;font-size:15px;color:var(--text-3);text-decoration:none;border-bottom:1px solid rgba(244,243,238,0.14);padding-bottom:3px;transition:color .2s,border-color .2s,gap .2s}
+  .olo-link-m:hover{color:var(--text);border-color:rgba(244,243,238,0.4);gap:12px}
+  .flink{text-decoration:none;color:var(--text-3);font-size:14px;transition:color .2s}
+  .flink:hover{color:var(--text)}
+  .tok{font-size:0.86em;color:var(--sig,var(--text));background:rgba(244,243,238,0.07);border:1px solid var(--sig-line,rgba(244,243,238,0.28));padding:1px 6px;border-radius:5px;white-space:nowrap;letter-spacing:0.01em}
+  .caret{display:inline-block;width:7px;height:1em;background:var(--sig,var(--text));vertical-align:-2px;margin-left:1px;animation:oloCaret 1.06s step-end infinite}
+  .scan{position:absolute;left:0;right:0;top:0;height:1px;background:var(--sig-dim,rgba(244,243,238,0.22));animation:oloScan 4.4s linear infinite;pointer-events:none;z-index:2}
+  .xhair{position:absolute;width:9px;height:9px;color:rgba(244,243,238,0.28);pointer-events:none}
+  .xhair::before,.xhair::after{content:'';position:absolute;background:currentColor}
+  .xhair::before{left:50%;top:0;width:1px;height:100%;transform:translateX(-.5px)}
+  .xhair::after{top:50%;left:0;height:1px;width:100%;transform:translateY(-.5px)}
+  .mono{font-family:'Geist Mono',ui-monospace,'SF Mono',Menlo,monospace}
+  .rspan{position:relative;transition:color .2s;border-radius:3px}
+  .rspan .rt{display:none}
+  .rspan.det{box-shadow:inset 0 -2px 0 #B53A2A}
+  .rspan.red .rv{display:none}
+  .rspan.red .rt{display:inline;animation:redPop .32s ease both}
+  .rtok{font-family:'Geist Mono',ui-monospace,monospace;font-size:0.82em;color:var(--sig,var(--text));background:var(--line);border:1px solid var(--sig-line,rgba(244,243,238,0.34));padding:1px 7px;border-radius:5px;white-space:nowrap;letter-spacing:0.01em}
+  @keyframes redPop{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
+  @media (max-width:820px){.hero-card-grid{grid-template-columns:1fr!important}.hero-card-right{border-left:none!important;border-top:1px solid var(--line)!important}}
+  /* ---- new footer ---- */
+  .fcta-btn{display:inline-flex;align-items:center;justify-content:center;background:var(--btn-bg);color:var(--btn-fg);font-size:16px;font-weight:600;letter-spacing:-0.01em;padding:15px 30px;border-radius:11px;text-decoration:none;transition:transform .18s ease,background .2s}
+  .fcta-btn:hover{background:var(--btn-bg-h);transform:translateY(-2px)}
+  .fcolh{font-family:'Geist Mono',ui-monospace,monospace;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-4)}
+  .fnav{display:flex;flex-direction:column;gap:11px;margin-top:22px}
+  .fnav a{text-decoration:none;color:var(--text-2);font-size:15.5px;letter-spacing:-0.005em;width:max-content;transition:color .18s}
+  .fnav a:hover{color:var(--text)}
+  .fnav a.on{color:var(--text);text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:1px}
+  .subinput{flex:1;min-width:0;background:transparent;border:none;border-bottom:1px solid rgba(244,243,238,0.18);color:var(--text);font-size:15px;font-family:inherit;padding:10px 2px;outline:none;transition:border-color .2s}
+  .subinput::placeholder{color:var(--text-4)}
+  .subinput:focus{border-color:rgba(244,243,238,0.5)}
+  .subbtn{flex:none;background:#1B1B1A;color:var(--text);border:1px solid rgba(244,243,238,0.14);border-radius:9px;font-size:14px;font-weight:500;padding:11px 22px;cursor:pointer;transition:background .2s,border-color .2s}
+  .subbtn:hover{background:#262624;border-color:rgba(244,243,238,0.3)}
+  .fsoc{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border:1px solid rgba(244,243,238,0.16);border-radius:10px;color:var(--text-2);text-decoration:none;font-size:14px;font-weight:600;letter-spacing:0;transition:background .18s,color .18s,border-color .18s}
+  .fsoc:hover{background:var(--text);color:var(--bg);border-color:var(--text)}
+  .fbottom a{color:var(--text-3);text-decoration:none;transition:color .18s}
+  .fbottom a:hover{color:var(--text)}
+  @media (max-width:900px){.fcols{grid-template-columns:1fr 1fr!important;gap:44px 32px!important}}
+  @media (max-width:960px){nav .navlink{display:none}}
+  @media (max-width:560px){.fcols{grid-template-columns:1fr!important}}
+  @media (min-width:1081px) and (max-width:1279px){.con-side{display:none!important}}
+  @media (max-width:1080px){.teams-grid{grid-template-columns:1fr!important}}
+  @media (max-width:880px){.con-grid{grid-template-columns:1fr!important}}
+  @media (max-width:1280px){.con-cat{display:none!important}.con-evt{grid-template-columns:minmax(0,1.7fr) minmax(0,1.3fr) 76px 92px!important}}
+  #olo-root.motion-still .caret{animation:none!important}
+  #olo-root.motion-still .scan{opacity:0!important}
+  #olo-root.motion-calm .scan{animation-duration:9s!important}
+  #olo-root.motion-calm .caret{animation-duration:1.7s!important}
+  #olo-root.tex-min .xhair{opacity:0!important}
+  .rev{opacity:0;transform:translateY(30px);transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1)}
+  @keyframes sdReveal{from{transform:translateY(64px) scale(.955)}to{transform:none}}
+  .sd-view{transform-origin:center top}
+  @supports (animation-timeline:view()){
+    .sd-view{animation:sdReveal linear both;animation-timeline:view();animation-range:entry 2% entry 62%;will-change:transform}
+  }
+  @media (prefers-reduced-motion:reduce){.sd-view{animation:none!important;transform:none!important}}
+  .rev.rev-in{opacity:1;transform:none}
+  .rev-d1{transition-delay:.12s}
+  .rev-d2{transition-delay:.24s}
+  @media (prefers-reduced-motion:reduce){.rev{opacity:1;transform:none;transition:none}}
+</style>
+</helmet>
+
+<div id="olo-root" class="olo-root motion-live tex-min" style="width:100%;overflow:hidden;position:relative">
+
+<!-- ============ NAV ============ -->
+<nav style="position:fixed;top:16px;left:0;right:0;z-index:60;padding:0 20px;pointer-events:none">
+  <div style="pointer-events:auto;max-width:1040px;margin:0 auto;background:var(--bg-nav);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid var(--line-2);border-radius:999px;padding:9px 10px 9px 26px;display:flex;align-items:center;gap:18px;box-shadow:0 20px 55px -22px rgba(0,0,0,0.85)">
+    <a href="#top" style="display:flex;align-items:center;text-decoration:none;color:var(--text);flex-shrink:0">
+      <svg viewBox="0 -34 486 98" width="112" fill="none" style="display:block;color:var(--text)"><path d="M46 -4 L46 -21 Q46 -29 54 -29 L66 -29 Q74 -29 74 -21 L74 -4 Z" fill="currentColor"></path><line x1="15" y1="-4" x2="105" y2="-4" stroke="currentColor" stroke-width="9" stroke-linecap="round"></line><circle cx="28" cy="28" r="15" stroke="currentColor" stroke-width="8"></circle><path d="M60 9 L60 33 Q60 42 68 42" stroke="currentColor" stroke-width="8" stroke-linecap="round"></path><circle cx="92" cy="28" r="15" stroke="currentColor" stroke-width="8"></circle><text x="142" y="46" font-family="'Quicksand',sans-serif" font-weight="700" font-size="68" letter-spacing="1" fill="currentColor" stroke="currentColor" stroke-width="1.6">security</text></svg>
+    </a>
+    <div style="flex:1"></div>
+    <div style="display:flex;align-items:center;gap:2px">
+      <a href="#thesis" class="navlink">Thesis</a>
+      <a href="#demo" class="navlink">Architecture</a>
+      <a href="#surfaces" class="navlink">Surfaces</a>
+      <a href="#console" class="navlink">For teams</a>
+    </div>
+    <button class="theme-btn" onClick="{{ toggleTheme }}" aria-label="Toggle light and dark">{{ themeIcon }}</button>
+    <a class="btnp" href="{{ mailto }}">Request access</a>
+  </div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<header id="top" style="max-width:1280px;margin:0 auto;padding:172px 34px 96px;position:relative">
+  <h1 style="font-weight:700;font-size:clamp(46px,7vw,104px);line-height:0.94;letter-spacing:-0.04em;margin:0 0 34px;max-width:16ch">AI freedom, without the risk.</h1>
+  <div style="display:flex;flex-wrap:wrap;gap:36px 60px;align-items:flex-end;justify-content:space-between;max-width:1120px">
+    <p style="font-size:20px;line-height:1.58;color:var(--text-2);margin:0;max-width:52ch">
+      Everything your team types into an AI tool travels to a server you can't inspect. <span style="color:var(--text)">Olo rewrites every name, secret and number as a token on the device</span>, the instant before it's sent.
+    </p>
+    <div style="display:flex;gap:26px;flex-shrink:0;align-items:center">
+      <a class="btnp" href="{{ mailto }}" style="font-size:15px;padding:13px 26px">Request access </a>
+      <a class="olo-link-m" href="#demo">See it work <span class="ar">↓</span></a>
+    </div>
+  </div>
+
+</header>
+
+<!-- ============ THESIS ============ -->
+<section id="thesis" style="border-top:1px solid var(--line);padding:96px 0">
+  <div style="max-width:1280px;margin:0 auto;padding:0 34px;display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:56px">
+    <div><div class="lbl" style="position:sticky;top:110px">[ 01 ] The thesis</div></div>
+    <div style="max-width:70ch">
+      <p style="font-weight:400;font-size:clamp(24px,2.7vw,36px);line-height:1.28;letter-spacing:-0.02em;color:var(--text-3);margin:0 0 28px">
+        Every request your team sends to an AI tool carries more than they meant to send. A cleaned-up email carries a client's name. A pasted stack trace carries a live key. A quick question to an agent carries the account number it needs to act. And whatever they type doesn't stay with them: <span style="color:var(--text)">it travels to a server you have no way to inspect,</span> gets logged, and becomes someone else's problem to secure.
+      </p>
+      <p style="font-size:18px;line-height:1.66;color:var(--text-3);margin:0 0 22px;max-width:64ch">
+        The usual answer is to watch the wire: a proxy in the cloud that reads the traffic, flags the violations, keeps the audit trail. But a service that has to read your sensitive data in order to protect it is just one more place that data now lives. That doesn't remove the exposure. It relocates it.
+      </p>
+      <p style="font-size:18px;line-height:1.66;color:var(--text-2);margin:0 0 46px;max-width:64ch">
+        Olo's premise is narrow and absolute: <span style="color:var(--text)">the only data you can promise is private is the data that was never sent.</span> So there is no our-cloud step. We classify and redact on the device, in the millisecond before the request exists on the wire. Nothing sensitive leaves, so there is nothing downstream to leak, log, subpoena, or breach.
+      </p>
+      <div style="border-top:1px solid rgba(244,243,238,0.1)">
+        <sc-for list="{{ principles }}" as="p" hint-placeholder-count="3">
+          <div style="display:grid;grid-template-columns:44px 1fr;gap:20px;padding:26px 0;border-bottom:1px solid rgba(244,243,238,0.1);align-items:start">
+            <div style="font-size:13px;color:var(--text-4);padding-top:4px;letter-spacing:0.06em">{{ p.n }}</div>
+            <div>
+              <div style="font-size:19px;font-weight:600;letter-spacing:-0.01em;color:var(--text);margin-bottom:7px">{{ p.title }}</div>
+              <div style="font-size:15.5px;line-height:1.62;color:var(--text-3);max-width:60ch">{{ p.body }}</div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ HOW IT WORKS ============ -->
+<section id="demo" style="border-top:1px solid var(--line);padding:96px 0">
+  <div style="max-width:1280px;margin:0 auto;padding:0 34px;display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:56px">
+    <div><div class="lbl" style="position:sticky;top:110px">[ 02 ] The architecture</div></div>
+    <div style="max-width:74ch">
+      <h2 style="font-weight:700;font-size:clamp(28px,3.6vw,46px);line-height:1.05;letter-spacing:-0.035em;margin:0 0 46px;max-width:19ch">Three things happen on the device. None of them anywhere else.</h2>
+      <div style="border-top:1px solid rgba(244,243,238,0.1)">
+        <sc-for list="{{ howSteps }}" as="s" hint-placeholder-count="3">
+          <div style="display:grid;grid-template-columns:minmax(0,240px) minmax(0,1fr);gap:36px;padding:36px 0;border-bottom:1px solid rgba(244,243,238,0.1);align-items:start">
+            <div>
+              <div class="mono" style="font-size:11.5px;letter-spacing:0.08em;color:var(--text-4);margin-bottom:12px">{{ s.k }} / 03 · {{ s.tag }}</div>
+              <div style="font-size:23px;font-weight:600;letter-spacing:-0.02em;color:var(--text);line-height:1.12">{{ s.title }}</div>
+            </div>
+            <p style="font-size:16.5px;line-height:1.68;color:var(--text-3);margin:0;max-width:54ch;padding-top:3px">{{ s.body }}</p>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SURFACES / LIVE DEMOS ============ -->
+<section id="surfaces" style="border-top:1px solid var(--line);padding:96px 0">
+  <div style="max-width:1280px;margin:0 auto;padding:0 34px">
+    <div style="max-width:66ch;margin-bottom:46px">
+      <div class="lbl" style="margin-bottom:16px">[ 03 ] The surfaces</div>
+      <h2 style="font-weight:700;font-size:clamp(30px,4vw,52px);line-height:1.02;letter-spacing:-0.035em;margin:0 0 16px">One layer. Every surface.</h2>
+      <p style="font-size:17px;line-height:1.62;color:var(--text-3);margin:0">Wherever data tries to leave (a chat box, a file, a desktop app, an agent working alone), the same on-device layer holds.</p>
+      <div style="display:flex;flex-wrap:wrap;align-items:center;gap:12px 28px;margin-top:28px">
+        <span class="lbl" style="font-size:10px">Works with</span>
+        <span style="display:inline-flex;align-items:center;gap:8px;font-size:13.5px;color:var(--text-2)"><img src="https://cdn.simpleicons.org/claude/B7B6AE" width="15" height="15" alt="">Claude</span>
+        <span style="display:inline-flex;align-items:center;gap:8px;font-size:13.5px;color:var(--text-2)">ChatGPT</span>
+        <span style="display:inline-flex;align-items:center;gap:8px;font-size:13.5px;color:var(--text-2)"><img src="https://cdn.simpleicons.org/googlegemini/B7B6AE" width="15" height="15" alt="">Gemini</span>
+        <span style="display:inline-flex;align-items:center;gap:8px;font-size:13.5px;color:var(--text-2)"><img src="https://cdn.simpleicons.org/githubcopilot/B7B6AE" width="15" height="15" alt="">Copilot</span>
+        <span style="display:inline-flex;align-items:center;gap:8px;font-size:13.5px;color:var(--text-2)">Slack</span>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:84px">
+      <div data-screen-label="Surface: browser" class="rev" style="display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:52px;align-items:start">
+        <div style="position:sticky;top:110px">
+          <div class="lbl" style="margin-bottom:14px">In the browser</div>
+          <div style="font-size:22px;font-weight:600;letter-spacing:-0.015em;color:var(--text);line-height:1.25">Typed into any assistant.</div>
+          <p style="font-size:15px;line-height:1.6;color:var(--text-3);margin:12px 0 0;max-width:34ch">Switch tabs. As the prompt is typed, the classifier reads along on the device and rewrites each sensitive span the moment it appears.</p>
+        </div>
+        <div class="sd-view">{{ browserDemo }}</div>
+      </div>
+      <div data-screen-label="Surface: desktop apps" class="rev" style="display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:52px;align-items:start">
+        <div style="position:sticky;top:110px">
+          <div class="lbl" style="margin-bottom:14px">In desktop apps</div>
+          <div style="font-size:22px;font-weight:600;letter-spacing:-0.015em;color:var(--text);line-height:1.25">Native clients too.</div>
+          <p style="font-size:15px;line-height:1.6;color:var(--text-3);margin:12px 0 0;max-width:34ch">The same layer sits inside every native client: chat, editors, notetakers, cloud browsers. The message is cleaned before it leaves the machine.</p>
+        </div>
+        <div class="sd-view">{{ slackDemo }}</div>
+      </div>
+      <div data-screen-label="Surface: agents" class="rev" style="display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:52px;align-items:start">
+        <div style="position:sticky;top:110px">
+          <div class="lbl" style="margin-bottom:14px">In agent pipelines</div>
+          <div style="font-size:22px;font-weight:600;letter-spacing:-0.015em;color:var(--text);line-height:1.25">No human at the keyboard.</div>
+          <p style="font-size:15px;line-height:1.6;color:var(--text-3);margin:12px 0 0;max-width:34ch">Autonomous agents send payloads no one reviews. Olo gates them the same way, at the device edge.</p>
+        </div>
+        <div class="sd-view">{{ agentDemo }}</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOR TEAMS ============ -->
+<section id="console" style="padding:0 0 96px">
+  <div style="max-width:1280px;margin:0 auto;padding:0 34px">
+    <div data-screen-label="Surface: teams" class="teams-grid" style="display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:52px;align-items:start">
+    <div class="rev" style="position:sticky;top:110px">
+      <div class="lbl" style="margin-bottom:14px">For teams</div>
+      <div style="font-size:22px;font-weight:600;letter-spacing:-0.015em;color:var(--text);line-height:1.25">Policy, without surveillance.</div>
+      <p style="font-size:15px;line-height:1.6;color:var(--text-3);margin:12px 0 0">Admins set what counts as sensitive and what happens on detection — the policy applies to everyone instantly. The team sees a metadata-only record of who, which tool, and how many spans. Never the content itself.</p>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:36px;min-width:0">
+    <div class="rev rev-d1" style="border:1px solid rgba(244,243,238,0.16);border-radius:14px;background:var(--paper);overflow:hidden;color:var(--ink)">
+      <div style="display:flex;align-items:center;padding:9px 16px;background:var(--paper-head);border-bottom:1px solid var(--paper-line)">
+        <div style="display:flex;gap:7px;flex-shrink:0"><span style="width:11px;height:11px;border-radius:50%;background:#FF5F57"></span><span style="width:11px;height:11px;border-radius:50%;background:#FEBC2E"></span><span style="width:11px;height:11px;border-radius:50%;background:#28C840"></span></div>
+        <div style="flex:1;display:flex;justify-content:center"><span class="mono" style="font-size:11px;color:var(--ink-sub);background:var(--paper);border:1px solid var(--paper-line);border-radius:7px;padding:3px 16px">console.olo.security / overview</span></div>
+        <span style="width:47px;flex-shrink:0"></span>
+      </div>
+      <div class="con-grid" style="display:grid;grid-template-columns:196px minmax(0,1fr)">
+        <div class="con-side" style="border-right:1px solid var(--paper-line);background:var(--paper-3);padding:20px 0;display:flex;flex-direction:column;gap:4px">
+          <div style="padding:0 20px 18px"><svg viewBox="0 -34 486 98" width="104" fill="none" style="color:var(--ink);display:block"><path d="M46 -4 L46 -21 Q46 -29 54 -29 L66 -29 Q74 -29 74 -21 L74 -4 Z" fill="currentColor"></path><line x1="15" y1="-4" x2="105" y2="-4" stroke="currentColor" stroke-width="9" stroke-linecap="round"></line><circle cx="28" cy="28" r="15" stroke="currentColor" stroke-width="8"></circle><path d="M60 9 L60 33 Q60 42 68 42" stroke="currentColor" stroke-width="8" stroke-linecap="round"></path><circle cx="92" cy="28" r="15" stroke="currentColor" stroke-width="8"></circle><text x="142" y="46" font-family="'Quicksand',sans-serif" font-weight="700" font-size="68" letter-spacing="1" fill="currentColor" stroke="currentColor" stroke-width="1.6">security</text></svg></div>
+          <div style="display:flex;align-items:center;gap:10px;margin:0 12px;padding:8px 12px;border-radius:8px;background:var(--paper-line);font-size:13px;color:var(--ink);font-weight:600"><span style="width:5px;height:5px;border-radius:50%;background:var(--ink)"></span>Overview</div>
+          <div style="margin:0 12px;padding:8px 12px;font-size:13px;color:var(--text-3)">Policies</div>
+          <div style="margin:0 12px;padding:8px 12px;font-size:13px;color:var(--text-3)">Activity</div>
+          <div style="margin:0 12px;padding:8px 12px;font-size:13px;color:var(--text-3)">Team</div>
+          <div style="flex:1;min-height:24px"></div>
+          <div style="margin:0 12px;padding:12px;border-top:1px solid var(--paper-line);font-size:12px;color:var(--text-3);display:flex;align-items:center;gap:8px"><span style="width:24px;height:24px;border-radius:50%;border:1px solid var(--paper-line-2);display:flex;align-items:center;justify-content:center;color:var(--ink-sub);flex-shrink:0">A</span>admin@acme.co</div>
+        </div>
+        <div style="padding:22px 26px 24px;min-width:0">
+          <div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:18px">
+            <div>
+              <div style="font-size:16px;font-weight:600;letter-spacing:-0.01em">Team overview</div>
+              <div style="font-size:12px;color:var(--text-3);margin-top:3px">Last 7 days · 14 members active</div>
+            </div>
+            <span style="flex:1"></span>
+            <span style="display:inline-flex;align-items:center;gap:7px;font-size:11.5px;color:#1E7A4F;background:rgba(30,122,79,0.07);border:1px solid rgba(30,122,79,0.22);border-radius:100px;padding:5px 13px;white-space:nowrap"><span style="width:5px;height:5px;border-radius:50%;background:#1E7A4F"></span>All members protected</span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:18px">
+            <div style="border:1px solid var(--paper-line);border-radius:12px;padding:14px 16px;background:var(--paper-2)">
+              <div class="mono" style="font-size:25px;font-weight:500;letter-spacing:-0.01em">1,284</div>
+              <div style="font-size:11px;color:var(--text-3);margin-top:6px">Prompts scanned</div>
+            </div>
+            <div style="border:1px solid var(--paper-line);border-radius:12px;padding:14px 16px;background:var(--paper-2)">
+              <div class="mono" style="font-size:25px;font-weight:500;letter-spacing:-0.01em;color:#1E7A4F">1,241</div>
+              <div style="font-size:11px;color:var(--text-3);margin-top:6px">Sent clean</div>
+            </div>
+            <div style="border:1px solid var(--paper-line);border-radius:12px;padding:14px 16px;background:var(--paper-2)">
+              <div class="mono" style="font-size:25px;font-weight:500;letter-spacing:-0.01em;color:#B98A2B">38</div>
+              <div style="font-size:11px;color:var(--text-3);margin-top:6px">Auto-rewritten</div>
+            </div>
+            <div style="border:1px solid var(--paper-line);border-radius:12px;padding:14px 16px;background:var(--paper-2)">
+              <div class="mono" style="font-size:25px;font-weight:500;letter-spacing:-0.01em;color:#B0442C">5</div>
+              <div style="font-size:11px;color:var(--text-3);margin-top:6px">Exceptions logged</div>
+            </div>
+          </div>
+          <div style="border:1px solid var(--paper-line);border-radius:12px;overflow:hidden;background:var(--paper-2)">
+            <div class="lbl con-evt" style="display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1.3fr) 76px 84px 92px;gap:12px;font-size:9.5px;padding:9px 16px;background:var(--paper-3)">
+              <span>Event</span><span>User</span><span>Tool</span><span class="con-cat">Category</span><span>Status</span>
+            </div>
+            <div class="con-evt" style="display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1.3fr) 76px 84px 92px;gap:12px;align-items:center;padding:10px 16px;border-top:1px solid var(--paper-line);font-size:12.5px">
+              <span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Client data detected in prompt</span>
+              <span class="mono" style="font-size:11px;color:var(--ink-sub);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">m.patel@acme.com</span>
+              <span style="color:#55534B">ChatGPT</span>
+              <span class="mono con-cat" style="font-size:10px;color:#B98A2B;background:rgba(185,138,43,0.1);border-radius:5px;padding:2px 8px;justify-self:start">PII</span>
+              <span class="mono" style="font-size:10px;color:#1E7A4F;background:rgba(30,122,79,0.08);border-radius:5px;padding:2px 8px;justify-self:start">Rewritten</span>
+            </div>
+            <div class="con-evt" style="display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1.3fr) 76px 84px 92px;gap:12px;align-items:center;padding:10px 16px;border-top:1px solid var(--paper-line);font-size:12.5px">
+              <span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Source code pasted into chat</span>
+              <span class="mono" style="font-size:11px;color:var(--ink-sub);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">j.kim@acme.com</span>
+              <span style="color:#55534B">Claude</span>
+              <span class="mono con-cat" style="font-size:10px;color:var(--ink-sub);background:var(--paper-line);border-radius:5px;padding:2px 8px;justify-self:start">Code</span>
+              <span class="mono" style="font-size:10px;color:#1E7A4F;background:rgba(30,122,79,0.08);border-radius:5px;padding:2px 8px;justify-self:start">Rewritten</span>
+            </div>
+            <div class="con-evt" style="display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1.3fr) 76px 84px 92px;gap:12px;align-items:center;padding:10px 16px;border-top:1px solid var(--paper-line);font-size:12.5px">
+              <span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Financial projection uploaded</span>
+              <span class="mono" style="font-size:11px;color:var(--ink-sub);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">a.torres@acme.com</span>
+              <span style="color:#55534B">Gemini</span>
+              <span class="mono con-cat" style="font-size:10px;color:#1E7A4F;background:rgba(30,122,79,0.08);border-radius:5px;padding:2px 8px;justify-self:start">Financial</span>
+              <span class="mono" style="font-size:10px;color:#B0442C;background:rgba(176,68,44,0.08);border-radius:5px;padding:2px 8px;justify-self:start">Exception</span>
+            </div>
+            <div class="con-evt" style="display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1.3fr) 76px 84px 92px;gap:12px;align-items:center;padding:10px 16px;border-top:1px solid var(--paper-line);font-size:12.5px">
+              <span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Contract draft sent for review</span>
+              <span class="mono" style="font-size:11px;color:var(--ink-sub);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">s.lee@acme.com</span>
+              <span style="color:#55534B">ChatGPT</span>
+              <span class="mono con-cat" style="font-size:10px;color:#9065B0;background:rgba(144,101,176,0.1);border-radius:5px;padding:2px 8px;justify-self:start">Legal</span>
+              <span class="mono" style="font-size:10px;color:#1E7A4F;background:rgba(30,122,79,0.08);border-radius:5px;padding:2px 8px;justify-self:start">Rewritten</span>
+            </div>
+            <div class="con-evt" style="display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1.3fr) 76px 84px 92px;gap:12px;align-items:center;padding:10px 16px;border-top:1px solid var(--paper-line);font-size:12.5px">
+              <span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Salary data in a prompt</span>
+              <span class="mono" style="font-size:11px;color:var(--ink-sub);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">r.chen@acme.com</span>
+              <span style="color:#55534B">Perplexity</span>
+              <span class="mono con-cat" style="font-size:10px;color:#B98A2B;background:rgba(185,138,43,0.1);border-radius:5px;padding:2px 8px;justify-self:start">PII</span>
+              <span class="mono" style="font-size:10px;color:#1E7A4F;background:rgba(30,122,79,0.08);border-radius:5px;padding:2px 8px;justify-self:start">Rewritten</span>
+            </div>
+          </div>
+          <div style="font-size:11.5px;color:var(--text-3);margin-top:10px">Events record who, which tool, and how many spans — never the content itself.</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;border-top:1px solid var(--paper-line);padding:11px 18px;font-size:12.5px;color:var(--ink-sub);background:var(--paper-head)">
+        <img src="olo-brand-assets/logo/olo-mark-black.svg" width="15" height="15" alt="" style="display:block">
+        <span>metadata only · message content is never recorded or stored</span>
+      </div>
+    </div>
+
+    <div class="con-grid" style="display:grid;grid-template-columns:minmax(0,1.22fr) minmax(0,1fr);gap:36px">
+      <div class="rev rev-d1" style="border:1px solid rgba(244,243,238,0.16);border-radius:14px;background:var(--paper);overflow:hidden;color:var(--ink);display:flex;flex-direction:column">
+        <div style="display:flex;align-items:center;padding:9px 16px;background:var(--paper-head);border-bottom:1px solid var(--paper-line)">
+          <div style="display:flex;gap:7px;flex-shrink:0"><span style="width:11px;height:11px;border-radius:50%;background:#FF5F57"></span><span style="width:11px;height:11px;border-radius:50%;background:#FEBC2E"></span><span style="width:11px;height:11px;border-radius:50%;background:#28C840"></span></div>
+          <div style="flex:1;display:flex;justify-content:center"><span class="mono" style="font-size:11px;color:var(--ink-sub);background:var(--paper);border:1px solid var(--paper-line);border-radius:7px;padding:3px 16px">console.olo.security / policies</span></div>
+          <span style="width:47px;flex-shrink:0"></span>
+        </div>
+        <div style="padding:20px 24px 22px;flex:1">
+          <div style="display:flex;justify-content:space-between;align-items:baseline">
+            <span style="font-size:15.5px;font-weight:600;letter-spacing:-0.01em">Data policy</span>
+            <span class="mono" style="font-size:11px;color:#1E7A4F">Saved</span>
+          </div>
+          <div style="font-size:12px;color:var(--text-3);margin-top:3px">Applies to all 14 members instantly</div>
+          <div class="lbl" style="font-size:9.5px;margin:20px 0 2px">Detection categories</div>
+          <div style="display:flex;align-items:center;gap:16px;padding:11px 0;border-bottom:1px solid var(--paper-line)">
+            <div style="min-width:0;flex:1">
+              <div style="font-size:13.5px;font-weight:600">Personally identifiable information</div>
+              <div style="font-size:11.5px;color:var(--text-3);margin-top:2px">Names, emails, SSNs, phone numbers, addresses</div>
+            </div>
+            <span style="width:34px;height:20px;border-radius:100px;background:var(--ink);position:relative;display:inline-block;flex-shrink:0"><span style="position:absolute;top:2px;right:2px;width:16px;height:16px;border-radius:50%;background:var(--paper)"></span></span>
+          </div>
+          <div style="display:flex;align-items:center;gap:16px;padding:11px 0;border-bottom:1px solid var(--paper-line)">
+            <div style="min-width:0;flex:1">
+              <div style="font-size:13.5px;font-weight:600">Financial data</div>
+              <div style="font-size:11.5px;color:var(--text-3);margin-top:2px">Revenue figures, projections, account numbers</div>
+            </div>
+            <span style="width:34px;height:20px;border-radius:100px;background:var(--ink);position:relative;display:inline-block;flex-shrink:0"><span style="position:absolute;top:2px;right:2px;width:16px;height:16px;border-radius:50%;background:var(--paper)"></span></span>
+          </div>
+          <div style="display:flex;align-items:center;gap:16px;padding:11px 0;border-bottom:1px solid var(--paper-line)">
+            <div style="min-width:0;flex:1">
+              <div style="font-size:13.5px;font-weight:600">Source code</div>
+              <div style="font-size:11.5px;color:var(--text-3);margin-top:2px">Code patterns, API keys, credentials, env vars</div>
+            </div>
+            <span style="width:34px;height:20px;border-radius:100px;background:var(--ink);position:relative;display:inline-block;flex-shrink:0"><span style="position:absolute;top:2px;right:2px;width:16px;height:16px;border-radius:50%;background:var(--paper)"></span></span>
+          </div>
+          <div style="display:flex;align-items:center;gap:16px;padding:11px 0;border-bottom:1px solid var(--paper-line)">
+            <div style="min-width:0;flex:1">
+              <div style="font-size:13.5px;font-weight:600">Legal documents</div>
+              <div style="font-size:11.5px;color:var(--text-3);margin-top:2px">Contracts, NDAs, privileged communications</div>
+            </div>
+            <span style="width:34px;height:20px;border-radius:100px;background:var(--ink);position:relative;display:inline-block;flex-shrink:0"><span style="position:absolute;top:2px;right:2px;width:16px;height:16px;border-radius:50%;background:var(--paper)"></span></span>
+          </div>
+          <div style="display:flex;align-items:center;gap:16px;padding:11px 0">
+            <div style="min-width:0;flex:1">
+              <div style="font-size:13.5px;font-weight:600">Health information</div>
+              <div style="font-size:11.5px;color:var(--text-3);margin-top:2px">HIPAA-relevant content, patient data</div>
+            </div>
+            <span style="width:34px;height:20px;border-radius:100px;background:var(--ink);position:relative;display:inline-block;flex-shrink:0"><span style="position:absolute;top:2px;right:2px;width:16px;height:16px;border-radius:50%;background:var(--paper)"></span></span>
+          </div>
+          <div class="lbl" style="font-size:9.5px;margin:20px 0 2px">Custom terms</div>
+          <div style="display:flex;align-items:center;gap:16px;padding:11px 0;border-bottom:1px solid var(--paper-line)">
+            <div style="min-width:0;flex:1">
+              <div style="font-size:13.5px;font-weight:600">Custom sensitive terms</div>
+              <div style="font-size:11.5px;color:var(--text-3);margin-top:2px">Project Titan, Meridian Capital, Series B…</div>
+            </div>
+            <span class="mono" style="font-size:11px;color:var(--ink);border-bottom:1px solid rgba(27,26,23,0.35);white-space:nowrap;cursor:pointer">Edit 7 terms</span>
+          </div>
+          <div class="lbl" style="font-size:9.5px;margin:20px 0 2px">On detection</div>
+          <div style="display:flex;align-items:center;gap:16px;padding:11px 0">
+            <div style="min-width:0;flex:1">
+              <div style="font-size:13.5px;font-weight:600">Default action</div>
+              <div style="font-size:11.5px;color:var(--text-3);margin-top:2px">What happens when sensitive data is detected</div>
+            </div>
+            <span style="font-size:12px;font-weight:600;border:1px solid var(--paper-line-2);border-radius:8px;padding:5px 12px;background:var(--paper-2);white-space:nowrap">Warn + rewrite ▾</span>
+          </div>
+        </div>
+      </div>
+      <div class="rev rev-d2" style="border:1px solid rgba(244,243,238,0.1);border-radius:14px;background:rgba(244,243,238,0.03);padding:34px 28px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px">
+        <div class="lbl" style="font-size:10px">Menu bar app · what your team sees</div>
+        <div style="width:min(300px,100%);background:var(--paper);border-radius:13px;overflow:hidden;box-shadow:0 22px 54px rgba(0,0,0,0.5);color:var(--ink)">
+          <div style="display:flex;align-items:center;gap:9px;background:#141413;padding:12px 16px">
+            <img src="olo-brand-assets/logo/olo-mark-black.svg" width="15" height="15" alt="" style="display:block;filter:invert(1)">
+            <span style="font-size:13px;font-weight:600;color:#F5F4EF">olo</span>
+            <span style="flex:1"></span>
+            <span style="display:inline-flex;align-items:center;gap:6px;font-size:10.5px;color:#7FC79A;border:1px solid rgba(127,199,154,0.35);border-radius:100px;padding:2px 9px"><span style="width:5px;height:5px;border-radius:50%;background:#7FC79A"></span>Protected</span>
+          </div>
+          <div style="padding:10px 16px 4px">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:7px 0;font-size:12px"><span style="color:var(--ink-sub)">Policy</span><span class="mono" style="font-size:11px">Acme Co · Balanced</span></div>
+            <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:7px 0;font-size:12px"><span style="color:var(--ink-sub)">Prompts protected today</span><span class="mono" style="font-size:11px">24</span></div>
+            <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:7px 0;font-size:12px"><span style="color:var(--ink-sub)">Spans rewritten</span><span class="mono" style="font-size:11px">9</span></div>
+            <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:7px 0;font-size:12px"><span style="color:var(--ink-sub)">Exceptions logged</span><span class="mono" style="font-size:11px;color:#B0442C">1</span></div>
+          </div>
+          <div style="padding:8px 16px 14px">
+            <div class="lbl" style="font-size:9.5px;margin-bottom:8px">Covering every surface</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px">
+              <span style="font-size:11px;border:1px solid var(--paper-line-2);border-radius:100px;padding:2px 10px;color:#55534B">ChatGPT</span>
+              <span style="font-size:11px;border:1px solid var(--paper-line-2);border-radius:100px;padding:2px 10px;color:#55534B">Claude</span>
+              <span style="font-size:11px;border:1px solid var(--paper-line-2);border-radius:100px;padding:2px 10px;color:#55534B">Gemini</span>
+              <span style="font-size:11px;border:1px solid var(--paper-line-2);border-radius:100px;padding:2px 10px;color:#55534B">Slack</span>
+              <span style="font-size:11px;border:1px solid var(--paper-line-2);border-radius:100px;padding:2px 10px;color:#55534B">Cursor</span>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;border-top:1px solid var(--paper-line);padding:10px 16px;font-size:11px;color:var(--text-3)">
+            <span>Your prompts never leave your device</span><span style="color:var(--ink);font-weight:600;white-space:nowrap">View log</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ THE NAME ============ -->
+<section id="signature" style="border-top:1px solid var(--line);padding:150px 0 160px">
+  <div style="max-width:820px;margin:0 auto;padding:0 34px;text-align:center">
+    <svg viewBox="0 -38 120 104" fill="none" style="display:block;margin:0 auto;width:clamp(110px,13vw,160px);color:var(--text)">
+      <path d="M46 -4 L46 -21 Q46 -29 54 -29 L66 -29 Q74 -29 74 -21 L74 -4 Z" fill="currentColor"></path>
+      <line x1="15" y1="-4" x2="105" y2="-4" stroke="currentColor" stroke-width="9" stroke-linecap="round"></line>
+      <circle cx="28" cy="28" r="15" stroke="currentColor" stroke-width="8"></circle>
+      <path d="M60 9 L60 33 Q60 42 68 42" stroke="currentColor" stroke-width="8" stroke-linecap="round"></path>
+      <circle cx="92" cy="28" r="15" stroke="currentColor" stroke-width="8"></circle>
+    </svg>
+    <p style="font-size:clamp(23px,2.5vw,33px);line-height:1.5;letter-spacing:-0.015em;color:var(--text-3);margin:64px 0 0;text-wrap:balance">
+      <span style="color:var(--text)">Olo</span> is a color the human eye cannot see. It exists, fully real, yet it never reaches us.
+    </p>
+    <p style="font-size:clamp(23px,2.5vw,33px);line-height:1.5;letter-spacing:-0.015em;color:var(--text-3);margin:26px 0 0;text-wrap:balance">
+      Your data should work the same way, <span style="color:var(--text)">invisible to AI.</span>
+    </p>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer onMouseMove="{{ footerMove }}" style="position:relative;overflow:hidden;background:var(--bg);border-top:1px solid var(--line)">
+  <!-- giant olo wordmark: invisible until the cursor passes over it -->
+  <div class="footer-olo" aria-hidden="true" style="position:absolute;left:0;right:0;bottom:-0.32em;text-align:center;font-family:'Quicksand',sans-serif;font-weight:700;font-size:clamp(200px,40vw,560px);line-height:0.8;letter-spacing:-0.045em;color:rgba(244,243,238,0.05);pointer-events:none;user-select:none;overflow:hidden">olo</div>
+  <div class="footer-olo-reveal" aria-hidden="true" style="position:absolute;left:0;right:0;bottom:-0.32em;text-align:center;font-family:'Quicksand',sans-serif;font-weight:700;font-size:clamp(200px,40vw,560px);line-height:0.8;letter-spacing:-0.045em;color:rgba(244,243,238,0.22);pointer-events:none;user-select:none;overflow:hidden;-webkit-mask-image:radial-gradient(260px circle at var(--mx,50%) var(--my,150%),black 0%,transparent 100%);mask-image:radial-gradient(260px circle at var(--mx,50%) var(--my,150%),black 0%,transparent 100%)">olo</div>
+
+  
+<div style="position:relative;z-index:2;max-width:1280px;margin:0 auto;padding:96px 34px 0">
+    <div class="fcols" style="display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr);gap:48px 40px">
+      <div>
+        <svg viewBox="0 -34 486 98" width="150" fill="none" style="display:block;color:var(--text)"><path d="M46 -4 L46 -21 Q46 -29 54 -29 L66 -29 Q74 -29 74 -21 L74 -4 Z" fill="currentColor"></path><line x1="15" y1="-4" x2="105" y2="-4" stroke="currentColor" stroke-width="9" stroke-linecap="round"></line><circle cx="28" cy="28" r="15" stroke="currentColor" stroke-width="8"></circle><path d="M60 9 L60 33 Q60 42 68 42" stroke="currentColor" stroke-width="8" stroke-linecap="round"></path><circle cx="92" cy="28" r="15" stroke="currentColor" stroke-width="8"></circle><text x="142" y="46" font-family="'Quicksand',sans-serif" font-weight="700" font-size="68" letter-spacing="1" fill="currentColor" stroke="currentColor" stroke-width="1.6">security</text></svg>
+        <p style="font-size:15.5px;line-height:1.6;color:var(--text-3);margin:24px 0 0;max-width:26ch">Redaction at the source.<br>Nothing sensitive ever leaves.</p>
+        
+      </div>
+      <div>
+        <div class="fcolh">Explore</div>
+        <nav class="fnav">
+          <a href="#thesis">Thesis</a>
+          <a href="#demo">Architecture</a>
+          <a href="#surfaces">Surfaces</a>
+          <a href="#console">For teams</a>
+        </nav>
+      </div>
+      <div>
+        <div class="fcolh">Legal</div>
+        <nav class="fnav">
+          <a href="#">AI Transparency Notice</a>
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms of Service</a>
+        </nav>
+      </div>
+      <div>
+        <div class="fcolh">Contact</div>
+        <nav class="fnav">
+          <a href="{{ mailto }}">Request access</a>
+          <a href="mailto:olosecurity@gmail.com">Email</a>
+        </nav><div style="display:flex;gap:10px;margin-top:26px">
+          <a class="fsoc" href="https://x.com/olosecurity" target="_blank" rel="noopener" aria-label="X / Twitter">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M17.8 3h3.1l-6.8 7.8L22 21h-6.3l-4.9-6.4L5.2 21H2.1l7.3-8.3L2 3h6.4l4.4 5.9L17.8 3Z"></path></svg>
+          </a>
+          <a class="fsoc" href="https://www.linkedin.com/company/olosecurity" target="_blank" rel="noopener" aria-label="LinkedIn">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M4.98 4.5A2.49 2.49 0 1 1 0 4.5a2.49 2.49 0 0 1 4.98 0ZM.25 8.25h4.5V23.5H.25V8.25Zm7.5 0h4.3v2.08h.06c.6-1.13 2.07-2.33 4.26-2.33 4.55 0 5.39 3 5.39 6.9v8.6h-4.5v-7.63c0-1.82-.03-4.16-2.53-4.16-2.54 0-2.93 1.98-2.93 4.03v7.76h-4.5V8.25Z"></path></svg>
+          </a>
+          <a class="fsoc" href="mailto:olosecurity@gmail.com" aria-label="Email">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="2.5"></rect><path d="m4 7.5 8 6 8-6"></path></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- baseline bar -->
+    <div class="fbottom mono" style="margin-top:88px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:14px 24px;justify-content:space-between;align-items:center;padding:24px 0 190px;font-size:12px;letter-spacing:0.04em;color:var(--text-4)">
+      <div>© 2026 OLO SECURITY. ALL RIGHTS RESERVED.</div>
+      <div style="display:flex;gap:22px;flex-wrap:wrap">
+        
+        
+        
+      </div>
+      <div>REDACTION AT THE SOURCE</div>
+    </div>
+  </div></footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:1000},&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#5CE0C6&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;options&quot;:[&quot;#F4F3EE&quot;,&quot;#5CE0C6&quot;,&quot;#E0B25C&quot;,&quot;#9C8CFF&quot;],&quot;section&quot;:&quot;Feel&quot;},&quot;motion&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;Live&quot;,&quot;options&quot;:[&quot;Live&quot;,&quot;Calm&quot;,&quot;Still&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Feel&quot;},&quot;texture&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;Minimal&quot;,&quot;options&quot;:[&quot;Rich&quot;,&quot;Minimal&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Feel&quot;}}">
+class Component extends DCLogic {
+  state = { tab: 0, app: 0, theme: "dark" };
+
+  scripts() {
+    return [
+      { slug: "claude", label: "Claude", url: "claude.ai/new", greet: "What can I help with?", accent: "#D97757", segs: [
+        { t: "Loop " }, { real: "Sarah Chen", tok: "[NAME]" }, { t: " in on the Northwind raise, the " }, { real: "$4.2M", tok: "[AMOUNT]" }, { t: " goes to acct " }, { real: "0142-99817", tok: "[ACCOUNT]" }, { t: ", close by Friday." }
+      ] },
+      { slug: null, label: "ChatGPT", url: "chatgpt.com", greet: "Where should we start?", accent: "#1B1A17", segs: [
+        { t: "Why does this request 401? headers = { Authorization: \"Bearer " }, { real: "sk-live-9f2KQ81xPZ44", tok: "[API_KEY]" }, { t: "\" }, it worked yesterday on acct " }, { real: "7731-00452", tok: "[ACCOUNT]" }, { t: "." }
+      ] },
+      { slug: "googlegemini", label: "Gemini", url: "gemini.google.com", greet: "Hello, Alex", accent: "#4E7FE1", segs: [
+        { t: "Draft an offer letter for " }, { real: "Priya Sharma", tok: "[NAME]" }, { t: ", SSN " }, { real: "545-81-2210", tok: "[SSN]" }, { t: ", base " }, { real: "$185,000", tok: "[AMOUNT]" }, { t: ", start August 3." }
+      ] }
+    ];
+  }
+
+  setTab(i) {
+    this.setState({ tab: i });
+  }
+
+  ensureTyper() {
+    if (window.__oloAnim) return;
+    const store = window.__oloAnim = { boxes: {}, term: null, dash: {} };
+    const SPEED = 34, LAG = 14, PAUSE = 3200;
+    const typeBox = (box) => {
+      const key = box.getAttribute("data-tykey") || "k";
+      const gen = key + "|" + (box.getAttribute("data-gen") || "");
+      let bs = store.boxes[key];
+      if (!bs || bs.gen !== gen) bs = store.boxes[key] = { gen, t0: Date.now() };
+      const rect = box.getBoundingClientRect();
+      if (rect.top > window.innerHeight || rect.bottom < 0) bs.t0 = Date.now();
+      const segs = box.querySelectorAll(".ty-seg");
+      let total = 0;
+      segs.forEach((el) => { total += (el.getAttribute("data-text") || "").length; });
+      if (Date.now() - bs.t0 > total * SPEED + LAG * SPEED + PAUSE) bs.t0 = Date.now();
+      const chars = Math.floor((Date.now() - bs.t0) / SPEED);
+      let pos = 0;
+      segs.forEach((el) => {
+        const txt = el.getAttribute("data-text") || "";
+        const start = pos, end = pos + txt.length; pos = end;
+        const vis = Math.max(0, Math.min(chars - start, txt.length));
+        if (!el.getAttribute("data-sensitive")) {
+          const s = txt.slice(0, vis);
+          if (el.textContent !== s) el.textContent = s;
+          return;
+        }
+        const real = el.querySelector(".ty-real"), tok = el.querySelector(".ty-tok");
+        if (!real || !tok) return;
+        if (vis >= txt.length && chars >= end + LAG) {
+          if (tok.style.display === "none") { tok.style.display = "inline-block"; real.style.display = "none"; }
+        } else {
+          if (tok.style.display !== "none") { tok.style.display = "none"; real.style.display = "inline"; }
+          const s = txt.slice(0, vis);
+          if (real.textContent !== s) real.textContent = s;
+          real.style.boxShadow = vis >= txt.length ? "inset 0 -2px 0 #B53A2A" : "none";
+        }
+      });
+      const done = chars >= total + LAG;
+      const caret = box.querySelector(".ty-caret");
+      if (caret) caret.style.display = done ? "none" : "inline-block";
+      const status = document.getElementById(box.getAttribute("data-status") || "");
+      if (status) {
+        const wanted = done ? (box.getAttribute("data-done") || "clean") : "reading on device…";
+        if (status.textContent !== wanted) status.textContent = wanted;
+      }
+    };
+    const stepTerm = () => {
+      const box = document.getElementById("term-box");
+      if (!box) return;
+      if (!store.term) store.term = { t0: Date.now() };
+      const ts = store.term;
+      const rect = box.getBoundingClientRect();
+      if (rect.top > window.innerHeight || rect.bottom < 0) ts.t0 = Date.now();
+      const cmd = box.querySelector(".term-cmd");
+      if (!cmd) return;
+      const full = cmd.getAttribute("data-text") || "";
+      const el = Date.now() - ts.t0;
+      const cmdMs = full.length * 24;
+      if (el > cmdMs + 2400 + 4000) { ts.t0 = Date.now(); return; }
+      const vis = Math.min(Math.floor(el / 24), full.length);
+      const s = full.slice(0, vis);
+      if (cmd.textContent !== s) cmd.textContent = s;
+      box.querySelectorAll(".term-line").forEach((lnEl) => {
+        const at = cmdMs + 260 + parseInt(lnEl.getAttribute("data-at") || "0", 10);
+        lnEl.style.opacity = el >= at ? "1" : "0";
+      });
+    };
+    const stepDash = () => {
+      const dash = document.getElementById("dash-box");
+      if (!dash) return;
+      const rect = dash.getBoundingClientRect();
+      if (rect.top > window.innerHeight || rect.bottom < 0) { store.dash.t0 = null; }
+      else if (!store.dash.t0 && rect.top < window.innerHeight * 0.88) store.dash.t0 = Date.now();
+      const t0 = store.dash.t0;
+      const p = t0 ? Math.min(1, (Date.now() - t0) / 1200) : 0;
+      const ease = 1 - Math.pow(1 - p, 3);
+      dash.querySelectorAll(".dash-bar").forEach((b, i) => {
+        const bp = t0 ? Math.max(0, Math.min(1, ((Date.now() - t0) - i * 45) / 650)) : 0;
+        const sc = 1 - Math.pow(1 - bp, 2);
+        const want = "scaleY(" + sc.toFixed(3) + ")";
+        if (b.style.transform !== want) b.style.transform = want;
+      });
+      dash.querySelectorAll(".dash-num").forEach((n) => {
+        const target = parseInt((n.getAttribute("data-val") || "0").replace(/,/g, ""), 10);
+        const s = Math.round(target * ease).toLocaleString("en-US");
+        if (n.textContent !== s) n.textContent = s;
+      });
+    };
+    const step = () => {
+      document.querySelectorAll(".ty-box").forEach(typeBox);
+      stepTerm();
+      stepDash();
+      requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+
+  applyTheme() {
+    const root = document.getElementById("olo-root");
+    if (!root) return;
+    const a = this.props.accent || "#F4F3EE";
+    const mix = (pct, fb) => a === "#F4F3EE" ? fb : "color-mix(in srgb, " + a + " " + pct + "%, transparent)";
+    root.style.setProperty("--sig", a);
+    root.style.setProperty("--sig-line", mix(55, "rgba(244,243,238,0.34)"));
+    root.style.setProperty("--sig-dim", mix(32, "rgba(244,243,238,0.22)"));
+    const motion = (this.props.motion || "Live").toLowerCase();
+    const tex = (this.props.texture || "Minimal").toLowerCase() === "minimal" ? "min" : "rich";
+    root.className = "olo-root motion-" + motion + " tex-" + tex;
+    const theme = this.state.theme === "light" ? "light" : "dark";
+    root.setAttribute("data-theme", theme);
+    document.body.style.background = theme === "light" ? "#EDE9E0" : "#070706";
+  }
+
+  toggleTheme() {
+    const next = this.state.theme === "light" ? "dark" : "light";
+    try { localStorage.setItem("olo-theme", next); } catch (e) {}
+    this.setState({ theme: next });
+  }
+
+  browserDemo() {
+    const R = React.createElement;
+    const INK = "var(--ink)", SUB = "var(--ink-sub)", LINE = "var(--paper-line)";
+    const MONO = "'Geist Mono',ui-monospace,'SF Mono',Menlo,monospace";
+    const S = this.scripts(), tb = this.state.tab, sc = S[tb];
+    const ico = (slug, size, k) => R("img", { key: k || "i", src: "https://cdn.simpleicons.org/" + slug, width: size, height: size, alt: "", style: { display: "block", flexShrink: 0 } });
+    const dot = (c, k) => R("span", { key: k, style: { width: "11px", height: "11px", borderRadius: "50%", background: c, flexShrink: 0 } });
+
+    const parts = sc.segs.map((seg, i) => {
+      if (seg.t) return R("span", { key: tb + "-" + i, className: "ty-seg", "data-text": seg.t });
+      return R("span", { key: tb + "-s" + i, className: "ty-seg", "data-text": seg.real, "data-sensitive": "1" }, [
+        R("span", { key: "r", className: "ty-real" }),
+        R("span", { key: "k", className: "ty-tok", style: { display: "none", fontFamily: MONO, fontSize: "0.8em", color: INK, background: "var(--paper-line)", border: "1px solid var(--paper-line-2)", padding: "1px 7px", borderRadius: "5px", whiteSpace: "nowrap", animation: "redPop .3s ease" } }, seg.tok)
+      ]);
+    });
+    parts.push(R("span", { key: "caret", className: "ty-caret", style: { display: "inline-block", width: "7px", height: "1.05em", background: INK, verticalAlign: "-2px", marginLeft: "1px", animation: "oloCaret 1.06s step-end infinite" } }));
+
+    const chrome = R("div", { key: "chrome" }, [
+      R("div", { key: "tabs", style: { display: "flex", alignItems: "flex-end", gap: "4px", padding: "12px 16px 0", background: "var(--paper-3)" } },
+        [R("div", { key: "dw", style: { display: "flex", gap: "7px", paddingBottom: "13px", marginRight: "10px" } }, [dot("#FF5F57", 1), dot("#FEBC2E", 2), dot("#28C840", 3)])].concat(
+          S.map((t, i) => R("div", { key: "t" + i, onClick: () => this.setTab(i), style: { display: "flex", alignItems: "center", gap: "8px", background: i === tb ? "var(--paper)" : "transparent", borderRadius: "10px 10px 0 0", padding: "9px 18px", fontSize: "12.5px", fontWeight: 500, color: i === tb ? INK : SUB, cursor: "pointer", transition: "background .2s,color .2s" } }, t.slug ? [ico(t.slug, 13, "ti"), t.label] : t.label))
+        )),
+      R("div", { key: "url", style: { padding: "8px 14px", borderBottom: "1px solid " + LINE, background: "var(--paper)" } },
+        R("div", { key: "p", style: { background: "var(--paper-3)", borderRadius: "8px", padding: "7px 14px", fontSize: "12px", color: SUB, fontFamily: MONO } }, sc.url))
+    ]);
+
+    return R("div", { style: { width: "100%", border: "1px solid rgba(244,243,238,0.16)", borderRadius: "14px", background: "var(--paper)", overflow: "hidden", color: INK, fontFamily: "'Helvetica Neue',Helvetica,Arial,sans-serif" } }, [
+      chrome,
+      R("div", { key: "b", style: { padding: "34px 30px 26px", minHeight: "225px", display: "flex", flexDirection: "column", justifyContent: "flex-end", gap: "24px" } }, [
+        R("div", { key: "gr", style: { textAlign: "center", fontSize: "21px", color: "#55534B", letterSpacing: "-0.01em" } }, sc.greet),
+        R("div", { key: "in", style: { border: "1px solid var(--paper-line-2)", borderRadius: "16px", padding: "16px 16px 12px", background: "var(--paper-2)", boxShadow: "0 3px 14px var(--paper-line)" } }, [
+          R("div", { key: "t", className: "ty-box", "data-tykey": "browser", "data-gen": "tab" + tb, "data-status": "ty-status", "data-done": "clean · " + sc.segs.filter((s) => s.real).length + " spans rewritten on device", style: { fontSize: "15.5px", lineHeight: 1.9, color: INK, minHeight: "59px" } }, parts),
+          R("div", { key: "r", style: { display: "flex", justifyContent: "flex-end", marginTop: "12px" } }, R("span", { style: { width: "30px", height: "30px", borderRadius: "9px", background: sc.accent, color: "#fff", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: "15px" } }, "↑"))
+        ])
+      ]),
+      R("div", { key: "olo", style: { display: "flex", alignItems: "center", gap: "10px", borderTop: "1px solid " + LINE, padding: "11px 18px", fontSize: "12.5px", color: SUB, background: "var(--paper-head)" } }, [
+        R("img", { key: "m", src: "olo-brand-assets/logo/olo-mark-black.svg", width: 15, height: 15, alt: "", style: { display: "block" } }),
+        R("span", { key: "t", id: "ty-status" }, "reading on device…")
+      ])
+    ]);
+  }
+
+  slackDemo() {
+    const R = React.createElement;
+    const INK = "var(--ink)", SUB = "var(--ink-sub)", LINE = "var(--paper-line)";
+    const MONO = "'Geist Mono',ui-monospace,'SF Mono',Menlo,monospace";
+    const SANS = "'Helvetica Neue',Helvetica,Arial,sans-serif";
+    const ap = this.state.app || 0;
+    const T = (l, k) => R("span", { key: k, style: { fontFamily: MONO, fontSize: "0.8em", color: INK, background: "var(--paper-line)", border: "1px solid var(--paper-line-2)", padding: "1px 7px", borderRadius: "5px", whiteSpace: "nowrap" } }, l);
+    const dot = (c, k) => R("span", { key: k, style: { width: "11px", height: "11px", borderRadius: "50%", background: c, flexShrink: 0 } });
+    const chrome = (title, bg, fg, bb) => R("div", { key: "chrome", style: { display: "flex", alignItems: "center", padding: "11px 16px", background: bg, borderBottom: bb || "none" } }, [
+      R("div", { key: "d", style: { display: "flex", gap: "7px", flexShrink: 0 } }, [dot("#FF5F57", 1), dot("#FEBC2E", 2), dot("#28C840", 3)]),
+      R("span", { key: "t", style: { flex: 1, minWidth: 0, maxWidth: "calc(50% - 130px)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", textAlign: "left", marginLeft: "12px", fontSize: "12px", color: fg } }, title),
+      R("span", { key: "sp", style: { width: "47px", flexShrink: 0 } })
+    ]);
+    const mkTy = (segs, dark, done, fs) => {
+      const parts = segs.map((seg, i) => {
+        if (seg.t) return R("span", { key: ap + "-" + i, className: "ty-seg", "data-text": seg.t });
+        return R("span", { key: ap + "-s" + i, className: "ty-seg", "data-text": seg.real, "data-sensitive": "1" }, [
+          R("span", { key: "r", className: "ty-real" }),
+          R("span", { key: "k", className: "ty-tok", style: { display: "none", fontFamily: MONO, fontSize: "0.8em", color: dark ? "#E8E6DF" : INK, background: dark ? "rgba(244,243,238,0.08)" : "var(--paper-line)", border: "1px solid " + (dark ? "rgba(244,243,238,0.3)" : "var(--paper-line-2)"), padding: "1px 7px", borderRadius: "5px", whiteSpace: "nowrap", animation: "redPop .3s ease" } }, seg.tok)
+        ]);
+      });
+      parts.push(R("span", { key: "caret", className: "ty-caret", style: { display: "inline-block", width: "6px", height: "1.05em", background: dark ? "#E8E6DF" : INK, verticalAlign: "-2px", marginLeft: "1px", animation: "oloCaret 1.06s step-end infinite" } }));
+      return R("div", { key: "ty", className: "ty-box", "data-tykey": "app", "data-gen": "app" + ap, "data-status": "app-status", "data-done": done, style: { fontSize: fs, lineHeight: 1.95, color: dark ? "#C9C8C0" : INK, minHeight: "52px" } }, parts);
+    };
+    const oloBar = (dark) => R("div", { key: "olo", style: { display: "flex", alignItems: "center", gap: "10px", borderTop: dark ? "1px solid rgba(244,243,238,0.08)" : "1px solid " + LINE, padding: "11px 18px", fontSize: "12.5px", color: dark ? "#8C8B83" : SUB, background: dark ? "#111110" : "var(--paper-head)" } }, [
+      R("img", { key: "m", src: "olo-brand-assets/logo/olo-mark-black.svg", width: 15, height: 15, alt: "", style: { display: "block", filter: dark ? "invert(1)" : "none" } }),
+      R("span", { key: "t", id: "app-status" }, "reading on device…")
+    ]);
+    const win = (kids, bg, color) => R("div", { key: "w" + ap, style: { width: "100%", border: "1px solid rgba(244,243,238,0.16)", borderRadius: "14px", background: bg, overflow: "hidden", color: color, fontFamily: SANS } }, kids);
+
+    let content;
+    if (ap === 0) {
+      content = win([
+        chrome("Acme Co · Slack", "#3F0E40", "rgba(255,255,255,0.72)"),
+        R("div", { key: "b", style: { display: "flex", height: "352px" } }, [
+          R("div", { key: "sb", style: { width: "146px", flexShrink: 0, background: "#3F0E40", padding: "10px 0 14px", fontSize: "12.5px" } }, [
+            R("div", { key: "ws", style: { padding: "0 14px 11px", fontWeight: 700, fontSize: "13.5px", color: "#FFFFFF", borderBottom: "1px solid rgba(255,255,255,0.12)", marginBottom: "10px" } }, "Acme Co  ▾"),
+            R("div", { key: "lb", style: { padding: "0 14px", fontSize: "11px", letterSpacing: "0.04em", color: "rgba(255,255,255,0.5)", marginBottom: "5px" } }, "Channels"),
+            R("div", { key: "c0", style: { padding: "4px 14px", color: "rgba(255,255,255,0.72)" } }, "#  general"),
+            R("div", { key: "c1", style: { padding: "4px 14px", background: "#1164A3", color: "#FFFFFF", fontWeight: 600 } }, "#  offers"),
+            R("div", { key: "c2", style: { padding: "4px 14px", color: "rgba(255,255,255,0.72)" } }, "#  eng")
+          ]),
+          R("div", { key: "mn", style: { flex: 1, minWidth: 0, display: "flex", flexDirection: "column" } }, [
+            R("div", { key: "hd", style: { display: "flex", alignItems: "baseline", gap: "10px", padding: "11px 18px", borderBottom: "1px solid " + LINE } }, [
+              R("span", { key: "c", style: { fontSize: "14.5px", fontWeight: 700 } }, "# offers"),
+              R("span", { key: "m", style: { fontSize: "11.5px", color: SUB } }, "12 members")
+            ]),
+            R("div", { key: "ms", style: { flex: 1, padding: "14px 18px", display: "flex", gap: "10px", alignItems: "flex-start" } }, [
+              R("span", { key: "av", style: { width: "32px", height: "32px", borderRadius: "7px", background: "#E6E2DA", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "11px", color: SUB, fontWeight: 600 } }, "KL"),
+              R("div", { key: "c", style: { minWidth: 0 } }, [
+                R("div", { key: "hh", style: { fontSize: "13px", marginBottom: "3px" } }, [R("b", { key: "n" }, "Kim L."), R("span", { key: "t", style: { color: SUB, fontSize: "11px", marginLeft: "8px" } }, "11:38 AM")]),
+                R("div", { key: "t2", style: { fontSize: "13.5px", lineHeight: 1.7, color: INK } }, "offer docs are ready for review")
+              ])
+            ]),
+            R("div", { key: "cp", style: { margin: "0 16px 16px", border: "1px solid var(--paper-line-2)", borderRadius: "9px", overflow: "hidden", background: "var(--paper-2)" } }, [
+              R("div", { key: "tx", style: { padding: "9px 12px 6px" } }, mkTy([
+                { t: "@assistant summarize the offer for " }, { real: "Jordan Patel", tok: "[NAME]" }, { t: ": SSN " }, { real: "545-81-2210", tok: "[SSN]" }, { t: ", base " }, { real: "$185,000", tok: "[AMOUNT]" }, { t: "." }
+              ], false, "clean · 3 spans rewritten before send", "13px")),
+              R("div", { key: "tb", style: { display: "flex", alignItems: "center", gap: "10px", padding: "5px 8px", background: "var(--paper-3)" } }, [
+                R("span", { key: "p", style: { width: "21px", height: "21px", borderRadius: "50%", border: "1px solid var(--paper-line-2)", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: "13px", color: SUB } }, "+"),
+                R("span", { key: "aa", style: { fontSize: "11.5px", color: SUB } }, "Aa"),
+                R("span", { key: "sp", style: { flex: 1 } }),
+                R("span", { key: "sd", style: { width: "26px", height: "21px", borderRadius: "5px", background: "#007A5A", color: "#FFFFFF", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: "11px" } }, "➤")
+              ])
+            ])
+          ])
+        ]),
+        oloBar(false)
+      ], "var(--paper)", INK);
+    } else if (ap === 1) {
+      const cln = (n, kids) => R("div", { key: "c" + n, style: { display: "flex", gap: "13px" } }, [R("span", { key: "n", style: { color: "#55544D", width: "12px", textAlign: "right", flexShrink: 0 } }, String(n)), R("span", { key: "b", style: { whiteSpace: "pre" } }, kids)]);
+      const kw = (s, k) => R("span", { key: k, style: { color: "#C586C0" } }, s);
+      const fn = (s, k) => R("span", { key: k, style: { color: "#DCDCAA" } }, s);
+      content = win([
+        chrome("acme-billing · Cursor", "#1D1D1D", "#8C8B83", "1px solid rgba(244,243,238,0.08)"),
+        R("div", { key: "b", style: { display: "flex", height: "352px", background: "#161616" } }, [
+          R("div", { key: "ed", style: { flex: 1, minWidth: 0, display: "flex", flexDirection: "column" } }, [
+            R("div", { key: "tab", style: { display: "flex", borderBottom: "1px solid rgba(244,243,238,0.07)" } },
+              R("span", { key: "t", style: { padding: "8px 16px", fontSize: "11px", fontFamily: MONO, color: "#D4D4D4", background: "#1E1E1E", borderRight: "1px solid rgba(244,243,238,0.07)" } }, "reconcile.ts")),
+            R("div", { key: "code", style: { padding: "12px 16px", fontFamily: MONO, fontSize: "11.5px", lineHeight: 2.1, color: "#D4D4D4", overflow: "hidden" } }, [
+              cln(1, [kw("async function ", "k"), fn("reconcile", "f"), "(acct) {"]),
+              cln(2, ["  ", kw("const", "k"), " res = ", kw("await", "a"), " api.", fn("charge", "f"), "(acct);"]),
+              cln(3, ["  ", kw("return", "k"), " res.status;"]),
+              cln(4, ["}"])
+            ])
+          ]),
+          R("div", { key: "ch", style: { width: "256px", flexShrink: 0, borderLeft: "1px solid rgba(244,243,238,0.09)", background: "#1B1B1B", display: "flex", flexDirection: "column" } }, [
+            R("div", { key: "hd", style: { display: "flex", justifyContent: "space-between", padding: "10px 13px", fontSize: "10.5px", letterSpacing: "0.06em", color: "#8C8B83", borderBottom: "1px solid rgba(244,243,238,0.07)" } }, [R("span", { key: "a" }, "CHAT"), R("span", { key: "b" }, "Agent ▾")]),
+            R("div", { key: "bd", style: { flex: 1, padding: "12px 13px" } },
+              R("span", { key: "ctx", style: { fontSize: "10.5px", fontFamily: MONO, color: "#8C8B83", border: "1px solid rgba(244,243,238,0.12)", borderRadius: "5px", padding: "2px 8px" } }, "@ reconcile.ts")),
+            R("div", { key: "in", style: { margin: "0 12px 12px", border: "1px solid rgba(244,243,238,0.16)", borderRadius: "8px", padding: "8px 11px 6px", background: "#161616" } }, [
+              mkTy([
+                { t: "Charge fails with 401. Key " }, { real: "sk-live-4Qz88LmXo2", tok: "[API_KEY]" }, { t: " on account " }, { real: "7731-00452", tok: "[ACCOUNT]" }, { t: "." }
+              ], true, "clean · 2 spans rewritten before the request left the editor", "12px"),
+              R("div", { key: "f", style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "6px", fontSize: "10px", color: "#6E6C64", fontFamily: MONO } }, [R("span", { key: "m" }, "claude-4.5"), R("span", { key: "s" }, "⏎ send")])
+            ])
+          ])
+        ]),
+        oloBar(true)
+      ], "#161616", "#B7B6AE");
+    } else if (ap === 2) {
+      const GRN = "#1E7A4F", GLINK = "#45A06C";
+      const chip = (kids, k) => R("span", { key: k, style: { display: "inline-flex", alignItems: "center", gap: "5px", border: "1px solid var(--paper-line)", background: "var(--paper-3)", borderRadius: "6px", padding: "3px 9px", fontSize: "11px", color: "#55534B" } }, kids);
+      const askChip = (t) => R("div", { key: t, style: { background: "var(--paper-3)", borderRadius: "8px", padding: "5px 10px", fontSize: "11.5px", color: INK, marginBottom: "6px", width: "fit-content" } }, t);
+      content = win([
+        R("div", { key: "chrome", style: { display: "flex", alignItems: "center", gap: "12px", padding: "9px 16px", background: "var(--paper-2)", borderBottom: "1px solid var(--paper-line)" } }, [
+          R("div", { key: "d", style: { display: "flex", gap: "7px", flexShrink: 0 } }, [dot("#FF5F57", 1), dot("#FEBC2E", 2), dot("#28C840", 3)]),
+          R("span", { key: "bk", style: { color: SUB, fontSize: "13px", flexShrink: 0 } }, "←"),
+          R("div", { key: "srch", style: { flex: 1, maxWidth: "200px", marginRight: "auto", background: "var(--paper-3)", borderRadius: "8px", padding: "4px 12px", fontSize: "11.5px", color: SUB, textAlign: "center" } }, "⌕  Search meetings"),
+          R("span", { key: "sp", style: { width: "70px", flexShrink: 0 } })
+        ]),
+        R("div", { key: "b", style: { display: "flex", height: "352px" } }, [
+          R("div", { key: "mn", style: { flex: 1, minWidth: 0, display: "flex", flexDirection: "column", padding: "18px 24px 14px", boxSizing: "border-box", background: "var(--paper-2)" } }, [
+            R("div", { key: "ti", style: { fontSize: "17px", fontWeight: 700, letterSpacing: "-0.01em", color: INK } }, "Intro call: Northwind"),
+            R("div", { key: "ch", style: { display: "flex", gap: "6px", margin: "8px 0 16px" } }, [
+              chip(["▢ Today"], "c1"),
+              chip([R("span", { key: "av", style: { width: "13px", height: "13px", borderRadius: "50%", background: "#D7E8DC", display: "inline-block" } }), "Jessica M.", R("span", { key: "p", style: { color: "#9A988F" } }, "+1")], "c2")
+            ]),
+            R("div", { key: "h1", style: { fontSize: "13px", fontWeight: 700, color: GLINK, marginBottom: "2px" } }, "Northwind Overview"),
+            R("div", { key: "n1", style: { fontSize: "13px", lineHeight: 2, color: INK } }, ["•  Renewal scoped at ", T("[AMOUNT]", 1), " ARR with ", T("[ORG]", 2)]),
+            R("div", { key: "n2", style: { fontSize: "13px", lineHeight: 2, color: "#8C8B83" } }, "•  Offices in San Francisco and Austin"),
+            R("div", { key: "sp", style: { flex: 1 } }),
+            R("div", { key: "in", style: { display: "flex", gap: "10px", alignItems: "flex-start", border: "1px solid var(--paper-line-2)", borderRadius: "999px", padding: "8px 18px 5px", background: "var(--paper-2)", boxShadow: "0 3px 12px var(--paper-line)", marginTop: "14px" } }, [
+              R("span", { key: "s", style: { fontSize: "13px", color: GRN, lineHeight: "1.9" } }, "✦"),
+              R("div", { key: "t", style: { minWidth: 0, flex: 1 } }, mkTy([
+                { t: "What did we agree with " }, { real: "Northwind Trading", tok: "[ORG]" }, { t: " on the " }, { real: "$120,000", tok: "[AMOUNT]" }, { t: " renewal?" }
+              ], false, "clean · 2 spans rewritten on device", "12.5px"))
+            ])
+          ]),
+          R("div", { key: "sb", style: { width: "158px", flexShrink: 0, borderLeft: "1px solid var(--paper-line)", padding: "16px 14px", background: "var(--paper-3)", boxSizing: "border-box" } }, [
+            R("div", { key: "l1", style: { fontSize: "10px", letterSpacing: "0.08em", color: "#8C8B83", textTransform: "uppercase", fontWeight: 600, marginBottom: "8px" } }, "Share notes"),
+            R("div", { key: "bt", style: { display: "flex", gap: "6px", marginBottom: "18px" } }, [
+              R("span", { key: "e", style: { flex: 1, textAlign: "center", background: "var(--paper-2)", border: "1px solid var(--paper-line-2)", borderRadius: "8px", padding: "4px 0", fontSize: "11.5px", fontWeight: 600, color: INK } }, "✉ Email"),
+              R("span", { key: "s", style: { flex: 1, textAlign: "center", background: "var(--paper-2)", border: "1px solid var(--paper-line-2)", borderRadius: "8px", padding: "4px 0", fontSize: "11.5px", fontWeight: 600, color: INK } }, "Slack")
+            ]),
+            R("div", { key: "l2", style: { fontSize: "10px", letterSpacing: "0.08em", color: "#8C8B83", textTransform: "uppercase", fontWeight: 600, marginBottom: "8px" } }, "Ask Granola"),
+            askChip("List action items"),
+            askChip("Write follow-up email"),
+            askChip("List Q&A")
+          ])
+        ]),
+        oloBar(false)
+      ], "var(--paper-2)", INK);
+    } else {
+      const BB = "#F23A00", BBTXT = "#5F7EA8", BBLINE = "rgba(95,126,168,0.32)", BBFILL = "#DBE4F0";
+      const logLn = (t, tm, hl) => R("div", { key: t, style: { display: "flex", justifyContent: "space-between", gap: "10px", padding: "4px 0", fontSize: "10.5px", fontFamily: MONO, color: hl ? BB : BBTXT } }, [R("span", { key: "a", style: { minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" } }, t), R("span", { key: "b", style: { color: "rgba(95,126,168,0.55)", flexShrink: 0 } }, tm)]);
+      const field = (lb, v, w) => R("div", { key: lb, style: { border: "1px solid " + BBLINE, borderRadius: "3px", padding: "7px 10px", marginBottom: "9px", maxWidth: "210px" } }, [
+        R("div", { key: "l", style: { fontSize: "9px", color: BBTXT, fontFamily: MONO, letterSpacing: "0.04em", marginBottom: "5px" } }, lb),
+        v ? R("div", { key: "v", style: { fontSize: "10.5px", color: "#3D5570", fontFamily: MONO } }, v) : R("div", { key: "v", style: { height: "9px", width: w || "60%", background: BBFILL, borderRadius: "2px" } })
+      ]);
+      content = win([
+        chrome("acme-invoices · Browserbase", "var(--paper-2)", BBTXT, "1px solid " + BBLINE),
+        R("div", { key: "b", style: { display: "flex", height: "352px", background: "var(--paper-2)", fontFamily: MONO } }, [
+          R("div", { key: "mn", style: { flex: 1, minWidth: 0, display: "flex", flexDirection: "column", padding: "12px 14px", boxSizing: "border-box" } }, [
+            R("div", { key: "tb", style: { display: "flex", alignItems: "center", gap: "9px", marginBottom: "10px", fontFamily: MONO, fontSize: "10.5px", color: BBTXT } }, [
+              R("span", { key: "d", style: { width: "7px", height: "7px", borderRadius: "50%", background: "#28C840", flexShrink: 0 } }),
+              R("span", { key: "s", style: { color: "#3D5570" } }, "session bb_7f3a92"),
+              R("span", { key: "r" }, "running · 00:42"),
+              R("span", { key: "sp", style: { flex: 1 } }),
+              R("span", { key: "lv", style: { border: "1px solid " + BBLINE, borderRadius: "3px", padding: "1px 8px", color: BBTXT, letterSpacing: "0.06em" } }, "LIVE VIEW")
+            ]),
+            R("div", { key: "vp", style: { position: "relative", border: "1px solid " + BBLINE, background: "var(--paper-2)", color: BBTXT } }, [
+              R("div", { key: "url", style: { display: "flex", alignItems: "center", gap: "8px", padding: "6px 10px", borderBottom: "1px solid " + BBLINE } }, [
+                R("span", { key: "c1", style: { width: "11px", height: "11px", borderRadius: "50%", border: "1px solid " + BBLINE, flexShrink: 0 } }),
+                R("span", { key: "c2", style: { width: "11px", height: "11px", borderRadius: "50%", border: "1px solid " + BBLINE, flexShrink: 0, marginLeft: "-5px" } }),
+                R("span", { key: "c3", style: { width: "11px", height: "11px", borderRadius: "50%", border: "1px solid " + BBLINE, flexShrink: 0, marginLeft: "-5px" } }),
+                R("span", { key: "u", style: { flex: 1, border: "1px solid " + BBLINE, borderRadius: "2px", padding: "2px 10px", fontSize: "10px", fontFamily: MONO, color: BBTXT } }, "vendors.acmepay.com/login")
+              ]),
+              R("div", { key: "pg", style: { padding: "14px 18px 14px" } }, [
+                R("div", { key: "h", style: { fontSize: "14px", fontWeight: 500, marginBottom: "11px", color: BBTXT, fontFamily: MONO, letterSpacing: "0.02em" } }, "Vendor sign in"),
+                field("Email", "[EMAIL]"),
+                field("Password", "••••••••••"),
+                R("div", { key: "bt", style: { display: "inline-block", background: BB, color: "#FFFFFF", borderRadius: "999px", padding: "4px 16px", fontSize: "10.5px", fontWeight: 500, fontFamily: MONO } }, "Sign in")
+              ]),
+              R("div", { key: "ag", style: { position: "absolute", right: "16px", bottom: "14px", display: "flex", alignItems: "flex-start", gap: "2px" } }, [
+                R("svg", { key: "cur", width: 15, height: 15, viewBox: "0 0 24 24", style: { display: "block", marginTop: "-6px" } }, R("path", { fill: BB, d: "M5 3l14 8-6.5 1.5L16 19l-3 1.5-3.5-6.5L5 18V3z" })),
+                R("span", { key: "pill", style: { background: BB, color: "#FFFFFF", borderRadius: "999px", padding: "3px 11px", fontSize: "9.5px", fontFamily: MONO, whiteSpace: "nowrap" } }, "Your agent")
+              ])
+            ]),
+            R("div", { key: "in", style: { border: "1px solid " + BBLINE, borderRadius: "3px", padding: "8px 11px 6px", background: "var(--paper-2)", marginTop: "10px" } }, [
+              mkTy([
+                { t: "Download May invoices. Sign in as " }, { real: "jordan@acme.com", tok: "[EMAIL]" }, { t: " with " }, { real: "Tr0ub4dor&3", tok: "[PASSWORD]" }, { t: "." }
+              ], false, "clean · 2 spans rewritten before the cloud browser sees them", "12px"),
+              R("div", { key: "f", style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "6px", fontSize: "10px", color: BBTXT, fontFamily: MONO } }, [R("span", { key: "m" }, "browser agent"), R("span", { key: "s" }, "⏎ run")])
+            ])
+          ]),
+          R("div", { key: "sb", style: { width: "176px", flexShrink: 0, borderLeft: "1px solid " + BBLINE, background: "var(--paper-3)", padding: "12px 13px", boxSizing: "border-box" } }, [
+            R("div", { key: "hd", style: { fontSize: "9.5px", letterSpacing: "0.08em", color: BBTXT, fontFamily: MONO, marginBottom: "8px" } }, "SESSION LOG"),
+            logLn("goto /login", "0:03"),
+            logLn("act: fill #email", "0:09"),
+            logLn("act: fill #password", "0:11"),
+            logLn("olo: 2 spans rewritten", "0:11", true),
+            logLn("act: click Sign in", "0:14"),
+            logLn("download invoices.zip", "0:38")
+          ])
+        ]),
+        oloBar(false)
+      ], "var(--paper-2)", BBTXT);
+    }
+
+    const names = ["Slack", "Cursor", "Granola", "Browserbase"];
+    const tileIcon = (slug, letter, letterCss) => [
+      slug ? R("img", { key: "i", src: "https://cdn.simpleicons.org/" + slug, width: 20, height: 20, alt: "", onError: (e) => { e.currentTarget.style.display = "none"; const s = e.currentTarget.parentElement.querySelector(".tile-fb"); if (s) s.style.display = "flex"; }, style: { display: "block" } }) : null,
+      R("span", { key: "f", className: "tile-fb", style: Object.assign({ display: slug ? "none" : "flex", alignItems: "center", justifyContent: "center", fontSize: "19px", fontWeight: 600, fontFamily: SANS }, letterCss || {}) }, letter)
+    ];
+    const slackSvg = R("svg", { key: "sl", viewBox: "0 0 122.8 122.8", width: 20, height: 20 }, [
+      R("path", { key: "a", fill: "#E01E5A", d: "M25.8 77.6c0 7.1-5.8 12.9-12.9 12.9S0 84.7 0 77.6s5.8-12.9 12.9-12.9h12.9v12.9zM32.3 77.6c0-7.1 5.8-12.9 12.9-12.9s12.9 5.8 12.9 12.9v32.3c0 7.1-5.8 12.9-12.9 12.9s-12.9-5.8-12.9-12.9V77.6z" }),
+      R("path", { key: "b", fill: "#36C5F0", d: "M45.2 25.8c-7.1 0-12.9-5.8-12.9-12.9S38.1 0 45.2 0s12.9 5.8 12.9 12.9v12.9H45.2zM45.2 32.3c7.1 0 12.9 5.8 12.9 12.9s-5.8 12.9-12.9 12.9H12.9C5.8 58.1 0 52.3 0 45.2s5.8-12.9 12.9-12.9h32.3z" }),
+      R("path", { key: "c", fill: "#2EB67D", d: "M97 45.2c0-7.1 5.8-12.9 12.9-12.9s12.9 5.8 12.9 12.9-5.8 12.9-12.9 12.9H97V45.2zM90.5 45.2c0 7.1-5.8 12.9-12.9 12.9s-12.9-5.8-12.9-12.9V12.9C64.7 5.8 70.5 0 77.6 0s12.9 5.8 12.9 12.9v32.3z" }),
+      R("path", { key: "d", fill: "#ECB22E", d: "M77.6 97c7.1 0 12.9 5.8 12.9 12.9s-5.8 12.9-12.9 12.9-12.9-5.8-12.9-12.9V97h12.9zM77.6 90.5c-7.1 0-12.9-5.8-12.9-12.9s5.8-12.9 12.9-12.9h32.3c7.1 0 12.9 5.8 12.9 12.9s-5.8 12.9-12.9 12.9H77.6z" })
+    ]);
+    const tiles = [
+      { bg: "#4A154B", ic: [slackSvg] },
+      { bg: "#000000", ic: tileIcon("cursor/white", "C", { color: "#FFFFFF" }) },
+      { bg: "#F2F8EE", ic: [R("span", { key: "gg", style: { display: "flex", alignItems: "center", gap: "1.5px" } }, [
+        R("span", { key: "g", style: { color: "#1D5C33", fontWeight: 800, fontSize: "23px", fontFamily: SANS, lineHeight: 1, marginTop: "-3px" } }, "g"),
+        R("span", { key: "b", style: { width: "5px", height: "20px", borderRadius: "4px", background: "#5BE05B", display: "inline-block" } })
+      ])] },
+      { bg: "#F23A00", ic: tileIcon(null, "B", { color: "#FFFFFF" }) }
+    ];
+    const hov = this.state.hov;
+    const dock = R("div", { key: "dock", style: { position: "absolute", bottom: "0", left: "50%", transform: "translateX(-50%)", display: "flex", alignItems: "flex-end", gap: "12px", zIndex: 3, padding: "9px 12px 5px", borderRadius: "17px", background: "rgba(244,243,238,0.09)", border: "1px solid rgba(244,243,238,0.14)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", boxShadow: "0 10px 28px rgba(0,0,0,0.4)" } },
+      names.map((n, i) => R("div", { key: n, onClick: () => { this._appPaused = true; this.setState({ app: i }); }, onMouseEnter: () => { this._appPaused = true; this.setState({ hov: i }); }, onMouseLeave: () => { this._appPaused = false; this.setState({ hov: null }); }, title: n, role: "button", style: { display: "flex", flexDirection: "column", alignItems: "center", gap: "3px", cursor: "pointer" } }, [
+        R("div", { key: "t", style: { width: "40px", height: "40px", borderRadius: "11px", background: tiles[i].bg, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: hov === i ? "0 6px 14px rgba(0,0,0,0.45)" : "0 2px 6px rgba(0,0,0,0.35)", transform: hov === i ? "translateY(-4px) scale(1.1)" : (i === ap ? "scale(1.04)" : "none"), transition: "all .18s" } }, tiles[i].ic),
+        R("span", { key: "d", style: { width: "4px", height: "4px", borderRadius: "50%", background: i === ap ? "rgba(244,243,238,0.85)" : "transparent", transition: "background .18s" } })
+      ])));
+    return R("div", { style: { width: "100%", position: "relative", paddingBottom: "78px" } }, [content, dock]);
+  }
+
+  agentDemo() {
+    const R = React.createElement;
+    const MONO = "'Geist Mono',ui-monospace,'SF Mono',Menlo,monospace";
+    const DT = (l, k) => R("span", { key: k, style: { fontFamily: MONO, fontSize: "0.9em", color: "#F4F3EE", background: "rgba(244,243,238,0.1)", border: "1px solid rgba(244,243,238,0.3)", padding: "1px 7px", borderRadius: "5px", whiteSpace: "nowrap" } }, l);
+    const dot = (c, k) => R("span", { key: k, style: { width: "11px", height: "11px", borderRadius: "50%", background: c, flexShrink: 0 } });
+    const out = (kids, k, at, st) => R("div", { key: k, className: "term-line", "data-at": at, style: Object.assign({ whiteSpace: "pre-wrap", opacity: 0, transition: "opacity .3s" }, st || {}) }, kids);
+    return R("div", { style: { width: "100%", border: "1px solid rgba(244,243,238,0.14)", borderRadius: "14px", background: "#0B0B0A", overflow: "hidden", fontFamily: MONO } }, [
+      R("div", { key: "chrome", style: { display: "flex", alignItems: "center", padding: "12px 16px", background: "#111110", borderBottom: "1px solid rgba(244,243,238,0.08)" } }, [
+        R("div", { key: "d", style: { display: "flex", gap: "7px", flexShrink: 0 } }, [dot("#FF5F57", 1), dot("#FEBC2E", 2), dot("#28C840", 3)]),
+        R("span", { key: "t", style: { flex: 1, textAlign: "center", fontSize: "12px", color: "#8C8B83" } }, "Terminal · zsh · 80×24"),
+        R("span", { key: "sp", style: { width: "47px", flexShrink: 0 } })
+      ]),
+      R("div", { key: "b", id: "term-box", style: { padding: "20px 24px 26px", fontSize: "13px", lineHeight: 2.2, color: "#B7B6AE", minHeight: "178px", boxSizing: "border-box" } }, [
+        R("div", { key: "l1", style: { whiteSpace: "pre-wrap" } }, [
+          R("span", { key: "u", style: { color: "#5A8A62" } }, "ops@macbook"),
+          R("span", { key: "c", style: { color: "#56554E" } }, " ~ % "),
+          R("span", { key: "cmd", className: "term-cmd", "data-text": "agent run finance-reconciler --task \"reconcile May invoices\"" }),
+          R("span", { key: "cr", style: { display: "inline-block", width: "7px", height: "1.05em", background: "#B7B6AE", verticalAlign: "-2px", marginLeft: "1px", animation: "oloCaret 1.06s step-end infinite" } })
+        ]),
+        out([R("span", { key: "p", style: { color: "#56554E" } }, "  "), "agent composing request → api.anthropic.com"], "l2", 300, { color: "#8C8B83" }),
+        out([R("span", { key: "p", style: { color: "#56554E" } }, "  "), "payload: { \"context\": \"from ", DT("[ORG]", "o"), " , ", DT("[AMOUNT]", "am"), " , acct ", DT("[ACCOUNT]", "ac"), "\" }"], "l3", 950),
+        out([R("span", { key: "p", style: { color: "#F4F3EE", fontWeight: 500 } }, "olo  "), "3 spans rewritten · policy pass · 0 sensitive bytes out"], "l4", 1700),
+        out([R("span", { key: "p", style: { color: "#56554E" } }, "→  "), "200 OK · response restored locally"], "l5", 2450, { color: "#8C8B83" })
+      ])
+    ]);
+  }
+
+  ensureReveal() {
+    if (!this._revObs) {
+      this._revObs = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) { e.target.classList.add("rev-in"); this._revObs.unobserve(e.target); }
+        });
+      }, { threshold: 0.12, rootMargin: "0px 0px -8% 0px" });
+    }
+    document.querySelectorAll(".rev:not(.rev-in)").forEach((el) => {
+      if (!el._revSeen) { el._revSeen = true; this._revObs.observe(el); }
+    });
+  }
+  componentDidMount() {
+    let saved = null;
+    try { saved = localStorage.getItem("olo-theme"); } catch (e) {}
+    if (saved === "light" || saved === "dark") this.setState({ theme: saved });
+    this.applyTheme();
+    this.ensureTyper();
+    this.ensureReveal();
+    this._appTimer = setInterval(() => {
+      if (this._appPaused) return;
+      this.setState(s => ({ app: ((s.app || 0) + 1) % 4 }));
+    }, 5000);
+  }
+  componentWillUnmount() {
+    clearInterval(this._appTimer);
+  }
+  componentDidUpdate() {
+    this.applyTheme();
+    this.ensureReveal();
+  }
+
+  renderVals() {
+    return {
+      toggleTheme: () => this.toggleTheme(),
+      themeIcon: (() => {
+        const R = React.createElement;
+        if (this.state.theme === "light") {
+          return R("svg", { width: 17, height: 17, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round" }, R("path", { d: "M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" }));
+        }
+        return R("svg", { width: 17, height: 17, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round" }, [
+          R("circle", { key: "c", cx: 12, cy: 12, r: 4 }),
+          R("path", { key: "r", d: "M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" })
+        ]);
+      })(),
+      footerMove: (e) => {
+        const rv = e.currentTarget.querySelector(".footer-olo-reveal");
+        if (!rv) return;
+        const r = rv.getBoundingClientRect();
+        rv.style.setProperty("--mx", (e.clientX - r.left) + "px");
+        rv.style.setProperty("--my", (e.clientY - r.top) + "px");
+      },
+      mailto: "mailto:olosecurity@gmail.com?subject=" + encodeURIComponent("Request access: Olo Security") + "&body=" + encodeURIComponent("Name: \nEmail: \nPhone: \nCompany: \nAdditional information: \n"),
+      browserDemo: this.browserDemo(),
+      slackDemo: this.slackDemo(),
+      agentDemo: this.agentDemo(),
+      howSteps: [
+        { k: "01", tag: "DETECT", title: "Read it on the device.", body: "A small local model reads each request the instant before it's sent, tagging every name, secret, credential and number, and rewriting each as a stable token. Deterministic rules plus ML, in milliseconds. No round-trip, no cloud." },
+        { k: "02", tag: "RESTORE", title: "Read the answer back in.", body: "When the model replies in tokens, Olo restores the real values locally and hands them straight to the chat, the agent, or the editor. The provider only ever saw placeholders; the user only ever saw their own words." },
+        { k: "03", tag: "AT THE SOURCE", title: "Nothing sensitive ever leaves.", body: "There is no vendor cloud to inspect the request, because inspection happens where the request is born. Zero sensitive bytes cross the wire to the model, the network, or us. Nothing left means nothing to leak." }
+      ],
+      bars: [34, 52, 41, 63, 48, 70, 58, 44, 66, 55, 78, 61, 72, 88],
+      principles: [
+        { n: "01", title: "Private means it never left.", body: "The one guarantee that survives a breach, a subpoena, or a change of heart at your model provider is that the data was never there. Olo redacts where the data already lives, so there is no copy to inspect, not in our cloud, because there is no our-cloud step." },
+        { n: "02", title: "Guard the person, don't police them.", body: "No keystroke logging. No manager watching over a shoulder. Olo cleans the request and gets out of the way. The user keeps their tools, their speed, and their trust. A guard standing next to the person, not a camera pointed at them." },
+        { n: "03", title: "Follow the payload, not the surface.", body: "The next hand to touch your data may not be a person. A layer at the device edge doesn't care whether the caller is someone typing or an agent acting. It governs the payload itself, on every surface, including the agentic ones nothing else can see yet." }
+      ],
+      coverage: [
+        { name: "Browser", state: "on" },
+        { name: "Desktop", state: "on" },
+        { name: "Editor", state: "on" },
+        { name: "Agents · MCP", state: "on" }
+      ],
+      activity: [
+        { who: "SC", surface: "Browser · ChatGPT", fields: "3 fields", t: "2m" },
+        { who: "JO", surface: "Agent · MCP", fields: "5 fields", t: "6m" },
+        { who: "MR", surface: "Editor · Copilot", fields: "2 fields", t: "11m" },
+        { who: "AP", surface: "Desktop · Assistant", fields: "1 field", t: "18m" }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>
