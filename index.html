@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Olo — the data you never send is the only data you can promise is private</title>
+<meta name="description" content="Olo detects, classifies and redacts sensitive content on-device, before it reaches an AI provider. No cloud proxy, no our-cloud step.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:ital,wght@0,400;0,500;0,600;1,400&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<script src="script.js" defer></script>
+<!-- r149 is the last three.js release that ships a UMD build. It has to be a
+     classic script, not an ES module, so the page also works from file://. -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.min.js" defer></script>
+<script src="hero-hills.js" defer></script>
+
+<noscript>
+<style>
+/* Without JS nothing can add `.is-in`, so opt every reveal into its end state
+   and leave the FAQ answers expanded. */
+[data-reveal='up'] { opacity: 1 !important; transform: none !important; }
+[data-reveal='wipe'] { transform: scaleX(0) !important; }
+.faq-a { max-height: none !important; opacity: 1 !important; }
+.caret { display: none; }
+</style>
+</noscript>
+</head>
+
+<body>
+<div class="page">
+
+<nav class="nav">
+<div class="wrap nav-inner">
+<a class="logo-link" href="#v2top" aria-label="Olo — back to top">
+<img class="logo-mark" src="imgs/olo-mark.png" alt="" width="1024" height="766">
+</a>
+<div class="nav-links">
+<a class="link-wipe" href="#v2s01">the leak</a>
+<a class="link-wipe" href="#v2s04">how it works</a>
+<a class="link-wipe" href="#v2s06">faq</a>
+<a class="btn-ghost" href="#v2s07">request access</a>
+</div>
+</div>
+</nav>
+
+<header class="hero-shell" id="v2top">
+<canvas class="hero-canvas" id="heroCanvas" aria-hidden="true"></canvas>
+<div class="wrap hero">
+<h1 class="hero-lockup" data-reveal="up" style="--d:.06s">
+<img class="hero-mark" src="imgs/olo-mark.png" alt="Olo" width="1024" height="766" fetchpriority="high" decoding="async">
+</h1>
+<p class="hero-tagline" data-reveal="up" style="--d:.18s">Your team shouldn’t have to choose between AI and privacy.<span class="soft">Olo makes sensitive data invisible before it reaches AI.</span></p>
+</div>
+</header>
+
+<!-- 01 ------------------------------------------------------------------ -->
+<section class="section" id="v2s01">
+<div class="wrap">
+<p class="eyebrow" data-reveal="up">[ 01 ] the leak</p>
+<div class="leak-grid">
+
+<div>
+<h2 class="h2" data-reveal="up" style="--d:.06s;max-width:15ch">Whatever they type doesn't stay with them.</h2>
+<p class="lede" data-reveal="up" style="--d:.12s;max-width:34ch">It reaches a server you can't inspect, gets logged, and becomes someone else's problem to secure.</p>
+</div>
+
+<div data-reveal="up">
+<div class="vignette" id="vignette">
+<div class="vig-head">
+<span class="vig-meta">assistant · new message</span>
+<span class="vig-meta">olo · active</span>
+</div>
+<!-- Kept on one line: whitespace between these inline spans would render. -->
+<div class="vig-body" id="vigText"><span class="seg"><span class="seg-t">"Following up on the </span></span><span class="seg seg--flag" data-flag="0"><span class="seg-t">Meridian Health</span><span class="seg-bar"></span></span><span class="seg"><span class="seg-t"> contract for patient Jane Doe, </span></span><span class="seg seg--flag" data-flag="1"><span class="seg-t">MRN 4419827</span><span class="seg-bar"></span></span><span class="seg"><span class="seg-t">, re: the </span></span><span class="seg seg--flag" data-flag="2"><span class="seg-t">$2.4M</span><span class="seg-bar"></span></span><span class="seg"><span class="seg-t"> settlement…"</span></span><span class="caret" id="vigCaret" aria-hidden="true"></span></div>
+<div class="vig-logs">
+<div class="vig-log"><span class="mark" aria-hidden="true"></span>client name — redacted on device</div>
+<div class="vig-log"><span class="mark" aria-hidden="true"></span>MRN — redacted on device</div>
+<div class="vig-log"><span class="mark" aria-hidden="true"></span>settlement figure — redacted on device</div>
+</div>
+</div>
+<p class="vig-caption" id="vigCaption">Nothing left the device. You kept typing.</p>
+</div>
+
+</div>
+</div>
+</section>
+
+<!-- 02 ------------------------------------------------------------------ -->
+<section class="section" id="v2s02">
+<div class="wrap">
+<p class="eyebrow" data-reveal="up">[ 02 ] why the usual answer fails</p>
+<h2 class="h2" data-reveal="up" style="--d:.06s;max-width:24ch">A service that has to read your data to protect it<br><span class="dim">is one more place your data now lives.</span></h2>
+<p class="lede" data-reveal="up" style="--d:.12s;max-width:44ch;margin-top:36px">A cloud proxy doesn't remove the exposure. It relocates it.</p>
+
+<div class="compare" data-reveal="up" style="--d:.18s">
+<div class="compare-col compare-col--bad">
+<p class="compare-label">the proxy model</p>
+<div class="flow">
+<div class="flow-node">device</div>
+<div class="flow-line"></div>
+<div class="flow-box">their cloud — reads your content</div>
+<div class="flow-line"></div>
+<div class="flow-node">ai provider</div>
+</div>
+<p class="compare-note">Exposure relocated, not removed.</p>
+</div>
+
+<div class="compare-col compare-col--good">
+<p class="compare-label">olo</p>
+<div class="flow">
+<div class="flow-node">device</div>
+<div class="flow-redact">
+<div class="flow-line"></div>
+<span class="redact-swatch" aria-hidden="true"></span>
+<span class="flow-note">redacted in place</span>
+</div>
+<div class="flow-box flow-box--solid">nothing sensitive crosses</div>
+<div class="flow-line"></div>
+<div class="flow-node">ai provider</div>
+</div>
+<p class="compare-note compare-note--good">Nothing to relocate. It never left.</p>
+</div>
+</div>
+
+</div>
+</section>
+
+<!-- 03 ------------------------------------------------------------------ -->
+<section class="statement" id="v2s03">
+<div class="wrap">
+<h2 class="statement-h">The only data you can promise is private is the data that was never sent.<span data-reveal="wipe"></span></h2>
+<p class="statement-p" data-reveal="up" style="--d:.5s">Not withheld. Not encrypted in transit. Never sent — the one guarantee that survives a breach, a subpoena, or a change of heart.</p>
+</div>
+</section>
+
+<!-- 04 ------------------------------------------------------------------ -->
+<section class="section" id="v2s04">
+<div class="wrap">
+<p class="eyebrow" data-reveal="up">[ 03 ] the design</p>
+<h2 class="h2" data-reveal="up" style="--d:.06s;max-width:20ch">Not a people problem. A design problem — with no our-cloud step.</h2>
+
+<div class="steps" data-reveal="up" style="--d:.18s">
+<div class="step">
+<div class="step-head"><span class="step-num">1</span><h3 class="step-title">Detect</h3></div>
+<p class="step-body">A 14.7MB on-device classifier reads the payload where it lives.</p>
+</div>
+<div class="step">
+<div class="step-head"><span class="step-num">2</span><h3 class="step-title">Classify</h3></div>
+<p class="step-body">Sensitive items identified locally, in about 4.5 milliseconds.</p>
+</div>
+<div class="step">
+<div class="step-head"><span class="step-num">3</span><h3 class="step-title">Redact</h3></div>
+<p class="step-body">Stripped in place. Nothing downstream to log, subpoena, or breach.</p>
+</div>
+</div>
+
+</div>
+</section>
+
+<!-- 05 ------------------------------------------------------------------ -->
+<section class="section" id="v2s05">
+<div class="wrap">
+<p class="eyebrow eyebrow--loose" data-reveal="up">[ 04 ] the numbers</p>
+<div class="stats">
+<div data-reveal="up">
+<div class="stat-n">~4.5 ms</div>
+<p class="stat-p">on-device classification. never blocks input.</p>
+</div>
+<div data-reveal="up" style="--d:.08s">
+<div class="stat-n">14.7 MB</div>
+<p class="stat-p">the entire on-device model. swappable by design.</p>
+</div>
+<div data-reveal="up" style="--d:.16s">
+<div class="stat-n">0 bytes</div>
+<p class="stat-p">of sensitive content transmitted. ever.</p>
+</div>
+</div>
+</div>
+</section>
+
+<!-- 06 ------------------------------------------------------------------ -->
+<section class="section" id="v2s06">
+<div class="wrap">
+<p class="eyebrow eyebrow--faq" data-reveal="up">[ 05 ] faq</p>
+<div class="faq">
+
+<div class="faq-item">
+<h3 class="faq-h"><button class="faq-q" type="button" id="faq-q-0" aria-expanded="false" aria-controls="faq-a-0">Is this surveillance?<span class="faq-mark" aria-hidden="true"></span></button></h3>
+<div class="faq-a" id="faq-a-0" role="region" aria-labelledby="faq-q-0">
+<p>No. Olo transmits metadata only, never content. An admin sees that three PHI items were flagged — not what you wrote.</p>
+</div>
+</div>
+
+<div class="faq-item">
+<h3 class="faq-h"><button class="faq-q" type="button" id="faq-q-1" aria-expanded="false" aria-controls="faq-a-1">Does it slow me down?<span class="faq-mark" aria-hidden="true"></span></button></h3>
+<div class="faq-a" id="faq-a-1" role="region" aria-labelledby="faq-q-1">
+<p>Classification runs at about 4.5 milliseconds on-device. It never blocks input and never steals focus. If nothing is detected, you won't see it at all.</p>
+</div>
+</div>
+
+<div class="faq-item">
+<h3 class="faq-h"><button class="faq-q" type="button" id="faq-q-2" aria-expanded="false" aria-controls="faq-a-2">Do I need IT to install it?<span class="faq-mark" aria-hidden="true"></span></button></h3>
+<div class="faq-a" id="faq-a-2" role="region" aria-labelledby="faq-q-2">
+<p>No. A notarized DMG and one accessibility permission. No MDM, no root certificate, no proxy — under a minute.</p>
+</div>
+</div>
+
+<div class="faq-item">
+<h3 class="faq-h"><button class="faq-q" type="button" id="faq-q-3" aria-expanded="false" aria-controls="faq-a-3">What about AI agents?<span class="faq-mark" aria-hidden="true"></span></button></h3>
+<div class="faq-a" id="faq-a-3" role="region" aria-labelledby="faq-q-3">
+<p>Agentic tool calls are next, through a local shim that redacts tool-call payloads on the device. Same constraint: classification is local, nothing sensitive is transmitted.</p>
+</div>
+</div>
+
+<div class="faq-item">
+<h3 class="faq-h"><button class="faq-q" type="button" id="faq-q-4" aria-expanded="false" aria-controls="faq-a-4">Does it work on Windows?<span class="faq-mark" aria-hidden="true"></span></button></h3>
+<div class="faq-a" id="faq-a-4" role="region" aria-labelledby="faq-q-4">
+<p>Not yet. macOS today. Windows is on the roadmap.</p>
+</div>
+</div>
+
+<div class="faq-end"></div>
+</div>
+</div>
+</section>
+
+<!-- 07 ------------------------------------------------------------------ -->
+<section class="statement statement--cta" id="v2s07">
+<div class="wrap">
+<h2 class="statement-h statement-h--cta">Privacy is a right.<br><span class="dim">Olo is the way to hold it.</span><span data-reveal="wipe"></span></h2>
+<div class="cta-actions" data-reveal="up" style="--d:.5s">
+<a class="btn-solid" href="mailto:olosecurity@gmail.com">request access</a>
+<a class="link-wipe link-wipe--lg" href="mailto:olosecurity@gmail.com">olosecurity@gmail.com</a>
+</div>
+</div>
+</section>
+
+<footer class="footer">
+<div class="wrap footer-inner">
+<div class="logo logo--sm">
+<span class="logo-bar"></span>
+<span class="logo-word">olo</span>
+</div>
+<div class="footer-links">
+<a href="mailto:olosecurity@gmail.com">olosecurity@gmail.com</a>
+<a href="https://x.com/olosecurity">x</a>
+<a href="https://www.linkedin.com/company/olosecurity">linkedin</a>
+<a href="https://www.olosecurity.com/privacy">privacy</a>
+<a href="https://www.olosecurity.com/terms">terms</a>
+<span class="copyright">© 2026 olo security</span>
+</div>
+</div>
+</footer>
+
+</div>
+</body>
+</html>

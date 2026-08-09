@@ -1,0 +1,814 @@
+/* ==========================================================================
+   olo security — landing page
+   Tokens → base → layout → components → responsive
+   ========================================================================== */
+
+:root {
+  /* Art direction: change --ac to restyle every accent on the page. */
+  --ac: #5B8BFF;
+
+  --bg: #F4F2ED;
+  --surface: #FBFAF7;
+  --surface-2: #EFEDE7;
+
+  --ink: #16161A;
+  --ink-2: #2A2823;
+  --ink-3: #3B3830;
+  --muted: #5F5B54;
+  --muted-2: #6E6A62;
+  --muted-3: #7A756B;
+
+  --line: #E2DED5;
+  --line-2: #D7D2C8;
+  --line-3: #DDD8CE;
+  --line-4: #E7E3DA;
+  --line-5: #CFCABF;
+  --line-6: #C4BEB2;
+
+  --sans: 'Familjen Grotesk', system-ui, sans-serif;
+  --mono: 'IBM Plex Mono', monospace;
+
+  --nav-h: 70px;
+  --gutter: 48px;
+
+  /* Dark hero */
+  --hero-bg: #0A0A0C;
+  --hero-ink: #F4F2ED;
+  --hero-muted: #9C978E;
+  --hero-muted-2: #7E7970;
+  --hero-line: #3C3C44;
+  --hero-tagline-soft: #A5A099;
+}
+
+/* --------------------------------------------------------------------------
+   Base
+   -------------------------------------------------------------------------- */
+
+* { box-sizing: border-box; }
+
+html {
+  background: var(--bg);
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: inherit; text-decoration: none; }
+
+::selection { background: var(--ac); color: var(--bg); }
+
+:focus-visible {
+  outline: 2px solid var(--ac);
+  outline-offset: 3px;
+}
+
+/* Anchor targets clear the sticky nav. */
+header[id], section[id] { scroll-margin-top: var(--nav-h); }
+
+.page {
+  background: var(--bg);
+  color: var(--ink);
+  /* `clip` rather than `hidden`: `hidden` makes this a scroll container,
+     which silently breaks position:sticky on the nav inside it. */
+  overflow-x: clip;
+}
+
+.wrap {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+}
+
+/* --------------------------------------------------------------------------
+   Scroll reveals — `.is-in` is added by script.js
+   -------------------------------------------------------------------------- */
+
+[data-reveal='up'] {
+  opacity: 0;
+  transform: translateY(16px);
+  transition:
+    opacity .85s ease var(--d, 0s),
+    transform .85s cubic-bezier(.2, .7, .3, 1) var(--d, 0s);
+}
+
+[data-reveal='up'].is-in {
+  opacity: 1;
+  transform: none;
+}
+
+[data-reveal='wipe'] {
+  position: absolute;
+  left: -8px;
+  right: -8px;
+  top: 2%;
+  bottom: 2%;
+  background: var(--ac);
+  transform-origin: right center;
+  transition: transform 900ms cubic-bezier(.16, .84, .32, 1);
+}
+
+[data-reveal='wipe'].is-in { transform: scaleX(0); }
+
+/* --------------------------------------------------------------------------
+   Nav
+   -------------------------------------------------------------------------- */
+
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  backdrop-filter: blur(14px);
+  background: rgba(244, 242, 237, .82);
+  border-bottom: 1px solid var(--line);
+  transition: background 300ms ease, border-color 300ms ease;
+}
+
+/* While the dark hero is behind it, the nav inverts. Everything inside reads
+   from these tokens, so re-pointing them is enough. */
+.nav--on-dark {
+  --ink: var(--hero-ink);
+  --muted-2: var(--hero-muted);
+  --line: #232329;
+  --line-5: var(--hero-line);
+  --bg: var(--hero-bg);
+  background: rgba(10, 10, 12, .82);
+}
+
+.nav-inner {
+  height: var(--nav-h);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 34px;
+}
+
+/* Nav mark. The asset is cream, which is right over the dark hero but would
+   vanish against the light page — so it's inverted once the nav flips to its
+   light state. Inverting #ECEAE3 lands on #13151C, near-identical to --ink. */
+.logo-link {
+  display: inline-flex;
+  align-items: center;
+}
+
+.logo-mark {
+  display: block;
+  width: 42px;
+  height: auto;
+  filter: invert(1);
+  transition: filter 300ms ease;
+}
+
+.nav--on-dark .logo-mark { filter: none; }
+
+/* Footer lockup */
+.logo {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 5px;
+  padding-top: 4px;
+}
+
+.logo-bar {
+  display: block;
+  height: 4px;
+  width: 100%;
+  background: var(--ink);
+  border-radius: 999px;
+}
+
+.logo-word {
+  font: 500 22px/.8 var(--sans);
+  letter-spacing: -.03em;
+  color: var(--ink);
+}
+
+.logo--sm .logo-bar { height: 3px; background: #B8B2A6; }
+.logo--sm .logo-word { font-size: 17px; color: var(--muted-2); }
+
+/* --------------------------------------------------------------------------
+   Links & buttons
+   -------------------------------------------------------------------------- */
+
+/* Text link that fills with the accent on hover. */
+.link-wipe {
+  font: 400 13px/1 var(--mono);
+  color: var(--muted-2);
+  white-space: nowrap;
+  flex: none;
+  padding: 5px 4px;
+  background-image: linear-gradient(var(--ac), var(--ac));
+  background-repeat: no-repeat;
+  background-size: 0% 100%;
+  transition:
+    background-size 250ms cubic-bezier(.2, .7, .3, 1),
+    color 250ms;
+}
+
+.link-wipe:hover,
+.link-wipe:focus-visible {
+  background-size: 100% 100%;
+  color: var(--bg);
+}
+
+.link-wipe--lg { font-size: 14px; padding: 6px 4px; }
+
+.btn-ghost {
+  font: 400 13px/1 var(--mono);
+  color: var(--ink);
+  white-space: nowrap;
+  flex: none;
+  padding: 10px 18px;
+  border: 1px solid var(--line-5);
+  border-radius: 999px;
+  transition: border-color 250ms, background 250ms;
+}
+
+.btn-ghost:hover,
+.btn-ghost:focus-visible {
+  border-color: var(--ac);
+  background: rgba(91, 139, 255, .1);
+  background: color-mix(in srgb, var(--ac) 10%, transparent);
+}
+
+.btn-solid {
+  font: 400 14px/1 var(--mono);
+  color: var(--bg);
+  white-space: nowrap;
+  flex: none;
+  background: var(--ac);
+  padding: 16px 26px;
+  border-radius: 999px;
+  transition: opacity 250ms;
+}
+
+.btn-solid:hover,
+.btn-solid:focus-visible { opacity: .84; }
+
+/* --------------------------------------------------------------------------
+   Hero — dark, with the animated GLSL hills behind the copy
+   -------------------------------------------------------------------------- */
+
+.hero-shell {
+  position: relative;
+  isolation: isolate;
+  background: var(--hero-bg);
+  overflow: hidden;
+
+  /* Re-point the shared tokens instead of restyling each child. */
+  --ink: var(--hero-ink);
+  --muted-2: var(--hero-muted);
+  --muted-3: var(--hero-muted-2);
+  --line-5: var(--hero-line);
+  --bg: var(--hero-bg);
+  color: var(--hero-ink);
+}
+
+/* Base glow — also the fallback if WebGL or JS is unavailable. */
+.hero-shell::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(120% 80% at 50% 118%, rgba(255, 255, 255, .10), transparent 62%);
+}
+
+.hero-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 1.2s ease;
+}
+
+.hero-canvas.is-ready { opacity: 1; }
+
+.hero {
+  position: relative;
+  z-index: 1;
+  min-height: 86vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.hero-lockup {
+  margin: 0;
+  line-height: 0; /* no descender gap under the mark */
+}
+
+.hero-mark {
+  display: block;
+  width: clamp(160px, 25vw, 340px);
+  height: auto;
+}
+
+.hero-tagline {
+  font: 400 clamp(17px, 1.9vw, 21px)/1.5 var(--sans);
+  color: var(--hero-ink);
+  margin: 38px 0 0;
+  max-width: 62ch;
+  text-wrap: pretty;
+}
+
+/* Second sentence steps back a shade. `display: block` puts each sentence on
+   its own line at desktop widths. */
+.hero-tagline .soft {
+  display: block;
+  color: var(--hero-tagline-soft);
+}
+
+.dim { color: var(--muted-3); }
+
+/* --------------------------------------------------------------------------
+   Section shell
+   -------------------------------------------------------------------------- */
+
+.section {
+  border-top: 2px solid var(--line);
+  padding: 140px 0;
+}
+
+.eyebrow {
+  font: 400 12px/1 var(--mono);
+  letter-spacing: .16em;
+  color: var(--muted);
+  margin: 0 0 44px;
+}
+
+.eyebrow--loose { margin-bottom: 70px; }
+.eyebrow--faq { margin-bottom: 52px; }
+
+.h2 {
+  font: 400 clamp(30px, 3.9vw, 54px)/1.08 var(--sans);
+  letter-spacing: -.03em;
+  color: var(--ink);
+  margin: 0;
+}
+
+.lede {
+  font: 400 18px/1.6 var(--sans);
+  color: var(--muted);
+  margin: 34px 0 0;
+  text-wrap: pretty;
+}
+
+/* --------------------------------------------------------------------------
+   01 — the leak
+   -------------------------------------------------------------------------- */
+
+.leak-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  gap: 70px;
+  align-items: start;
+}
+
+.vignette {
+  border: 1px solid var(--line-3);
+  background: var(--surface);
+  border-radius: 3px;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(20, 18, 14, .04);
+}
+
+.vig-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line-4);
+}
+
+.vig-meta {
+  font: 400 11px/1 var(--mono);
+  letter-spacing: .12em;
+  color: var(--muted-2);
+}
+
+.vig-body {
+  padding: 26px 20px 30px;
+  min-height: 172px;
+  font: 400 16px/1.75 var(--mono);
+  color: var(--ink-2);
+}
+
+.seg { position: relative; }
+
+.seg-t { white-space: pre-wrap; }
+
+.seg--flag { display: inline-block; }
+.seg--flag .seg-t { white-space: nowrap; }
+
+.seg-bar {
+  position: absolute;
+  left: -2px;
+  top: 2px;
+  bottom: 2px;
+  width: 0;
+  background: var(--ac);
+  transition: width 260ms cubic-bezier(.16, .8, .3, 1);
+}
+
+.seg.is-redacted .seg-bar { width: calc(100% + 4px); }
+
+.caret {
+  display: inline-block;
+  width: 9px;
+  height: 17px;
+  background: var(--ac);
+  vertical-align: -3px;
+  margin-left: 2px;
+  transition: opacity 200ms ease;
+}
+
+.caret.is-hidden { opacity: 0; }
+
+.vig-logs {
+  border-top: 1px solid var(--line-4);
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.vig-log {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font: 400 12px/1.3 var(--mono);
+  color: var(--muted-3);
+  opacity: .15;
+  transition: opacity 300ms ease;
+}
+
+.vig-log.is-on { opacity: 1; }
+
+.mark {
+  display: block;
+  width: 26px;
+  height: 9px;
+  background: var(--ac);
+  flex: none;
+}
+
+.vig-caption {
+  font: 500 15px/1.5 var(--sans);
+  color: var(--ink);
+  margin: 20px 0 0;
+  opacity: 0;
+  transition: opacity 400ms ease;
+}
+
+.vig-caption.is-on { opacity: 1; }
+
+/* --------------------------------------------------------------------------
+   02 — proxy model vs olo
+   -------------------------------------------------------------------------- */
+
+.compare {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px; /* the gap is the hairline — the wrapper background shows through */
+  margin: 72px 0 0;
+  background: var(--line);
+  border: 1px solid var(--line);
+}
+
+.compare-col { padding: 42px 36px 46px; }
+.compare-col--bad { background: var(--surface-2); }
+.compare-col--good { background: var(--surface); }
+
+.compare-label {
+  font: 400 11px/1 var(--mono);
+  letter-spacing: .14em;
+  color: var(--muted-2);
+  margin: 0 0 34px;
+}
+
+.compare-note {
+  font: 400 15px/1.6 var(--sans);
+  color: var(--muted);
+  margin: 34px 0 0;
+}
+
+.compare-note--good { color: var(--ink-3); }
+
+.flow { display: flex; flex-direction: column; }
+
+.flow-node {
+  font: 400 12px/1 var(--mono);
+  color: var(--muted-2);
+}
+
+.flow-line {
+  width: 1px;
+  height: 34px;
+  background: var(--line-5);
+  margin: 10px 0 10px 26px;
+}
+
+.flow-box {
+  border: 1px dashed var(--line-6);
+  padding: 14px 16px;
+  font: 400 12px/1.4 var(--mono);
+  color: var(--muted-2);
+}
+
+.flow-box--solid {
+  border: 1px solid var(--line-3);
+  color: var(--ink-2);
+}
+
+.flow-redact {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 10px 0;
+}
+
+.flow-redact .flow-line { margin: 0 0 0 26px; }
+
+.redact-swatch {
+  display: block;
+  width: 44px;
+  height: 10px;
+  background: var(--ac);
+  flex: none;
+}
+
+.flow-note {
+  font: 400 11px/1 var(--mono);
+  color: var(--muted-3);
+}
+
+/* --------------------------------------------------------------------------
+   03 / 07 — statement + final CTA
+   -------------------------------------------------------------------------- */
+
+.statement {
+  border-top: 2px solid var(--line);
+  padding: 200px 0;
+  text-align: center;
+}
+
+.statement--cta { padding: 190px 0 170px; }
+
+.statement-h {
+  font: 400 clamp(34px, 5.2vw, 72px)/1.08 var(--sans);
+  letter-spacing: -.034em;
+  color: var(--ink);
+  margin: 0 auto;
+  max-width: 19ch;
+  position: relative;
+  display: inline-block;
+}
+
+.statement-h--cta {
+  font-size: clamp(32px, 4.4vw, 60px);
+  line-height: 1.1;
+  letter-spacing: -.032em;
+  max-width: 20ch;
+}
+
+.statement-p {
+  font: 400 17px/1.6 var(--sans);
+  color: var(--muted);
+  max-width: 44ch;
+  margin: 44px auto 0;
+  text-wrap: pretty;
+}
+
+.cta-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 30px;
+  margin: 52px 0 0;
+  flex-wrap: wrap;
+}
+
+/* --------------------------------------------------------------------------
+   04 — the design
+   -------------------------------------------------------------------------- */
+
+.steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 56px;
+  margin: 78px 0 0;
+}
+
+.step {
+  border-top: 1px solid var(--line-2);
+  padding: 26px 0 0;
+}
+
+.step-head {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+}
+
+.step-num {
+  font: 400 12px/1 var(--mono);
+  color: var(--ac);
+}
+
+.step-title {
+  font: 500 24px/1.2 var(--sans);
+  letter-spacing: -.02em;
+  color: var(--ink);
+  margin: 0;
+}
+
+.step-body {
+  font: 400 16px/1.6 var(--sans);
+  color: var(--muted);
+  margin: 16px 0 0;
+}
+
+/* --------------------------------------------------------------------------
+   05 — the numbers
+   -------------------------------------------------------------------------- */
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 48px;
+}
+
+.stat-n {
+  font: 400 clamp(44px, 6vw, 84px)/1 var(--sans);
+  letter-spacing: -.045em;
+  color: var(--ac);
+}
+
+.stat-p {
+  font: 400 15px/1.6 var(--sans);
+  color: var(--muted);
+  margin: 24px 0 0;
+  max-width: 22ch;
+}
+
+/* --------------------------------------------------------------------------
+   06 — faq
+   -------------------------------------------------------------------------- */
+
+.faq { display: flex; flex-direction: column; }
+
+.faq-item { border-top: 1px solid var(--line-2); }
+
+.faq-h { margin: 0; }
+
+.faq-q {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 32px;
+  width: 100%;
+  padding: 30px 0;
+  margin: 0;
+  border: 0;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  font: 400 clamp(19px, 1.9vw, 26px)/1.3 var(--sans);
+  letter-spacing: -.02em;
+  color: var(--ink);
+}
+
+.faq-mark {
+  display: block;
+  width: 26px;
+  height: 9px;
+  background: var(--line-2);
+  flex: none;
+  margin-top: 8px;
+  transition: background 250ms;
+}
+
+.faq-q[aria-expanded='true'] .faq-mark { background: var(--ac); }
+
+.faq-a {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition:
+    max-height 420ms cubic-bezier(.2, .7, .3, 1),
+    opacity 300ms ease;
+}
+
+.faq-a.is-open { opacity: 1; }
+
+.faq-a p {
+  font: 400 17px/1.65 var(--sans);
+  color: var(--muted);
+  margin: 0;
+  padding: 0 0 32px;
+  max-width: 60ch;
+  text-wrap: pretty;
+}
+
+.faq-end { border-top: 1px solid var(--line-2); }
+
+/* --------------------------------------------------------------------------
+   Footer
+   -------------------------------------------------------------------------- */
+
+.footer {
+  border-top: 1px solid var(--line);
+  padding: 44px 0;
+}
+
+.footer-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+
+.footer-links {
+  display: flex;
+  align-items: center;
+  gap: 26px;
+  flex-wrap: wrap;
+  font: 400 12px/1 var(--mono);
+  color: var(--muted-2);
+}
+
+.footer-links a { transition: color 250ms; }
+.footer-links a:hover,
+.footer-links a:focus-visible { color: var(--ink); }
+
+.copyright { color: var(--line-6); }
+
+/* --------------------------------------------------------------------------
+   Responsive
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 900px) {
+  .leak-grid,
+  .steps,
+  .stats {
+    grid-template-columns: 1fr;
+    gap: 44px;
+  }
+
+  .compare { grid-template-columns: 1fr; }
+
+  .section,
+  .statement { padding: 104px 0; }
+
+  .nav-links .link-wipe { display: none; }
+}
+
+@media (max-width: 620px) {
+  :root { --gutter: 24px; }
+
+  .hero {
+    min-height: 72vh;
+    padding-top: 96px;
+    padding-bottom: 80px;
+  }
+
+  .hero-tagline { margin-top: 30px; }
+
+  .section,
+  .statement { padding: 80px 0; }
+}
+
+/* --------------------------------------------------------------------------
+   Reduced motion
+   -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+
+  *,
+  *::before,
+  *::after {
+    transition-duration: .01ms !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
