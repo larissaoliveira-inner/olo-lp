@@ -22,7 +22,6 @@
 /* Without JS nothing can add `.is-in`, so opt every reveal into its end state
    and leave the FAQ answers expanded. */
 [data-reveal='up'] { opacity: 1 !important; transform: none !important; }
-[data-reveal='wipe'] { transform: scaleX(0) !important; }
 .faq-a { max-height: none !important; opacity: 1 !important; }
 .caret { display: none; }
 
@@ -44,8 +43,8 @@
 <img class="logo-mark" src="imgs/olo-mark.png" alt="" width="1024" height="766">
 </a>
 <div class="nav-links">
-<a class="link-wipe" href="#v2s01">how it works</a>
-<a class="link-wipe" href="#v2s07">faq</a>
+<a class="link-quiet" href="#v2s01">how it works</a>
+<a class="link-quiet" href="#v2s07">faq</a>
 <a class="btn-ghost" href="#v2s08">request access</a>
 </div>
 </div>
@@ -73,8 +72,8 @@
 
 <div class="thesis-body">
 <p class="thesis-p" data-reveal="up" style="--d:.1s">Every request your team sends to an AI tool carries more than they meant to send: a client's name, a live key, an account number.</p>
-<p class="thesis-p" data-reveal="up" style="--d:.16s">The usual fix is to watch the wire — a cloud proxy that reads your traffic in order to protect it. But that just makes one more place your data lives. It doesn't remove the exposure. It relocates it.</p>
-<p class="thesis-p" data-reveal="up" style="--d:.22s">Olo's premise is narrow and absolute. No our-cloud step, no copy to inspect. We redact on the device, before the request ever leaves it — nothing sensitive goes out.</p>
+<p class="thesis-p" data-reveal="up" style="--d:.16s">The usual fix is to watch the wire, a cloud proxy that reads your traffic in order to protect it. But that just makes one more place your data lives. It doesn't remove the exposure. It relocates it.</p>
+<p class="thesis-p" data-reveal="up" style="--d:.22s">Olo's premise is narrow and absolute. No our-cloud step, no copy to inspect. We redact on the device, before the request ever leaves it. Nothing sensitive goes out.</p>
 </div>
 
 </div>
@@ -99,7 +98,7 @@
 <span class="win-dots" aria-hidden="true"><i class="d-r"></i><i class="d-y"></i><i class="d-g"></i></span>
 <button class="brw-tab is-on" type="button" role="tab" id="tab-claude" aria-controls="panel-claude" aria-selected="true"><img class="brand-ico" src="https://cdn.simpleicons.org/claude" alt="" width="13" height="13" loading="lazy">Claude</button>
 <button class="brw-tab" type="button" role="tab" id="tab-chatgpt" aria-controls="panel-chatgpt" aria-selected="false" tabindex="-1">ChatGPT</button>
-<button class="brw-tab" type="button" role="tab" id="tab-gemini" aria-controls="panel-gemini" aria-selected="false" tabindex="-1"><img class="brand-ico" src="https://cdn.simpleicons.org/googlegemini" alt="" width="13" height="13" loading="lazy">Gemini</button>
+<button class="brw-tab" type="button" role="tab" id="tab-gemini" aria-controls="panel-gemini" aria-selected="false" tabindex="-1"><img class="brand-ico" src="https://cdn.simpleicons.org/googlegemini/white" alt="" width="13" height="13" loading="lazy">Gemini</button>
 </div>
 
 <div class="mock-panel" role="tabpanel" id="panel-claude" aria-labelledby="tab-claude">
@@ -275,7 +274,7 @@
 <!-- Each row alternates which side the visual sits on. The DOM order is
      always copy-then-visual; --flip reorders it in CSS, so the reading order
      and the mobile stack stay right. -->
-     <div class="surface-row surface-row--flip">
+     <div class="surface-row surface-row--flip surface-row--lattice">
       <div>
       <h3 class="surface-h" data-reveal="up">One layer. Every surface.</h3>
       <p class="surface-p" data-reveal="up" style="--d:.06s">Olo isn't an integration you add app by app. It's one layer underneath all of them, at the last point you still control.</p>
@@ -284,40 +283,40 @@
       <div data-reveal="up" style="--d:.12s">
       <ul class="tile-field" aria-label="Surfaces Olo covers">
 <li class="tile tile--void" aria-hidden="true"></li>
+<li class="tile"><img src="https://cdn.simpleicons.org/notion/white" alt="Notion" width="26" height="26" loading="lazy"></li>
 <li class="tile tile--empty" aria-hidden="true"></li>
 <li class="tile tile--void" aria-hidden="true"></li>
-<li class="tile"><img src="https://cdn.simpleicons.org/notion/white" alt="Notion" width="26" height="26" loading="lazy"></li>
-<li class="tile tile--void" aria-hidden="true"></li>
+<li class="tile"><img src="https://cdn.simpleicons.org/perplexity/white" alt="Perplexity" width="26" height="26" loading="lazy"></li>
 
 <li class="tile tile--empty" aria-hidden="true"></li>
 <li class="tile tile--void" aria-hidden="true"></li>
 <li class="tile"><img src="https://cdn.simpleicons.org/cursor/white" alt="Cursor" width="26" height="26" loading="lazy"></li>
-<li class="tile tile--void" aria-hidden="true"></li>
-<li class="tile"><img src="https://cdn.simpleicons.org/perplexity/white" alt="Perplexity" width="26" height="26" loading="lazy"></li>
-
-<li class="tile tile--void" aria-hidden="true"></li>
-<li class="tile"><img src="https://cdn.simpleicons.org/claude" alt="Claude" width="26" height="26" loading="lazy"></li>
-<li class="tile tile--void" aria-hidden="true"></li>
-<li class="tile"><img src="https://cdn.simpleicons.org/gmail" alt="Gmail" width="26" height="26" loading="lazy"></li>
-<li class="tile tile--void" aria-hidden="true"></li>
-
 <li class="tile tile--empty" aria-hidden="true"></li>
+<li class="tile tile--void" aria-hidden="true"></li>
+
+<li class="tile tile--accent"><img src="https://cdn.simpleicons.org/claude" alt="Claude" width="26" height="26" loading="lazy"></li>
+<li class="tile tile--void" aria-hidden="true"></li>
+<li class="tile tile--empty" aria-hidden="true"></li>
+<li class="tile"><img src="https://cdn.simpleicons.org/gmail/white" alt="Gmail" width="26" height="26" loading="lazy"></li>
+<li class="tile tile--empty" aria-hidden="true"></li>
+
 <li class="tile tile--void" aria-hidden="true"></li>
 <li class="tile"><svg viewBox="0 0 122.8 122.8" width="26" height="26" aria-hidden="true" focusable="false"><path fill="#E01E5A" d="M25.8 77.6c0 7.1-5.8 12.9-12.9 12.9S0 84.7 0 77.6s5.8-12.9 12.9-12.9h12.9v12.9zM32.3 77.6c0-7.1 5.8-12.9 12.9-12.9s12.9 5.8 12.9 12.9v32.3c0 7.1-5.8 12.9-12.9 12.9s-12.9-5.8-12.9-12.9V77.6z"></path><path fill="#36C5F0" d="M45.2 25.8c-7.1 0-12.9-5.8-12.9-12.9S38.1 0 45.2 0s12.9 5.8 12.9 12.9v12.9H45.2zM45.2 32.3c7.1 0 12.9 5.8 12.9 12.9s-5.8 12.9-12.9 12.9H12.9C5.8 58.1 0 52.3 0 45.2s5.8-12.9 12.9-12.9h32.3z"></path><path fill="#2EB67D" d="M97 45.2c0-7.1 5.8-12.9 12.9-12.9s12.9 5.8 12.9 12.9-5.8 12.9-12.9 12.9H97V45.2zM90.5 45.2c0 7.1-5.8 12.9-12.9 12.9s-12.9-5.8-12.9-12.9V12.9C64.7 5.8 70.5 0 77.6 0s12.9 5.8 12.9 12.9v32.3z"></path><path fill="#ECB22E" d="M77.6 97c7.1 0 12.9 5.8 12.9 12.9s-5.8 12.9-12.9 12.9-12.9-5.8-12.9-12.9V97h12.9zM77.6 90.5c-7.1 0-12.9-5.8-12.9-12.9s5.8-12.9 12.9-12.9h32.3c7.1 0 12.9 5.8 12.9 12.9s-5.8 12.9-12.9 12.9H77.6z"></path></svg><span class="u-sr">Slack</span></li>
 <li class="tile tile--void" aria-hidden="true"></li>
-<li class="tile"><img src="https://cdn.simpleicons.org/googlegemini" alt="Gemini" width="26" height="26" loading="lazy"></li>
+<li class="tile tile--empty" aria-hidden="true"></li>
+<li class="tile"><img src="https://cdn.simpleicons.org/googlegemini/white" alt="Gemini" width="26" height="26" loading="lazy"></li>
 
+<li class="tile tile--empty" aria-hidden="true"></li>
 <li class="tile tile--void" aria-hidden="true"></li>
-<li class="tile"><img src="https://cdn.simpleicons.org/figma" alt="Figma" width="26" height="26" loading="lazy"></li>
-<li class="tile tile--void" aria-hidden="true"></li>
-<li class="tile"><img src="https://cdn.simpleicons.org/linear" alt="Linear" width="26" height="26" loading="lazy"></li>
+<li class="tile"><img src="https://cdn.simpleicons.org/figma/white" alt="Figma" width="26" height="26" loading="lazy"></li>
+<li class="tile"><img src="https://cdn.simpleicons.org/linear/white" alt="Linear" width="26" height="26" loading="lazy"></li>
 <li class="tile tile--void" aria-hidden="true"></li>
 </ul>
       </div>
       </div>
       
 <div class="steps-lead">
-<h3 class="surface-h" data-reveal="up" style="max-width:24ch">Not a people problem. A design problem — with no our-cloud step.</h3>
+<h3 class="surface-h" data-reveal="up" style="max-width:30ch">Privacy by architecture.<br> Sensitive data never leaves the device.</h3>
 </div>
 
 <div class="steps" data-reveal="up" style="--d:.18s">
@@ -338,13 +337,7 @@
 </div>
 </section>
 
-<!-- 02 ------------------------------------------------------------------ -->
-<section class="statement amb-c" id="v2s03">
-<div class="wrap">
-<h2 class="statement-h">The only data you can promise is private is the data that was never sent.<span data-reveal="wipe"></span></h2>
-<p class="statement-p" data-reveal="up" style="--d:.5s">Not withheld. Not encrypted in transit. Never sent — the one guarantee that survives a breach, a subpoena, or a change of heart.</p>
-</div>
-</section>
+
 
 
 <!-- 04 ------------------------------------------------------------------ -->
@@ -396,10 +389,11 @@
 <!-- 05 ------------------------------------------------------------------ -->
 <section class="statement statement--cta amb-c" id="v2s08">
 <div class="wrap">
-<h2 class="statement-h statement-h--cta">Privacy is a right.<br><span class="dim">Olo is the way to hold it.</span><span data-reveal="wipe"></span></h2>
+<h2 class="statement-h statement-h--cta" data-scramble data-reveal="up">Your data stays yours.
+ <br><span class="dim"> Install Olo today</span></h2>
 <div class="cta-actions" data-reveal="up" style="--d:.5s">
 <a class="btn-solid" href="mailto:olosecurity@gmail.com">request access</a>
-<a class="link-wipe link-wipe--lg" href="mailto:olosecurity@gmail.com">olosecurity@gmail.com</a>
+<a class="link-quiet link-quiet--lg" href="mailto:olosecurity@gmail.com">olosecurity@gmail.com</a>
 </div>
 </div>
 </section>

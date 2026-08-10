@@ -77,6 +77,386 @@
   }
 
   /* ------------------------------------------------------------------------
+     Stroke-draw headers
+
+     The surface headers draw themselves on: each character's outline strokes
+     in, then a solid fill wipes across the word. Every word becomes its own
+     inline SVG, sized to its own bbox and dropped onto the baseline, so the
+     header still breaks lines wherever the browser would have broken them.
+     The SVG text inherits the h3's font, so nothing about the typography
+     changes — only the paint.
+
+     Falls back to the plain text already in the markup when JS is off, motion
+     is reduced, or the browser can't measure SVG text.
+     ------------------------------------------------------------------------ */
+
+  var SVG_NS = 'http://www.w3.org/2000/svg';
+
+  /* Longer than any single glyph contour at this size — the dash pattern is
+     what turns a static outline into something that can be drawn. */
+  var SH_DASH = 220;
+  var SH_STROKE_W = 1;
+  var SH_DRAW = 700;        // ms a character's outline spends drawing on
+  var SH_FILL_DELAY = 120;  // ms between a word's draw and its fill
+  var SH_EASE = 'cubic-bezier(.25,.46,.45,.94)';
+
+  /* The wipe, as clip insets on the fill text. Percentages resolve against the
+     glyph box, so one pair of keyframes serves every word. */
+  var SH_CLIP_OUT = 'inset(0% 100% 0% 0%)';
+  var SH_CLIP_IN = 'inset(0% 0% 0% 0%)';
+
+  function shText(word, className) {
+    var text = document.createElementNS(SVG_NS, 'text');
+    text.setAttribute('class', className);
+    text.setAttribute('x', 0);
+    text.setAttribute('y', 0);
+
+    // One tspan per character: the unit the stagger animates.
+    word.split('').forEach(function (ch) {
+      var tspan = document.createElementNS(SVG_NS, 'tspan');
+      tspan.textContent = ch;
+      text.appendChild(tspan);
+    });
+
+    return text;
+  }
+
+  function shBuildWord(word, firstIndex) {
+    var svg = document.createElementNS(SVG_NS, 'svg');
+    svg.setAttribute('class', 'sh-word');
+    svg.setAttribute('aria-hidden', 'true');
+
+    // Stroke first, fill over it: the fill covers the inner half of the
+    // outline, leaving the accent as a hairline around solid letters.
+    var stroke = shText(word, 'sh-stroke');
+    stroke.setAttribute('stroke-width', SH_STROKE_W);
+    var fill = shText(word, 'sh-fill');
+    svg.appendChild(stroke);
+    svg.appendChild(fill);
+
+    return { svg: svg, fill: fill, stroke: stroke, chars: word.length, first: firstIndex };
+  }
+
+  /* Replaces el's text with the SVG words and returns them, or null if the
+     browser gave us nothing measurable — in which case the text is restored. */
+  function shEnhance(el) {
+    var source = el.textContent.trim().replace(/\s+/g, ' ');
+    if (!source) return null;
+
+    var words = source.split(' ');
+    var frag = document.createDocumentFragment();
+    var parts = [];
+    var index = 0;
+
+    words.forEach(function (word, i) {
+      var part = shBuildWord(word, index);
+      index += word.length;
+      parts.push(part);
+      frag.appendChild(part.svg);
+      // A real space between the SVGs, outside them, so the header still
+      // wraps between words.
+      if (i < words.length - 1) frag.appendChild(document.createTextNode(' '));
+    });
+
+    el.setAttribute('aria-label', source);
+    el.textContent = '';
+    el.appendChild(frag);
+
+    // Measure every word in one pass, before any of the writes below, so the
+    // reads don't force a layout per word.
+    var boxes = parts.map(function (part) {
+      try {
+        return part.stroke.getBBox();
+      } catch (e) {
+        return null;
+      }
+    });
+
+    var unmeasured = boxes.some(function (box) { return !box || !box.width; });
+    if (unmeasured) {
+      el.removeAttribute('aria-label');
+      el.textContent = source;
+      return null;
+    }
+
+    parts.forEach(function (part, i) {
+      var box = boxes[i];
+      var x = box.x - SH_STROKE_W;
+      var y = box.y - SH_STROKE_W;
+      var w = box.width + SH_STROKE_W * 2;
+      var h = box.height + SH_STROKE_W * 2;
+
+      // 1:1 user units to px, so the word occupies exactly the space the
+      // glyphs did.
+      part.svg.setAttribute('viewBox', x + ' ' + y + ' ' + w + ' ' + h);
+      part.svg.style.width = w + 'px';
+      part.svg.style.height = h + 'px';
+      // Collapse the SVG's margin box to nothing, centred on the glyph
+      // baseline (y = 0 in the box's own space). Its bottom margin edge is
+      // what `vertical-align: baseline` puts on the line, so the word lands
+      // exactly where the text did — and because the box measures zero, the
+      // line height stays the strut's, not the taller SVG's. The glyphs
+      // themselves still paint, via `overflow: visible`.
+      part.svg.style.marginTop = y + 'px';
+      part.svg.style.marginBottom = -(y + h) + 'px';
+    });
+
+    return parts;
+  }
+
+  function shArm(parts) {
+    parts.forEach(function (part) {
+      toArray(part.stroke.childNodes).forEach(function (tspan) {
+        tspan.style.strokeDasharray = SH_DASH;
+        tspan.style.strokeDashoffset = SH_DASH;
+      });
+      part.fill.style.clipPath = SH_CLIP_OUT;
+    });
+  }
+
+  function shPlay(parts, total, canAnimate) {
+    // Tightens the per-character delay on long headers, so a five-word one and
+    // a fifteen-word one both land in roughly the same couple of seconds.
+    var stagger = Math.min(34, Math.max(18, 1400 / total));
+
+    parts.forEach(function (part) {
+      var start = part.first * stagger;
+
+      toArray(part.stroke.childNodes).forEach(function (tspan, i) {
+        if (!canAnimate) {
+          tspan.style.strokeDashoffset = 0;
+          return;
+        }
+        tspan.animate(
+          [{ strokeDashoffset: SH_DASH }, { strokeDashoffset: 0 }],
+          {
+            duration: SH_DRAW,
+            delay: start + i * stagger,
+            easing: SH_EASE,
+            fill: 'forwards'
+          }
+        );
+      });
+
+      if (!canAnimate) {
+        part.fill.style.clipPath = SH_CLIP_IN;
+        return;
+      }
+
+      // Each word floods once its own first letter is through, over about as
+      // long as its letters took — so the fills read as one sweep across the
+      // line rather than a run of pops.
+      part.fill.animate(
+        [{ clipPath: SH_CLIP_OUT }, { clipPath: SH_CLIP_IN }],
+        {
+          duration: Math.max(300, part.chars * stagger + 300),
+          delay: start + SH_DRAW + SH_FILL_DELAY,
+          easing: 'cubic-bezier(.4, 0, .2, 1)',
+          fill: 'forwards'
+        }
+      );
+    });
+  }
+
+  function initStrokeHeads() {
+    var nodes = toArray(document.querySelectorAll('.surface-h'));
+    if (!nodes.length || reducedMotion) return;
+    // Everything downstream is derived from measured glyph boxes.
+    if (typeof document.createElementNS(SVG_NS, 'text').getBBox !== 'function') return;
+
+    var canAnimate = typeof document.createElement('div').animate === 'function';
+
+    var build = function () {
+      var heads = [];
+
+      nodes.forEach(function (el) {
+        // Plain single-text-node headers only; anything richer is left alone.
+        if (el.childNodes.length !== 1 || el.firstChild.nodeType !== 3) return;
+
+        var parts = shEnhance(el);
+        if (!parts) return;
+
+        var total = parts.reduce(function (n, part) { return n + part.chars; }, 0);
+        shArm(parts);
+
+        var head = {
+          el: el,
+          played: false,
+          play: function () {
+            if (head.played) return;
+            head.played = true;
+            // A beat behind the row's own fade-up, so the two don't collide.
+            setTimeout(function () { shPlay(parts, total, canAnimate); }, 180);
+          }
+        };
+
+        heads.push(head);
+      });
+
+      if (!heads.length) return;
+
+      var playAll = function () {
+        heads.forEach(function (head) { head.play(); });
+      };
+
+      if (!('IntersectionObserver' in window)) {
+        playAll();
+        return;
+      }
+
+      var observerFired = false;
+      var io = new IntersectionObserver(function (entries) {
+        observerFired = true;
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          io.unobserve(entry.target);
+          heads.forEach(function (head) {
+            if (head.el === entry.target) head.play();
+          });
+        });
+      }, { threshold: 0.35, rootMargin: '0px 0px -8% 0px' });
+
+      heads.forEach(function (head) { io.observe(head.el); });
+
+      // Same safety net as initReveals — an armed header that never plays is
+      // an invisible one, so don't leave that to chance.
+      setTimeout(function () {
+        if (!observerFired) playAll();
+      }, 4000);
+    };
+
+    // Measure against the real webfont rather than the fallback: every word's
+    // box and baseline offset are derived from those bboxes.
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(build, build);
+    } else {
+      build();
+    }
+  }
+
+  /* ------------------------------------------------------------------------
+     Scrambled headline
+
+     Characters within a radius of the pointer dissolve into punctuation and
+     resolve back, hardest right under the cursor and tapering to nothing at
+     the edge of the radius. The text is split into per-character spans, each
+     locked to the width it measured at — the headline is set in a
+     proportional face, so without that the line would jitter every time a
+     'W' became a '.'.
+
+     No pointer, no JS, or reduced motion and the headline is just a headline.
+     ------------------------------------------------------------------------ */
+
+  var SC_RADIUS = 110;   // px from the cursor within which characters react
+  var SC_DURATION = 1.2; // s a character directly under the cursor scrambles
+  var SC_STEP = 52;      // ms between glyph swaps while scrambling
+  var SC_CHARS = '.:';
+
+  /* Wraps every non-space character in its own span, leaving the whitespace
+     as text nodes so the headline still breaks lines where it did. */
+  function scSplit(root) {
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null, false);
+    var textNodes = [];
+    var chars = [];
+    var node;
+
+    while ((node = walker.nextNode())) textNodes.push(node);
+
+    textNodes.forEach(function (text) {
+      var frag = document.createDocumentFragment();
+
+      text.nodeValue.split('').forEach(function (ch) {
+        if (!ch.trim()) {
+          frag.appendChild(document.createTextNode(ch));
+          return;
+        }
+        var span = document.createElement('span');
+        span.className = 'sc-char';
+        span.textContent = ch;
+        frag.appendChild(span);
+        chars.push({ el: span, ch: ch });
+      });
+
+      text.parentNode.replaceChild(frag, text);
+    });
+
+    return chars;
+  }
+
+  function initScramble() {
+    var roots = toArray(document.querySelectorAll('[data-scramble]'));
+    if (!roots.length || reducedMotion) return;
+
+    roots.forEach(function (root) {
+      var chars = scSplit(root);
+      if (!chars.length) return;
+
+      var active = [];
+      var frame = 0;
+
+      // Measured once, against the real glyphs, then frozen: the centres are
+      // what the pointer is tested against and the widths are what stop the
+      // line from reflowing mid-scramble.
+      var measure = function () {
+        var base = root.getBoundingClientRect();
+        chars.forEach(function (c) {
+          c.el.style.width = '';
+          var r = c.el.getBoundingClientRect();
+          c.x = r.left + r.width / 2 - base.left;
+          c.y = r.top + r.height / 2 - base.top;
+          c.el.style.width = r.width + 'px';
+        });
+      };
+
+      var tick = function (now) {
+        for (var i = active.length - 1; i >= 0; i--) {
+          var c = active[i];
+          if (now >= c.until) {
+            c.el.textContent = c.ch;
+            c.on = false;
+            active.splice(i, 1);
+          } else if (now >= c.next) {
+            c.el.textContent = SC_CHARS.charAt(Math.floor(Math.random() * SC_CHARS.length));
+            c.next = now + SC_STEP;
+          }
+        }
+        frame = active.length ? requestAnimationFrame(tick) : 0;
+      };
+
+      root.addEventListener('pointermove', function (e) {
+        var base = root.getBoundingClientRect();
+        var now = performance.now();
+        var woke = false;
+
+        chars.forEach(function (c) {
+          var dx = e.clientX - (base.left + c.x);
+          var dy = e.clientY - (base.top + c.y);
+          var dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist >= SC_RADIUS) return;
+
+          // Closer to the cursor, longer to settle. Re-entering a character
+          // that's still going just pushes its finish line back out.
+          c.until = now + SC_DURATION * 1000 * (1 - dist / SC_RADIUS);
+          if (!c.on) {
+            c.on = true;
+            c.next = 0;
+            active.push(c);
+            woke = true;
+          }
+        });
+
+        if (woke && !frame) frame = requestAnimationFrame(tick);
+      });
+
+      addEventListener('resize', measure);
+      measure();
+      // The widths come from the webfont's metrics, so they're only right once
+      // it's actually the font being measured.
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure, measure);
+    });
+  }
+
+  /* ------------------------------------------------------------------------
      The device demos — browser tabs and desktop apps
 
      Segment text lives in the markup (so the page still reads with JS
@@ -537,6 +917,8 @@
 
   function init() {
     initWhisper();
+    initStrokeHeads();
+    initScramble();
     initReveals();
     initDemos();
     initTerminal();

@@ -160,19 +160,6 @@ header[id], section[id] { scroll-margin-top: var(--nav-h); }
   transform: none;
 }
 
-[data-reveal='wipe'] {
-  position: absolute;
-  left: -8px;
-  right: -8px;
-  top: 2%;
-  bottom: 2%;
-  background: var(--ac);
-  transform-origin: right center;
-  transition: transform 900ms cubic-bezier(.16, .84, .32, 1);
-}
-
-[data-reveal='wipe'].is-in { transform: scaleX(0); }
-
 /* --------------------------------------------------------------------------
    Nav
    -------------------------------------------------------------------------- */
@@ -250,28 +237,21 @@ header[id], section[id] { scroll-margin-top: var(--nav-h); }
    Links & buttons
    -------------------------------------------------------------------------- */
 
-/* Text link that fills with the accent on hover. */
-.link-wipe {
+/* Text link that comes up to full ink on hover. No fill behind it — the
+   accent is spent on the one solid button, not on every label. */
+.link-quiet {
   font: 400 13px/1 var(--mono);
   color: var(--muted-2);
   white-space: nowrap;
   flex: none;
   padding: 5px 4px;
-  background-image: linear-gradient(var(--ac), var(--ac));
-  background-repeat: no-repeat;
-  background-size: 0% 100%;
-  transition:
-    background-size 250ms cubic-bezier(.2, .7, .3, 1),
-    color 250ms;
+  transition: color 250ms;
 }
 
-.link-wipe:hover,
-.link-wipe:focus-visible {
-  background-size: 100% 100%;
-  color: var(--bg);
-}
+.link-quiet:hover,
+.link-quiet:focus-visible { color: var(--ink); }
 
-.link-wipe--lg { font-size: 14px; padding: 6px 4px; }
+.link-quiet--lg { font-size: 14px; padding: 6px 4px; }
 
 .btn-ghost {
   font: 400 13px/1 var(--mono);
@@ -1074,6 +1054,34 @@ header[id], section[id] { scroll-margin-top: var(--nav-h); }
   margin: 0;
 }
 
+/* Stroke-draw headers.
+   script.js swaps each word of a .surface-h for an inline SVG twin. The SVG
+   text inherits family, size, weight and tracking from the rule above, so the
+   typography is untouched — only the paint changes: every character's outline
+   strokes on, then the solid fill wipes across the word. Stroke width is set
+   in JS, which needs the same number to pad each word's viewBox so the
+   outline doesn't clip. */
+
+.sh-word {
+  display: inline-block;
+  overflow: visible;
+  user-select: none;
+}
+
+.sh-stroke {
+  fill: none;
+  stroke: #f5f5f5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+/* Clipped to nothing until its word's outline is drawn, then wiped open from
+   the left by script.js. */
+.sh-fill {
+  fill: currentColor;
+  stroke: none;
+}
+
 .surface-p {
   font: 400 18px/1.6 var(--sans);
   color: var(--muted);
@@ -1086,10 +1094,11 @@ header[id], section[id] { scroll-margin-top: var(--nav-h); }
 
 /* --------------------------------------------------------------------------
    Surface lattice
-   A 5×5 checkerboard of the apps a payload can leave from — only cells whose
-   row and column disagree in parity are ever filled, which is what gives the
-   field its diagonal drift. Most cells stay empty on purpose: the gaps are
-   what keep it reading as a field rather than a logo wall.
+   A 5×5 field of the apps a payload can leave from. The filled cells are
+   placed by eye rather than by rule — a strict parity checkerboard drifts on
+   a perfect diagonal and reads plotted, so a few sit off that beat and two
+   sit side by side. Most cells stay unfilled on purpose: the gaps are what
+   keep it a field rather than a logo wall.
    -------------------------------------------------------------------------- */
 
 .tile-field {
@@ -1098,12 +1107,10 @@ header[id], section[id] { scroll-margin-top: var(--nav-h); }
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 12px;
   /* box-sizing is border-box globally, so this has to carry the 36px of
-     padding as well as the five columns. */
+     padding as well as the five columns. The padding is what gives the glow
+     room to fade before the field's edge. */
   max-width: 472px;
-  /* The padding gives the glow room to fade; the matching negative margin
-     pulls the tiles themselves back onto the gutter, so the lattice lines up
-     with the mock windows in the rows above it. */
-  margin: 0 0 0 -18px;
+  margin: 0;
   padding: 18px;
   background: radial-gradient(54% 54% at 50% 50%, rgba(110, 155, 255, .12), transparent 72%);
 }
@@ -1122,12 +1129,32 @@ header[id], section[id] { scroll-margin-top: var(--nav-h); }
     border-color 300ms ease;
 }
 
+/* Drained to mono. Nine full-colour logos fight each other and pull focus off
+   the copy, so the marks ship as their monochrome variants and Slack's inline
+   paths take the page's ink — the field reads as one recessed surface, and
+   brand colour still means something on the one tile that keeps it. */
 .tile img,
-.tile svg { display: block; width: 38%; height: auto; }
+.tile svg {
+  display: block;
+  width: 38%;
+  height: auto;
+  opacity: .68;
+}
 
-/* Held cells: the lattice without the weight. */
+.tile:not(.tile--accent) svg path { fill: currentColor; }
+
+.tile--accent img,
+.tile--accent svg { opacity: .92; }
+
+/* Held cells: the lattice without the weight. Voids keep a hairline so the
+   grid carries on under and past the marks — without it the field just stops
+   at the last logo and the surrounding black reads as a hard edge. */
 .tile--empty { background: none; }
-.tile--void { border: 0; background: none; }
+
+.tile--void {
+  background: none;
+  border-color: rgba(255, 255, 255, .028);
+}
 
 .tile:not(.tile--void):not(.tile--empty):hover {
   background: rgba(255, 255, 255, .05);
@@ -1139,8 +1166,21 @@ header[id], section[id] { scroll-margin-top: var(--nav-h); }
 .steps-lead + .steps { margin-top: 44px; }
 
 /* The lattice closes the section, so it gets a wider break than the rows
-   above it — it's a change of subject, not the next beat. */
-.surface-row--lattice { margin-top: 150px; }
+   above it — it's a change of subject, not the next beat.
+
+   It's also the one row that's composed rather than laid out. The field is a
+   fixed 472px, so the mock-sized fractional columns just buy black on the
+   right; both columns are sized to their content and the pair is centred
+   instead of stretched across the full 1160. `align-items: center` sets the
+   copy against the middle of the field, so it reads as that field's label
+   rather than as a second element stranded in the opposite corner. */
+.surface-row--lattice {
+  margin-top: 150px;
+  grid-template-columns: 472px minmax(0, 330px);
+  justify-content: center;
+  align-items: center;
+  gap: 56px;
+}
 
 /* --------------------------------------------------------------------------
    02 — proxy model vs olo
@@ -1258,6 +1298,14 @@ header[id], section[id] { scroll-margin-top: var(--nav-h); }
   line-height: 1.1;
   letter-spacing: -.032em;
   max-width: 20ch;
+}
+
+/* Split characters for the scramble. script.js freezes each one's width the
+   moment it's measured, so swapping a letter for a '.' never moves the line;
+   centring keeps the narrow punctuation sitting where the letter was. */
+.sc-char {
+  display: inline-block;
+  text-align: center;
 }
 
 .statement-p {
@@ -1476,7 +1524,7 @@ header[id], section[id] { scroll-margin-top: var(--nav-h); }
   .section,
   .statement { padding: 104px 0; }
 
-  .nav-links .link-wipe { display: none; }
+  .nav-links .link-quiet { display: none; }
 }
 
 @media (max-width: 620px) {
