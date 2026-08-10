@@ -208,30 +208,15 @@ header[id], section[id] { scroll-margin-top: var(--nav-h); }
   height: auto;
 }
 
-/* Footer lockup */
-.logo {
-  display: inline-flex;
-  flex-direction: column;
-  gap: 5px;
-  padding-top: 4px;
-}
-
-.logo-bar {
+/* Footer lockup. The real brand asset (mark + wordmark), shipped white for a
+   dark footer and held back a little so it sits with the muted link row
+   rather than shouting over it. */
+.footer-lockup {
   display: block;
-  height: 4px;
-  width: 100%;
-  background: var(--ink);
-  border-radius: 999px;
+  width: 104px;
+  height: auto;
+  opacity: .68;
 }
-
-.logo-word {
-  font: 500 22px/.8 var(--sans);
-  letter-spacing: -.03em;
-  color: var(--ink);
-}
-
-.logo--sm .logo-bar { height: 3px; background: #B8B2A6; }
-.logo--sm .logo-word { font-size: 17px; color: var(--muted-2); }
 
 /* --------------------------------------------------------------------------
    Links & buttons
@@ -459,8 +444,8 @@ header[id], section[id] { scroll-margin-top: var(--nav-h); }
   font: 400 12px/1 var(--mono);
   letter-spacing: .16em;
   color: var(--muted);
-  margin: 0 0 44px;
-  text-align: center;
+  margin: 0 0 20px;
+  text-align: left;
 }
 
 .eyebrow--loose { margin-bottom: 70px; }
@@ -1112,57 +1097,82 @@ header[id], section[id] { scroll-margin-top: var(--nav-h); }
   max-width: 472px;
   margin: 0;
   padding: 18px;
-  background: radial-gradient(54% 54% at 50% 50%, rgba(110, 155, 255, .12), transparent 72%);
+  /* Off-centre to follow the marks, which now lean toward the copy. */
+  background: radial-gradient(54% 54% at 57% 50%, rgba(110, 155, 255, .12), transparent 72%);
 }
 
-/* Set into the surface, not sitting on it: a flat fill barely above the page,
-   no lift, no shadow. The logos should be the only thing that comes forward. */
+/* Set into the surface, not sitting on it: light pooling inside the cell
+   rather than a lift off the page. The logos should be the only thing that
+   comes forward.
+
+   Every value is scaled by --ring, which is how present this cell is allowed
+   to be — see the falloff below. --edge is the frame, --fill the wash behind
+   it, --glow the light caught inside, --mark the logo. */
 .tile {
+  --ring: .38;
+  --edge: .085;
+  --fill: .03;
+  --glow: .05;
+  --mark: .78;
+
   aspect-ratio: 1;
   border-radius: 16px;
   display: grid;
   place-items: center;
-  border: 1px solid var(--line);
-  background: rgba(255, 255, 255, .026);
+  border: 1px solid rgba(255, 255, 255, calc(var(--edge) * var(--ring)));
+  background: rgba(255, 255, 255, calc(var(--fill) * var(--ring)));
+  box-shadow: inset 0 0 14px rgba(255, 255, 255, calc(var(--glow) * var(--ring)));
   transition:
     background 300ms ease,
-    border-color 300ms ease;
+    border-color 300ms ease,
+    box-shadow 300ms ease;
 }
 
-/* Drained to mono. Nine full-colour logos fight each other and pull focus off
-   the copy, so the marks ship as their monochrome variants and Slack's inline
-   paths take the page's ink — the field reads as one recessed surface, and
-   brand colour still means something on the one tile that keeps it. */
+/* The falloff, as Chebyshev rings out from the middle of a 5×5 — the frame
+   thins as the field spreads, so the lattice dissolves into the page instead
+   of ending on a hard square edge. The marks fade far more gently than their
+   frames: an outer logo still has to be legible, it just shouldn't shout. */
+
+/* Ring 1 — the eight cells touching the centre. */
+.tile:nth-child(7),
+.tile:nth-child(8),
+.tile:nth-child(9),
+.tile:nth-child(12),
+.tile:nth-child(14),
+.tile:nth-child(17),
+.tile:nth-child(18),
+.tile:nth-child(19) { --ring: .72; --mark: .9; }
+
+/* Ring 0 — the centre cell. */
+.tile:nth-child(13) { --ring: 1; --mark: 1; }
+
+/* Every mark in its own brand colour. The ones that ship black by their own
+   guidelines — Notion, Cursor, Copilot, and OpenAI, whose mark is monochrome
+   by design — use the reversed white variant, which is the correct treatment
+   on a background this dark, not a compromise. Slack keeps its inline paths.
+
+   Marks fade with --mark, but far more gently than their frames do: the
+   colour has to survive out at the edge of the field. */
 .tile img,
 .tile svg {
   display: block;
   width: 38%;
   height: auto;
-  opacity: .68;
+  opacity: var(--mark);
 }
 
-.tile:not(.tile--accent) svg path { fill: currentColor; }
+/* Held cells: the lattice without the weight. They keep a frame so the grid
+   carries on under and past the marks — without it the field stops at the
+   last logo and the surrounding black reads as a hard edge. */
+.tile--empty { --fill: 0; --glow: 0; }
+.tile--void { --fill: 0; --glow: 0; --edge: .055; }
 
-.tile--accent img,
-.tile--accent svg { opacity: .92; }
-
-/* Held cells: the lattice without the weight. Voids keep a hairline so the
-   grid carries on under and past the marks — without it the field just stops
-   at the last logo and the surrounding black reads as a hard edge. */
-.tile--empty { background: none; }
-
-.tile--void {
-  background: none;
-  border-color: rgba(255, 255, 255, .028);
-}
-
-.tile:not(.tile--void):not(.tile--empty):hover {
-  background: rgba(255, 255, 255, .05);
-  border-color: var(--line-3);
-}
+/* Hover brings a cell up to full presence through the same dials, so an outer
+   tile lighting up still reads as the same object. */
+.tile:not(.tile--void):not(.tile--empty):hover { --ring: 1; --mark: 1; }
 
 /* Lead-in to the three steps. */
-.steps-lead { margin: 132px 0 0; }
+.steps-lead { margin: 200px 0 0; }
 .steps-lead + .steps { margin-top: 44px; }
 
 /* The lattice closes the section, so it gets a wider break than the rows
@@ -1179,7 +1189,7 @@ header[id], section[id] { scroll-margin-top: var(--nav-h); }
   grid-template-columns: 472px minmax(0, 330px);
   justify-content: center;
   align-items: center;
-  gap: 56px;
+  gap: 48px;
 }
 
 /* --------------------------------------------------------------------------
@@ -1332,7 +1342,7 @@ header[id], section[id] { scroll-margin-top: var(--nav-h); }
 .steps {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 56px;
+  gap: 48px;
   margin: 78px 0 0;
 }
 
